@@ -1,0 +1,5 @@
+{
+  "name": "URL Trimmer",
+  "description": "A simple utility to trim everything after the .com in a URL.",
+  "requestFramePermissions": []
+}
