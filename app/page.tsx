@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2 } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -133,6 +133,33 @@ export default function URLTrimmer() {
     setInput('');
     setOutput('');
     setProgress(0);
+  };
+
+  const handleOpenAll = () => {
+    if (!output) return;
+    const urls = output.split('\n').filter(line => line.trim() !== '');
+    
+    if (urls.length === 0) return;
+
+    // Browsers typically block multiple popups from a single click.
+    // We use a staggered approach and check for blocks.
+    let blockedCount = 0;
+    
+    urls.forEach((url, index) => {
+      const formattedUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+      
+      // Staggering the opens can sometimes help bypass simple blockers, 
+      // but the first one is usually the only one allowed without explicit permission.
+      setTimeout(() => {
+        const newWindow = window.open(formattedUrl, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          blockedCount++;
+          if (index === urls.length - 1 && blockedCount > 0) {
+            alert(`Browser blocked ${blockedCount} of ${urls.length} tabs. Please click the "Pop-up blocked" icon in your address bar and select "Always allow" to open all URLs at once.`);
+          }
+        }
+      }, index * 200);
+    });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -313,19 +340,29 @@ export default function URLTrimmer() {
                         <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Cleaned Results</label>
                       </div>
-                      <button
-                        onClick={handleCopy}
-                        disabled={isProcessing || !output}
-                        className={cn(
-                          "px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm",
-                          copied 
-                            ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
-                            : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95"
-                        )}
-                      >
-                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        {copied ? 'Copied' : 'Copy All'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleOpenAll}
+                          disabled={isProcessing || !output}
+                          className="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95 disabled:opacity-50"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Open All
+                        </button>
+                        <button
+                          onClick={handleCopy}
+                          disabled={isProcessing || !output}
+                          className={cn(
+                            "px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm",
+                            copied 
+                              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
+                              : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95"
+                          )}
+                        >
+                          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copied ? 'Copied' : 'Copy All'}
+                        </button>
+                      </div>
                     </div>
                     <div className={cn(
                       "bg-white border border-gray-100 rounded-2xl p-6 text-sm font-mono text-gray-600 whitespace-pre-wrap max-h-[360px] overflow-y-auto custom-scrollbar transition-opacity",
