@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2 } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -131,6 +131,8 @@ export default function URLTrimmer() {
 
   const handleClear = () => {
     setInput('');
+    setOutput('');
+    setProgress(0);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -175,15 +177,15 @@ export default function URLTrimmer() {
               <a key={item} href="#" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">{item}</a>
             ))}
           </nav>
-          <button className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95 shadow-sm">
+          <button className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:shadow-lg hover:shadow-gray-900/10 active:scale-95 shadow-sm">
             Sign In
           </button>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-6 py-12 sm:py-20">
+      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-20">
         {/* Hero Section */}
-        <div className="text-center mb-12 sm:mb-16">
+        <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
             Clean your links <span className="text-indigo-600">instantly.</span>
           </h1>
@@ -192,149 +194,160 @@ export default function URLTrimmer() {
           </p>
         </div>
 
-        <div className="space-y-8">
-          {/* Main Card */}
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
-            {/* Input Area */}
-            <div 
-              className={cn(
-                "p-6 sm:p-8 transition-all duration-300",
-                isDragging ? "bg-indigo-50/50" : "bg-white"
-              )}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Input URLs</label>
-                {isProcessing && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
-                    <span className="text-xs font-bold text-indigo-600">{progress}%</span>
-                  </div>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Settings */}
+          <aside className="lg:col-span-4 space-y-6 sticky top-24">
+            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
+              <div className="flex items-center gap-2 mb-8">
+                <Settings2 className="w-5 h-5 text-indigo-600" />
+                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Configuration</h2>
               </div>
-              
-              <div className="relative">
-                <textarea
-                  className="w-full bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500/10 rounded-2xl p-6 text-gray-700 placeholder-gray-300 min-h-[200px] resize-none text-lg leading-relaxed transition-all"
-                  placeholder="Paste your links here..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                />
-                {isDragging && (
-                  <div className="absolute inset-0 bg-indigo-600/5 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border-2 border-indigo-600 border-dashed pointer-events-none">
-                    <FileUp className="w-10 h-10 text-indigo-600 mb-2" />
-                    <span className="text-sm font-bold text-indigo-600">Drop files here</span>
+
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Domain Extensions</label>
+                  <input 
+                    type="text"
+                    className="w-full bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-3 text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-200 outline-none transition-all"
+                    value={customExtensions}
+                    onChange={(e) => setCustomExtensions(e.target.value)}
+                    placeholder=".com, .net..."
+                  />
+                  <p className="text-[10px] text-gray-400 leading-relaxed">Separate multiple extensions with commas.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Data Integrity</label>
+                  <button 
+                    onClick={() => setRemoveDuplicates(!removeDuplicates)}
+                    className={cn(
+                      "w-full px-5 py-3 rounded-2xl text-sm font-bold border transition-all flex items-center justify-between group",
+                      removeDuplicates 
+                        ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-500" 
+                        : "bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
+                    )}
+                  >
+                    <span>Remove Duplicates</span>
+                    <div className={cn(
+                      "w-2 h-2 rounded-full transition-all",
+                      removeDuplicates ? "bg-white scale-125" : "bg-gray-200 group-hover:bg-gray-300"
+                    )} />
+                  </button>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <span>System Status</span>
+                    <span className="text-emerald-500 flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      Online
+                    </span>
                   </div>
-                )}
+                </div>
               </div>
             </div>
+          </aside>
 
-            {/* Middle Bar with Settings Toggle */}
-            <div className="px-6 py-4 bg-gray-50 border-y border-gray-100 flex items-center justify-between">
-              <button 
-                onClick={() => setShowSettings(!showSettings)}
-                className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-900 transition-colors uppercase tracking-widest"
+          {/* Right Column: Main Workspace */}
+          <div className="lg:col-span-8 space-y-8">
+            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+              {/* Input Area */}
+              <div 
+                className={cn(
+                  "p-6 sm:p-8 transition-all duration-300",
+                  isDragging ? "bg-indigo-50/50" : "bg-white"
+                )}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
               >
-                <Settings2 className="w-4 h-4" />
-                Settings
-              </button>
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={handleClear}
-                  className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-
-            {/* Settings Content */}
-            <AnimatePresence>
-              {showSettings && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden border-b border-gray-100"
-                >
-                  <div className="p-6 sm:p-8 space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Extensions</label>
-                        <input 
-                          type="text"
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/10 outline-none"
-                          value={customExtensions}
-                          onChange={(e) => setCustomExtensions(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Duplicates</label>
-                        <button 
-                          onClick={() => setRemoveDuplicates(!removeDuplicates)}
-                          className={cn(
-                            "w-full px-4 py-2.5 rounded-xl text-sm font-bold border transition-all",
-                            removeDuplicates 
-                              ? "bg-indigo-600 border-indigo-600 text-white" 
-                              : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
-                          )}
-                        >
-                          {removeDuplicates ? 'Removing Duplicates' : 'Keep Duplicates'}
-                        </button>
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Input Buffer</label>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Output Area */}
-            <AnimatePresence mode="wait">
-              {(output || isProcessing) && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="p-6 sm:p-8 bg-gray-50/50"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Cleaned Results</label>
-                    <button
-                      onClick={handleCopy}
-                      disabled={isProcessing || !output}
-                      className={cn(
-                        "px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm",
-                        copied 
-                          ? "bg-emerald-500 text-white" 
-                          : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300"
-                      )}
+                  <div className="flex items-center gap-4">
+                    {isProcessing && (
+                      <div className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full">
+                        <Loader2 className="w-3 h-3 text-indigo-600 animate-spin" />
+                        <span className="text-xs font-bold text-indigo-600">{progress}%</span>
+                      </div>
+                    )}
+                    <button 
+                      onClick={handleClear}
+                      className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 group"
                     >
-                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      {copied ? 'Copied' : 'Copy All'}
+                      <Trash2 className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+                      Clear
                     </button>
                   </div>
-                  <div className={cn(
-                    "bg-white border border-gray-100 rounded-2xl p-6 text-sm font-mono text-gray-600 whitespace-pre-wrap max-h-[300px] overflow-y-auto custom-scrollbar transition-opacity",
-                    isProcessing && "opacity-30"
-                  )}>
-                    {output || "Processing..."}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
+                
+                <div className="relative">
+                  <textarea
+                    className="w-full bg-gray-50 hover:bg-gray-100/50 border border-transparent hover:border-gray-200 focus:bg-white focus:border-indigo-100 focus:ring-2 focus:ring-indigo-500/10 rounded-2xl p-6 text-gray-700 placeholder-gray-300 min-h-[240px] resize-none text-lg leading-relaxed transition-all"
+                    placeholder="Paste your links here..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                  />
+                  {isDragging && (
+                    <div className="absolute inset-0 bg-indigo-600/5 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border-2 border-indigo-600 border-dashed pointer-events-none">
+                      <FileUp className="w-10 h-10 text-indigo-600 mb-2" />
+                      <span className="text-sm font-bold text-indigo-600">Drop files here</span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          {/* Simple Footer */}
-          <footer className="pt-12 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-400">
-            <p>© 2026 Trimmer Labs. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
-              <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
+              {/* Output Area */}
+              <AnimatePresence mode="wait">
+                {(output || isProcessing) && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-6 sm:p-8 bg-gray-50/50"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Cleaned Results</label>
+                      </div>
+                      <button
+                        onClick={handleCopy}
+                        disabled={isProcessing || !output}
+                        className={cn(
+                          "px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm",
+                          copied 
+                            ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
+                            : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95"
+                        )}
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copied ? 'Copied' : 'Copy All'}
+                      </button>
+                    </div>
+                    <div className={cn(
+                      "bg-white border border-gray-100 rounded-2xl p-6 text-sm font-mono text-gray-600 whitespace-pre-wrap max-h-[360px] overflow-y-auto custom-scrollbar transition-opacity",
+                      isProcessing && "opacity-30"
+                    )}>
+                      {output || "Processing..."}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </footer>
+
+            {/* Simple Footer */}
+            <footer className="pt-12 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-400">
+              <p>© 2026 Trimmer Labs. All rights reserved.</p>
+              <div className="flex gap-6">
+                <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
+                <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
+                <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
+              </div>
+            </footer>
+          </div>
         </div>
       </div>
     </main>
