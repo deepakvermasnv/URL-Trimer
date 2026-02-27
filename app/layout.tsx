@@ -14,8 +14,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'URL Trimmer - Clean your URLs',
-  description: 'Automatically remove everything after the .com from any URL.',
+  title: 'URL Trimmer - Bulk Link Cleaner & Domain Stripper',
+  description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links. The simplest way to get clean domain names from any list of URLs.',
+  keywords: ['URL trimmer', 'link cleaner', 'domain stripper', 'bulk url cleaning', 'strip url paths', 'clean links', 'seo tools'],
+  authors: [{ name: 'Trimmer Labs' }],
+  openGraph: {
+    title: 'URL Trimmer - Bulk Link Cleaner',
+    description: 'The simplest way to strip paths and queries from your URLs. Just paste and copy.',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Trimmer',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'URL Trimmer - Bulk Link Cleaner',
+    description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
