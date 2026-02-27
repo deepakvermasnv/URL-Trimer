@@ -1,5 +1,5 @@
 {
   "name": "URL Trimmer",
-  "description": "Bulk URL cleaner and domain stripper. Instantly clean links by stripping paths, queries, and fragments from any list of URLs.",
+  "description": "A simple utility to trim everything after the .com in a URL.",
   "requestFramePermissions": []
 }

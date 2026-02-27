@@ -19,6 +19,7 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -47,12 +48,6 @@ export default function URLTrimmer() {
         .map(e => e.trim().toLowerCase())
         .filter(e => e !== '');
 
-      // Create a regex to match extensions followed by a separator or end of string
-      const escapedExtensions = extensions.map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-      const extensionRegex = escapedExtensions.length > 0 
-        ? new RegExp(`(${escapedExtensions.join('|')})(?=[/?#]|$)`, 'i')
-        : null;
-
       const processNextChunk = () => {
         if (isCancelled) return;
 
@@ -64,25 +59,32 @@ export default function URLTrimmer() {
           let result = trimmedLine;
           let foundCustom = false;
 
-          // Try custom extensions first using regex for better accuracy
-          if (extensionRegex) {
-            const match = trimmedLine.match(extensionRegex);
-            if (match && match.index !== undefined) {
-              result = trimmedLine.substring(0, match.index + match[0].length);
+          // Try custom extensions first (literal matching)
+          for (const ext of extensions) {
+            const index = trimmedLine.toLowerCase().indexOf(ext);
+            if (index !== -1) {
+              result = trimmedLine.substring(0, index + ext.length);
               foundCustom = true;
+              break;
             }
           }
 
           if (!foundCustom) {
             try {
+              // Check if it has a protocol
               const hasProtocol = /^https?:\/\//i.test(trimmedLine);
               const urlToParse = hasProtocol ? trimmedLine : `http://${trimmedLine}`;
               const parsed = new URL(urlToParse);
+              
+              // Get the origin (protocol + host + port)
               result = parsed.origin;
+              
+              // If the original input didn't have a protocol, remove the one we added
               if (!hasProtocol) {
                 result = result.replace(/^https?:\/\//i, '');
               }
             } catch (e) {
+              // Fallback for malformed URLs: split by the first path/query/fragment separator
               result = trimmedLine.split(/[/?#]/)[0];
             }
           }
@@ -109,6 +111,7 @@ export default function URLTrimmer() {
         }
       };
 
+      // Small delay to debounce and ensure we don't block the main thread immediately
       setTimeout(processNextChunk, 100);
     };
 
@@ -189,7 +192,7 @@ export default function URLTrimmer() {
     <main className="min-h-screen bg-[#F9FAFB] selection:bg-indigo-100 selection:text-indigo-900">
       {/* Simple Header */}
       <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
               <Scissors className="w-5 h-5 text-white" />
@@ -220,7 +223,7 @@ export default function URLTrimmer() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Settings */}
-          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 z-10">
+          <aside className="lg:col-span-4 space-y-6 sticky top-24">
             <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
               <div className="flex items-center gap-2 mb-8">
                 <Settings2 className="w-5 h-5 text-indigo-600" />
@@ -371,125 +374,125 @@ export default function URLTrimmer() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* SEO Content Section */}
+            <div className="mt-20 space-y-20">
+              {/* Features Grid */}
+              <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                    <Scissors className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Bulk Processing</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    Clean thousands of URLs in seconds. Our optimized algorithm handles large lists without breaking a sweat.
+                  </p>
+                </div>
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
+                    <Check className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Duplicate Removal</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    Automatically filter out redundant links to keep your data clean and unique. Perfect for SEO audits.
+                  </p>
+                </div>
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6">
+                    <Settings2 className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Custom Extensions</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    Define exactly where you want to trim. Support for all TLDs including .com, .net, .org, and custom ones.
+                  </p>
+                </div>
+              </section>
+
+              {/* How it Works */}
+              <section className="bg-indigo-600 rounded-[2.5rem] p-10 sm:p-16 text-white overflow-hidden relative">
+                <div className="relative z-10">
+                  <h2 className="text-3xl font-bold mb-12">How URL Trimmer Works</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
+                    <div className="space-y-4">
+                      <div className="text-4xl font-black opacity-20">01</div>
+                      <h4 className="text-xl font-bold">Paste Your Links</h4>
+                      <p className="text-indigo-100 leading-relaxed">
+                        Copy your list of messy URLs from any source—spreadsheets, text files, or browser history—and paste them into the input buffer.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="text-4xl font-black opacity-20">02</div>
+                      <h4 className="text-xl font-bold">Configure Trimming</h4>
+                      <p className="text-indigo-100 leading-relaxed">
+                        Use the configuration panel to set your desired domain extensions. The tool will strip everything after these extensions.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="text-4xl font-black opacity-20">03</div>
+                      <h4 className="text-xl font-bold">Instant Cleaning</h4>
+                      <p className="text-indigo-100 leading-relaxed">
+                        Our real-time engine processes your links instantly. You&apos;ll see a clean list of domains ready for use.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="text-4xl font-black opacity-20">04</div>
+                      <h4 className="text-xl font-bold">Export & Use</h4>
+                      <p className="text-indigo-100 leading-relaxed">
+                        Copy the cleaned results to your clipboard or open them all in new tabs with a single click.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {/* Decorative element */}
+                <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+              </section>
+
+              {/* FAQ Section */}
+              <section className="space-y-12">
+                <div className="text-center">
+                  <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
+                  <p className="text-gray-500 mt-2">Everything you need to know about our URL cleaning tool.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-gray-900">What is a URL Trimmer?</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      A URL trimmer is a tool that strips paths, query parameters, and fragments from a URL, leaving only the root domain or a specific part of the link.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-gray-900">Is it free to use?</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Yes, Trimmer is completely free for individual use. You can process as many URLs as you need without any hidden costs.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-gray-900">Does it support bulk URLs?</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Absolutely. You can paste thousands of links at once. Our tool uses chunked processing to ensure your browser remains responsive.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-gray-900">Is my data secure?</h4>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Your data never leaves your browser. All processing happens locally on your machine, ensuring maximum privacy and security.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {/* Simple Footer */}
+            <footer className="pt-12 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-400">
+              <p>© 2026 Trimmer Labs. All rights reserved.</p>
+              <div className="flex gap-6">
+                <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
+                <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
+                <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
+              </div>
+            </footer>
           </div>
         </div>
-
-        {/* SEO Content Section - Moved outside the grid to prevent overlapping issues */}
-        <div className="mt-24 space-y-24">
-          {/* Features Grid */}
-          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
-                <Scissors className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Bulk Processing</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Clean thousands of URLs in seconds. Our optimized algorithm handles large lists without breaking a sweat.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
-                <Check className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Duplicate Removal</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Automatically filter out redundant links to keep your data clean and unique. Perfect for SEO audits.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6">
-                <Settings2 className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Custom Extensions</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Define exactly where you want to trim. Support for all TLDs including .com, .net, .org, and custom ones.
-              </p>
-            </div>
-          </section>
-
-          {/* How it Works */}
-          <section className="bg-indigo-600 rounded-[2.5rem] p-10 sm:p-16 text-white overflow-hidden relative">
-            <div className="relative z-10">
-              <h2 className="text-3xl font-bold mb-12">How URL Trimmer Works</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">01</div>
-                  <h4 className="text-xl font-bold">Paste Your Links</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Copy your list of messy URLs from any source—spreadsheets, text files, or browser history—and paste them into the input buffer.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">02</div>
-                  <h4 className="text-xl font-bold">Configure Trimming</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Use the configuration panel to set your desired domain extensions. The tool will strip everything after these extensions.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">03</div>
-                  <h4 className="text-xl font-bold">Instant Cleaning</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Our real-time engine processes your links instantly. You&apos;ll see a clean list of domains ready for use.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">04</div>
-                  <h4 className="text-xl font-bold">Export & Use</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Copy the cleaned results to your clipboard or open them all in new tabs with a single click.
-                  </p>
-                </div>
-              </div>
-            </div>
-            {/* Decorative element */}
-            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-          </section>
-
-          {/* FAQ Section */}
-          <section className="space-y-12">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
-              <p className="text-gray-500 mt-2">Everything you need to know about our URL cleaning tool.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">What is a URL Trimmer?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  A URL trimmer is a tool that strips paths, query parameters, and fragments from a URL, leaving only the root domain or a specific part of the link.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Is it free to use?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Yes, Trimmer is completely free for individual use. You can process as many URLs as you need without any hidden costs.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Does it support bulk URLs?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Absolutely. You can paste thousands of links at once. Our tool uses chunked processing to ensure your browser remains responsive.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Is my data secure?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Your data never leaves your browser. All processing happens locally on your machine, ensuring maximum privacy and security.
-                </p>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Simple Footer */}
-        <footer className="pt-12 mt-24 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-400">
-          <p>© 2026 Trimmer Labs. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
-          </div>
-        </footer>
       </div>
     </main>
   );
