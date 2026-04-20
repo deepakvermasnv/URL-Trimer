@@ -19,6 +19,42 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+  const [particles, setParticles] = useState<{ width: number; height: number; left: number; delay: number; duration: number }[]>([]);
+
+  // Initialize Particles and Mounting state
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setIsMounted(true);
+      const newParticles = Array.from({ length: 15 }).map(() => ({
+        width: Math.random() * 8 + 4,
+        height: Math.random() * 8 + 4,
+        left: Math.random() * 100,
+        delay: Math.random() * 15,
+        duration: Math.random() * 10 + 15
+      }));
+      setParticles(newParticles);
+    });
+  }, []);
+
+  // Intro Timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Mouse Spotlight Effect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -186,139 +222,295 @@ export default function URLTrimmer() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F9FAFB] selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Simple Header */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-              <Scissors className="w-5 h-5 text-white" />
+    <>
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8fafc] overflow-hidden"
+          >
+            {/* Background pattern for intro */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+              <div className="absolute inset-x-0 h-px bg-blue-600 top-1/4" />
+              <div className="absolute inset-x-0 h-px bg-blue-600 top-2/4" />
+              <div className="absolute inset-x-0 h-px bg-blue-600 top-3/4" />
             </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">Trimmer</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-8">
-            {['Features', 'API', 'Pricing'].map(item => (
-              <a key={item} href="#" className="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">{item}</a>
-            ))}
-          </nav>
-          <button className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:shadow-lg hover:shadow-gray-900/10 active:scale-95 shadow-sm">
-            Sign In
-          </button>
-        </div>
-      </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-20">
+            <div className="relative text-center">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest mb-8 mx-auto"
+              >
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                Initializing Link Protocol
+              </motion.div>
+              
+              <motion.h1
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
+              >
+                Welcome to <span className="text-blue-600">URL Trimmer</span>
+              </motion.h1>
+
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 1.4, ease: "linear", delay: 0.3 }}
+                className="h-1 bg-blue-600 max-w-[200px] mx-auto rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+              />
+              
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="mt-6 text-sm font-bold text-slate-400 uppercase tracking-[0.4em]"
+              >
+                Loading Assets...
+              </motion.p>
+            </div>
+
+            {/* Circular decorative elements */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute w-[600px] h-[600px] border border-blue-100 rounded-full opacity-20 pointer-events-none"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <main className="min-h-screen blue-gradient-bg selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative">
+      {/* Interactive Spotlight Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-0 spotlight" />
+
+      {/* Background Particles Layer */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {particles.map((p, i) => (
+          <div 
+            key={i}
+            className="absolute bg-blue-500/10 rounded-full animate-particle"
+            style={{
+              width: `${p.width}px`,
+              height: `${p.height}px`,
+              left: `${p.left}%`,
+              bottom: `-20px`,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.duration}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Eye-catching Floating Blobs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-blue-400/20 rounded-full blur-[80px] animate-float opacity-40" style={{ animationDelay: '0s' }} />
+        <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-indigo-400/10 rounded-full blur-[100px] animate-float opacity-30" style={{ animationDelay: '-3s' }} />
+        <div className="absolute top-[50%] left-[40%] w-48 h-48 bg-sky-300/15 rounded-full blur-[60px] animate-float opacity-20" style={{ animationDelay: '-1.5s' }} />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-24 relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-            Clean your links <span className="text-indigo-600">instantly.</span>
-          </h1>
-          <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
-            The simplest way to strip paths and queries from your URLs. Just paste and copy.
-          </p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "backOut" }}
+          className="text-center mb-20"
+        >
+          <motion.div 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm border border-blue-100/50"
+          >
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse-glow" />
+            Fast & Local URL Processor
+          </motion.div>
+          <motion.h1 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-4xl sm:text-7xl font-extrabold text-slate-900 tracking-tight mb-6"
+          >
+            Trim your links with <br className="hidden sm:block" />
+            <span className="relative inline-block">
+              <span className="relative z-10 text-blue-600">precision.</span>
+              <motion.span 
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ delay: 1, duration: 0.8 }}
+                className="absolute bottom-1 left-0 h-3 bg-blue-100 -z-0 rounded-full" 
+              />
+            </span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed"
+          >
+            Clean your bulk URL lists by stripping paths, queries, and fragments instantly. 
+            All processing happens right in your browser.
+          </motion.p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left Column: Settings */}
-          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 z-10">
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8">
-              <div className="flex items-center gap-2 mb-8">
-                <Settings2 className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Configuration</h2>
+          <motion.aside 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="lg:col-span-4 space-y-6 lg:sticky lg:top-12"
+          >
+            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-blue-900/5 border border-white p-8 group transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1">
+              <div className="flex items-center gap-3 mb-8">
+                <motion.div 
+                  whileHover={{ rotate: 180 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 cursor-pointer"
+                >
+                  <Settings2 className="w-5 h-5 text-white" />
+                </motion.div>
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900">Config</h2>
+                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Adjustment Module</p>
+                </div>
               </div>
 
               <div className="space-y-8">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Domain Extensions</label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    Custom Extensions
+                    <motion.span 
+                      animate={{ scale: [1, 1.5, 1] }} 
+                      transition={{ repeat: Infinity, duration: 2 }}
+                      className="w-1.5 h-1.5 bg-blue-400 rounded-full" 
+                    />
+                  </label>
                   <input 
                     type="text"
-                    className="w-full bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl px-5 py-3 text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-200 outline-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 hover:border-blue-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-3.5 text-sm outline-none transition-all duration-300 shadow-sm"
                     value={customExtensions}
                     onChange={(e) => setCustomExtensions(e.target.value)}
                     placeholder=".com, .net..."
                   />
-                  <p className="text-[10px] text-gray-400 leading-relaxed">Separate multiple extensions with commas.</p>
+                  <p className="text-[10px] text-slate-400">Separate multiple extensions with commas.</p>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Data Integrity</label>
-                  <button 
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Filtering</label>
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setRemoveDuplicates(!removeDuplicates)}
                     className={cn(
-                      "w-full px-5 py-3 rounded-2xl text-sm font-bold border transition-all flex items-center justify-between group",
+                      "w-full px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-between group overflow-hidden relative",
                       removeDuplicates 
-                        ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-500" 
-                        : "bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-200 shimmer" 
+                        : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                     )}
                   >
-                    <span>Remove Duplicates</span>
+                    <span className="relative z-10">Remove Duplicates</span>
                     <div className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      removeDuplicates ? "bg-white scale-125" : "bg-gray-200 group-hover:bg-gray-300"
-                    )} />
-                  </button>
+                      "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
+                      removeDuplicates ? "bg-white/20 rotate-0 shadow-inner" : "bg-slate-200 rotate-180"
+                    )}>
+                      <Check className={cn("w-3 h-3 transition-opacity", removeDuplicates ? "opacity-100" : "opacity-0")} />
+                    </div>
+                  </motion.button>
                 </div>
 
-                <div className="pt-6 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    <span>System Status</span>
-                    <span className="text-emerald-500 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                      Online
-                    </span>
+                <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Engine Status</span>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                     Live
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
+          </motion.aside>
 
           {/* Right Column: Main Workspace */}
-          <div className="lg:col-span-8 space-y-8">
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="lg:col-span-8 space-y-8"
+          >
+            <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden transition-all duration-500 hover:shadow-blue-900/10">
               {/* Input Area */}
               <div 
                 className={cn(
-                  "p-6 sm:p-8 transition-all duration-300",
-                  isDragging ? "bg-indigo-50/50" : "bg-white"
+                  "p-8 sm:p-10 transition-colors duration-500 relative",
+                  isDragging ? "bg-blue-50/50" : "bg-white"
                 )}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Input Buffer</label>
-                  </div>
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
+                    <motion.div 
+                      animate={{ height: [32, 24, 32] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="w-1.5 h-8 bg-blue-600 rounded-full" 
+                    />
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900">Input Buffer</h3>
+                      <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
                     {isProcessing && (
-                      <div className="flex items-center gap-2 bg-indigo-50 px-3 py-1 rounded-full">
-                        <Loader2 className="w-3 h-3 text-indigo-600 animate-spin" />
-                        <span className="text-xs font-bold text-indigo-600">{progress}%</span>
-                      </div>
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
+                      >
+                        <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                        <span className="text-xs font-bold text-blue-600">{progress}%</span>
+                      </motion.div>
                     )}
-                    <button 
+                    <motion.button 
+                      whileHover={{ scale: 1.1, color: "#ef4444" }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={handleClear}
-                      className="text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center gap-2 group"
+                      className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors uppercase tracking-widest"
                     >
-                      <Trash2 className="w-3.5 h-3.5 transition-transform group-hover:scale-110" />
+                      <Trash2 className="w-4 h-4" />
                       Clear
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
                 
-                <div className="relative">
+                <div className="relative group/input">
                   <textarea
-                    className="w-full bg-gray-50 hover:bg-gray-100/50 border border-transparent hover:border-gray-200 focus:bg-white focus:border-indigo-100 focus:ring-2 focus:ring-indigo-500/10 rounded-2xl p-6 text-gray-700 placeholder-gray-300 min-h-[240px] resize-none text-lg leading-relaxed transition-all"
-                    placeholder="Paste your links here..."
+                    className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-8 text-slate-700 font-medium placeholder-slate-300 min-h-[320px] resize-none text-base leading-relaxed transition-all duration-300 outline-none shadow-inner"
+                    placeholder="Paste links to begin processing..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                   />
+                  <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
                   {isDragging && (
-                    <div className="absolute inset-0 bg-indigo-600/5 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border-2 border-indigo-600 border-dashed pointer-events-none">
-                      <FileUp className="w-10 h-10 text-indigo-600 mb-2" />
-                      <span className="text-sm font-bold text-indigo-600">Drop files here</span>
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none"
+                    >
+                      <motion.div
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                      >
+                        <FileUp className="w-12 h-12 text-blue-600 mb-3" />
+                      </motion.div>
+                      <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
+                    </motion.div>
                   )}
                 </div>
               </div>
@@ -327,170 +519,177 @@ export default function URLTrimmer() {
               <AnimatePresence mode="wait">
                 {(output || isProcessing) && (
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="p-6 sm:p-8 bg-gray-50/50"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: "circOut" }}
+                    className="p-8 sm:p-10 border-t border-slate-50 bg-slate-50/30"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Cleaned Results</label>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: 6 }}
+                          className="w-1.5 h-8 bg-emerald-500 rounded-full" 
+                        />
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900">Output Stream</h3>
+                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Trimmed Results</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
+                      <div className="flex items-center gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleOpenAll}
                           disabled={isProcessing || !output}
-                          className="px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95 disabled:opacity-50"
+                          className="px-6 py-3 rounded-2xl text-xs font-bold transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
+                          <ExternalLink className="w-4 h-4 mr-2" />
                           Open All
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleCopy}
                           disabled={isProcessing || !output}
                           className={cn(
-                            "px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm",
+                            "px-6 py-3 rounded-2xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
                             copied 
-                              ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" 
-                              : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-95"
+                              ? "bg-emerald-500 text-white shadow-emerald-200" 
+                              : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 shimmer"
                           )}
                         >
-                          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          {copied ? 'Copied' : 'Copy All'}
-                        </button>
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={copied ? 'checked' : 'copy'}
+                              initial={{ y: 20, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              exit={{ y: -20, opacity: 0 }}
+                              className="flex items-center gap-2"
+                            >
+                              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                              <span className="relative z-10">{copied ? 'Captured!' : 'Copy List'}</span>
+                            </motion.div>
+                          </AnimatePresence>
+                          {copied && (
+                            <motion.div 
+                              initial={{ scale: 0, opacity: 1 }}
+                              animate={{ scale: 2, opacity: 0 }}
+                              className="absolute inset-0 bg-white/20 rounded-full"
+                            />
+                          )}
+                        </motion.button>
                       </div>
                     </div>
-                    <div className={cn(
-                      "bg-white border border-gray-100 rounded-2xl p-6 text-sm font-mono text-gray-600 whitespace-pre-wrap max-h-[360px] overflow-y-auto custom-scrollbar transition-opacity",
-                      isProcessing && "opacity-30"
-                    )}>
-                      {output || "Processing..."}
-                    </div>
+                    <motion.div 
+                      key={output}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn(
+                        "group/output relative bg-white border border-slate-100 rounded-3xl p-8 text-sm font-mono text-slate-600 whitespace-pre-wrap max-h-[400px] overflow-y-auto custom-scrollbar transition-all duration-500 shadow-inner",
+                        isProcessing && "opacity-30"
+                      )}>
+                      {output || "Crunching domains..."}
+                      <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* SEO Content Section - Moved outside the grid to prevent overlapping issues */}
-        <div className="mt-24 space-y-24">
+        {/* Informational Sections */}
+        <div className="mt-32 space-y-32">
           {/* Features Grid */}
-          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
-                <Scissors className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Bulk Processing</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Clean thousands of URLs in seconds. Our optimized algorithm handles large lists without breaking a sweat.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6">
-                <Check className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Duplicate Removal</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Automatically filter out redundant links to keep your data clean and unique. Perfect for SEO audits.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6">
-                <Settings2 className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Custom Extensions</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Define exactly where you want to trim. Support for all TLDs including .com, .net, .org, and custom ones.
-              </p>
-            </div>
+          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              { icon: Scissors, color: "blue", title: "Smart Trimming", desc: "Strip excess paths and parameters with surgical accuracy." },
+              { icon: Check, color: "emerald", title: "Unique Logic", desc: "Instantly filter out duplicate domains for cleaner reporting." },
+              { icon: Settings2, color: "indigo", title: "Custom TLDs", desc: "Target exactly the extensions you need for specialized cleaning." }
+            ].map((f, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+                whileHover={{ 
+                  y: -12, 
+                  rotateX: 5, 
+                  rotateY: 5,
+                  transition: { duration: 0.2 }
+                }}
+                style={{ perspective: 1000 }}
+                className="bg-white/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-white shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-shadow duration-500 group"
+              >
+                <div className={cn(
+                  "w-12 h-12 rounded-2xl flex items-center justify-center mb-8 shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6",
+                  f.color === "blue" ? "bg-blue-50 text-blue-600" :
+                  f.color === "emerald" ? "bg-emerald-50 text-emerald-600" :
+                  "bg-indigo-50 text-indigo-600"
+                )}>
+                  <f.icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-4">{f.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  {f.desc}
+                </p>
+              </motion.div>
+            ))}
           </section>
 
           {/* How it Works */}
-          <section className="bg-indigo-600 rounded-[2.5rem] p-10 sm:p-16 text-white overflow-hidden relative">
+          <motion.section 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-slate-950 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30"
+          >
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2 animate-float" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-float" style={{ animationDelay: '-2s' }} />
+            
             <div className="relative z-10">
-              <h2 className="text-3xl font-bold mb-12">How URL Trimmer Works</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">01</div>
-                  <h4 className="text-xl font-bold">Paste Your Links</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Copy your list of messy URLs from any source—spreadsheets, text files, or browser history—and paste them into the input buffer.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">02</div>
-                  <h4 className="text-xl font-bold">Configure Trimming</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Use the configuration panel to set your desired domain extensions. The tool will strip everything after these extensions.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">03</div>
-                  <h4 className="text-xl font-bold">Instant Cleaning</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Our real-time engine processes your links instantly. You&apos;ll see a clean list of domains ready for use.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="text-4xl font-black opacity-20">04</div>
-                  <h4 className="text-xl font-bold">Export & Use</h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    Copy the cleaned results to your clipboard or open them all in new tabs with a single click.
-                  </p>
-                </div>
+              <div className="max-w-xl mb-16">
+                <motion.h2 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-3xl sm:text-5xl font-bold mb-6 tracking-tight"
+                >
+                  Streamlined <br /> Processing.
+                </motion.h2>
+                <p className="text-blue-400 leading-relaxed uppercase text-xs tracking-[0.3em] font-bold">The 4-Step Link Protocol</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
+                {[
+                  { step: "01", title: "Paste", desc: "Load your messy URL lists into the workspace." },
+                  { step: "02", title: "Set", desc: "Select extension modules for your criteria." },
+                  { step: "03", title: "Clean", desc: "Watch the engine strip paths in real-time." },
+                  { step: "04", title: "Copy", desc: "Retrieve your purified domains instantly." }
+                ].map((s, i) => (
+                  <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.1 }}
+                    className="space-y-6 group"
+                  >
+                    <div className="text-6xl font-black text-blue-500 tabular-nums transition-all duration-500 group-hover:text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{s.step}</div>
+                    <h4 className="text-sm font-bold uppercase tracking-[0.2em]">{s.title}</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                      {s.desc}
+                    </p>
+                  </motion.div>
+                ))}
               </div>
             </div>
-            {/* Decorative element */}
-            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-          </section>
-
-          {/* FAQ Section */}
-          <section className="space-y-12">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
-              <p className="text-gray-500 mt-2">Everything you need to know about our URL cleaning tool.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">What is a URL Trimmer?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  A URL trimmer is a tool that strips paths, query parameters, and fragments from a URL, leaving only the root domain or a specific part of the link.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Is it free to use?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Yes, Trimmer is completely free for individual use. You can process as many URLs as you need without any hidden costs.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Does it support bulk URLs?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Absolutely. You can paste thousands of links at once. Our tool uses chunked processing to ensure your browser remains responsive.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <h4 className="font-bold text-gray-900">Is my data secure?</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  Your data never leaves your browser. All processing happens locally on your machine, ensuring maximum privacy and security.
-                </p>
-              </div>
-            </div>
-          </section>
+          </motion.section>
         </div>
-
-        {/* Simple Footer */}
-        <footer className="pt-12 mt-24 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-400">
-          <p>© 2026 Trimmer Labs. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Terms</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
-          </div>
-        </footer>
       </div>
     </main>
+    </>
   );
 }
