@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://ais-pre-6ktwqabbxrrt2qenz5qbq5-56912012591.asia-east1.run.app/sitemap.xml',
+    sitemap: 'https://www.urltrim.online/sitemap.xml',
   };
 }

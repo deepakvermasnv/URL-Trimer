@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://ais-pre-6ktwqabbxrrt2qenz5qbq5-56912012591.asia-east1.run.app';
+  const baseUrl = 'https://www.urltrim.online';
   
   const routes = [
     '',

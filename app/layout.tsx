@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ais-pre-6ktwqabbxrrt2qenz5qbq5-56912012591.asia-east1.run.app'),
+  metadataBase: new URL('https://www.urltrim.online'),
   title: 'URL Trimmer - Bulk Link Cleaner & Domain Stripper',
   description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links. The simplest way to get clean domain names from any list of URLs.',
   keywords: ['URL trimmer', 'link cleaner', 'domain stripper', 'bulk url cleaning', 'strip url paths', 'clean links', 'seo tools'],
