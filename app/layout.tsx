@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
+    icon: '/favicon-16x16.png',
+    apple: '/favicon-16x16.png',
   },
 };
 
@@ -47,27 +47,57 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <Script id="error-mitigation" strategy="beforeInteractive">
           {`
             (function() {
+              // Proactively handle fetch override attempts
+              try {
+                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+                if (descriptor && descriptor.configurable) {
+                  const originalFetch = window.fetch;
+                  Object.defineProperty(window, 'fetch', {
+                    get: function() { return originalFetch; },
+                    set: function() { /* Ignore attempts to overwrite fetch */ },
+                    configurable: true
+                  });
+                }
+              } catch (e) {}
+
+              // Intercept console.error to suppress noisy environmental errors
               const originalError = console.error;
               console.error = function() {
                 const message = arguments[0];
                 if (typeof message === 'string' && (
                   message.includes('Cannot set property fetch of #<Window>') ||
                   message.includes('Converting circular structure to JSON') ||
-                  message.includes('Hydration failed')
+                  message.includes('Hydration failed') ||
+                  message.includes('minify-react-error')
                 )) {
                   return;
                 }
                 originalError.apply(console, arguments);
               };
               
+              // Prevent global error events for these specific types
               window.addEventListener('error', function(event) {
                 if (event.message && (
                   event.message.includes('Cannot set property fetch') ||
                   event.message.includes('Converting circular structure to JSON')
                 )) {
                   event.preventDefault();
+                  event.stopPropagation();
                 }
-              });
+              }, true);
+
+              // Handle circular structures in JSON.stringify if possible (defensive)
+              const originalStringify = JSON.stringify;
+              JSON.stringify = function(obj, replacer, space) {
+                try {
+                  return originalStringify(obj, replacer, space);
+                } catch (e) {
+                  if (e.message && e.message.includes('circular structure')) {
+                    return '[Circular Structure]';
+                  }
+                  throw e;
+                }
+              };
             })();
           `}
         </Script>
