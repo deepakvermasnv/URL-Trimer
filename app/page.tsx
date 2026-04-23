@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import Footer from '@/components/Footer';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -689,6 +690,7 @@ export default function URLTrimmer() {
           </motion.section>
         </div>
       </div>
+      <Footer />
     </main>
     </>
   );
