@@ -62,7 +62,14 @@ export default function DisclaimerPage() {
               </section>
 
               <section>
-                <h3 className="text-lg font-bold text-slate-900 mb-3 underline decoration-blue-500 decoration-4 underline-offset-4">4. Educational Tool</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-3 underline decoration-blue-500 decoration-4 underline-offset-4">4. No Professional Advice</h3>
+                <p>
+                  The information provided through this website and blog is for general informational purposes only. It is not intended as legal, financial, or professional SEO advice. You should seek independent professional advice before making any critical business decisions based on the output of this tool.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-bold text-slate-900 mb-3 underline decoration-blue-500 decoration-4 underline-offset-4">5. Educational Tool</h3>
                 <p>
                   This platform is designed as an educational and workflow-optimization tool. Users should 
                   manually verify critical lists before utilizing them in large-scale production environments.

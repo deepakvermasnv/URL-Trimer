@@ -15,24 +15,25 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.urltrim.online'),
-  title: 'URL Trimmer - Bulk Link Cleaner & Domain Stripper',
-  description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links. The simplest way to get clean domain names from any list of URLs.',
-  keywords: ['URL trimmer', 'link cleaner', 'domain stripper', 'bulk url cleaning', 'strip url paths', 'clean links', 'seo tools'],
+  title: 'Bulk URL Cleaner & Domain Stripper — Free Online Tool | URL Trimmer',
+  description: 'Free bulk URL cleaner tool. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly — all in your browser. No signup needed.',
+  keywords: ['bulk url cleaner', 'strip url parameters online', 'url domain extractor tool', 'remove tracking parameters from url', 'clean url list free', 'bulk link trimmer'],
   authors: [{ name: 'Trimmer Labs' }],
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'URL Trimmer - Bulk Link Cleaner',
-    description: 'The simplest way to strip paths and queries from your URLs. Just paste and copy.',
+    title: 'Bulk URL Cleaner — Free Domain Stripper Tool',
+    description: 'Clean thousands of URLs instantly. Strip tracking params, paths & queries — 100% browser-based, no signup.',
     type: 'website',
     locale: 'en_US',
-    siteName: 'Trimmer',
+    siteName: 'URL Trimmer',
+    url: 'https://www.urltrim.online/',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'URL Trimmer - Bulk Link Cleaner',
-    description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links.',
+    title: 'Bulk URL Cleaner — Free Domain Stripper Tool',
+    description: 'Clean thousands of URLs instantly. Strip tracking params, paths & queries — 100% browser-based, no signup.',
   },
   robots: {
     index: true,
@@ -45,72 +46,86 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "URL Trimmer",
+    "url": "https://www.urltrim.online/",
+    "description": "Free bulk URL cleaner tool to strip tracking parameters and extract clean domains.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Bulk URL cleaning","Domain extraction","Duplicate removal","Custom TLD support"]
+  };
+
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Aggressive fetch and JSON error mitigation
-                const suppressErrors = [
-                  'Cannot set property fetch of #<Window>',
-                  'Converting circular structure to JSON',
-                  'Hydration failed',
-                  'minify-react-error'
-                ];
-
-                // 1. Proactively guard window.fetch
-                try {
-                  const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
-                  if (descriptor && descriptor.configurable) {
-                    const originalFetch = window.fetch;
-                    Object.defineProperty(window, 'fetch', {
-                      get: function() { return originalFetch; },
-                      set: function() { /* Block attempts to override */ },
-                      configurable: true
-                    });
-                  }
-                } catch (e) {}
-
-                // 2. Suppress console.error
-                const originalError = console.error;
-                console.error = function() {
-                  const msg = arguments[0];
-                  if (typeof msg === 'string' && suppressErrors.some(err => msg.includes(err))) return;
-                  originalError.apply(console, arguments);
-                };
-
-                // 3. Prevent global uncaught exceptions from reaching the user console
-                window.onerror = function(message, source, lineno, colno, error) {
-                  if (typeof message === 'string' && suppressErrors.some(err => message.includes(err))) {
-                    return true; // Suppress
-                  }
-                };
-
-                window.addEventListener('error', function(event) {
-                  if (event.message && suppressErrors.some(err => event.message.includes(err))) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                  }
-                }, true);
-
-                // 4. Circular structure guard
-                const originalStringify = JSON.stringify;
-                JSON.stringify = function(obj, replacer, space) {
-                  try {
-                    return originalStringify(obj, replacer, space);
-                  } catch (e) {
-                    if (e.message && e.message.includes('circular structure')) return '"[Circular]"';
-                    throw e;
-                  }
-                };
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
+        <Script
+          id="ld-json"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Script id="error-mitigation" strategy="beforeInteractive">
+          {`
+            (function() {
+              // Aggressive fetch and JSON error mitigation
+              const suppressErrors = [
+                'Cannot set property fetch of #<Window>',
+                'Converting circular structure to JSON',
+                'Hydration failed',
+                'minify-react-error'
+              ];
+
+              // 1. Proactively guard window.fetch
+              try {
+                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+                if (descriptor && descriptor.configurable) {
+                  const originalFetch = window.fetch;
+                  Object.defineProperty(window, 'fetch', {
+                    get: function() { return originalFetch; },
+                    set: function() { /* Block attempts to override */ },
+                    configurable: true
+                  });
+                }
+              } catch (e) {}
+
+              // 2. Suppress console.error
+              const originalError = console.error;
+              console.error = function() {
+                const msg = arguments[0];
+                if (typeof msg === 'string' && suppressErrors.some(err => msg.includes(err))) return;
+                originalError.apply(console, arguments);
+              };
+
+              // 3. Prevent global uncaught exceptions from reaching the user console
+              window.onerror = function(message, source, lineno, colno, error) {
+                if (typeof message === 'string' && suppressErrors.some(err => message.includes(err))) {
+                  return true; // Suppress
+                }
+              };
+
+              window.addEventListener('error', function(event) {
+                if (event.message && suppressErrors.some(err => event.message.includes(err))) {
+                  event.preventDefault();
+                  event.stopImmediatePropagation();
+                }
+              }, true);
+
+              // 4. Circular structure guard
+              const originalStringify = JSON.stringify;
+              JSON.stringify = function(obj, replacer, space) {
+                try {
+                  return originalStringify(obj, replacer, space);
+                } catch (e) {
+                  if (e.message && e.message.includes('circular structure')) return '"[Circular]"';
+                  throw e;
+                }
+              };
+            })();
+          `}
+        </Script>
         {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"

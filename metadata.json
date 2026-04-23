@@ -1,5 +1,5 @@
 {
   "name": "URL Trimmer",
-  "description": "Bulk URL cleaner and domain stripper. Instantly clean links by stripping paths, queries, and fragments from any list of URLs.",
+  "description": "Free bulk URL cleaner tool. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly in your browser.",
   "requestFramePermissions": []
 }

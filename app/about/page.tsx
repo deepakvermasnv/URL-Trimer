@@ -46,19 +46,49 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Our Mission</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Why We Built URL Trimmer</h2>
             <p className="text-slate-600 mb-8 leading-relaxed">
-              We believe in a cleaner web. URL Trimmer isn&apos;t just a tool; it&apos;s a protocol for digital hygiene. 
-              Whether you&apos;re an SEO professional, a developer, or a privacy-conscious user, our mission is to provide the 
-              fastest, most secure way to purify your digital footprints.
+              URL Trimmer was built by a small team of developers and SEO professionals who were tired of the same frustrating workflow: exporting backlink data, opening Excel, writing complex formulas, and spending an hour cleaning what should take seconds. We searched for existing tools and found two categories: server-side tools that required us to upload sensitive client data to unknown servers, or Python scripts that required technical setup every time.
+            </p>
+            <p className="text-slate-600 mb-8 leading-relaxed">
+              We wanted something different — a tool as fast as a script but as accessible as a website, and as private as running code locally. That&apos;s URL Trimmer: professional-grade URL cleaning that runs entirely in your browser.
             </p>
 
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">The Technology</h2>
-            <p className="text-slate-600 mb-12 leading-relaxed">
-              Built on modern web technologies and optimized for zero-server interaction. 
-              Our engine uses optimized chunking to process URL lists without blocking your browser&apos;s main thread, 
-              ensuring 60FPS performance even with 10k+ links.
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Our Core Principles</h2>
+            <ul className="space-y-4 mb-12">
+              <li className="text-slate-600 leading-relaxed font-medium"><strong>Privacy by Architecture:</strong> We don&apos;t just promise not to log your data — our system makes server-side data collection technically impossible.</li>
+              <li className="text-slate-600 leading-relaxed font-medium"><strong>Performance Without Compromise:</strong> 10,000+ URLs processed in under a second, with a UI that stays responsive throughout.</li>
+              <li className="text-slate-600 leading-relaxed font-medium"><strong>Zero Friction:</strong> No accounts, no uploads, no waiting. Open the tool and start cleaning.</li>
+              <li className="text-slate-600 leading-relaxed font-medium"><strong>Open Roadmap:</strong> We build features based on what our users actually need, shared transparently through our blog.</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Who We Are</h2>
+            <p className="text-slate-600 mb-8 leading-relaxed">
+              URL Trimmer is developed by <strong>Trimmer Labs</strong>, a small independent software studio focused on building privacy-first, client-side web utilities. Our team has backgrounds in software engineering, search engine optimization, and data analysis — which means we build tools we actually use in our own professional work.
             </p>
+            <p className="text-slate-600 mb-12 leading-relaxed">
+              We started with URL Trimmer because it solved a problem we faced daily. If you&apos;re using it too, we&apos;d love to hear how you&apos;re using it and what features would make your workflow even better.
+            </p>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-900">Is it really free?</h4>
+                <p className="text-sm text-slate-500 font-medium">Yes, completely free with no limits on usage or bulk size.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-900">Any future charges?</h4>
+                <p className="text-sm text-slate-500 font-medium">We may introduce a Pro tier with advanced features, but the core tool stays free.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-900">Commercial use?</h4>
+                <p className="text-sm text-slate-500 font-medium">Absolutely — many SEO agencies and marketing teams use it daily for client work.</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-bold text-slate-900">Data safety?</h4>
+                <p className="text-sm text-slate-500 font-medium">Since all processing is local, your data never touches any internet infrastructure.</p>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

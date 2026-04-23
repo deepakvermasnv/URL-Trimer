@@ -10,6 +10,7 @@ export default function BlogPage() {
   const posts = [
     {
       title: "The Physics of Zero-Server Link Cleaning",
+      slug: "physics-of-zero-server-link-cleaning",
       excerpt: "Explaining why client-side processing is the gold standard for modern data privacy and speed.",
       date: "April 15, 2026",
       readTime: "6 min read",
@@ -17,6 +18,7 @@ export default function BlogPage() {
     },
     {
       title: "Mastering Bulk URL Trimming: SEO Best Practices",
+      slug: "mastering-bulk-url-trimming-seo-best-practices",
       excerpt: "How to use domain stripping to audit backlink profiles and verify site architectures efficiently.",
       date: "April 08, 2026",
       readTime: "4 min read",
@@ -24,6 +26,7 @@ export default function BlogPage() {
     },
     {
       title: "Inside the Link Protocol: v1.4.0 Release Notes",
+      slug: "link-protocol-v1-4-0-release-notes",
       excerpt: "Introducing custom extension modules and the new high-precision regex engine.",
       date: "March 22, 2026",
       readTime: "3 min read",
@@ -62,21 +65,23 @@ export default function BlogPage() {
                 transition={{ delay: 0.2 + i * 0.1 }}
                 className="group cursor-pointer"
               >
-                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:shadow-blue-900/5 group-hover:-translate-y-1">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-[0.2em]">{post.category}</span>
-                    <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium tracking-tight">
-                      <Clock className="w-3 h-3" />
-                      {post.readTime}
-                    </span>
+                <Link href={`/blog/${post.slug}`}>
+                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:shadow-blue-900/5 group-hover:-translate-y-1">
+                    <div className="flex items-center gap-4 mb-6">
+                      <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-[0.2em]">{post.category}</span>
+                      <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium tracking-tight">
+                        <Clock className="w-3 h-3" />
+                        {post.readTime}
+                      </span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">{post.title}</h2>
+                    <p className="text-slate-500 font-medium leading-relaxed mb-8">{post.excerpt}</p>
+                    <div className="flex items-center gap-2 text-sm font-bold text-slate-900 group-hover:gap-4 transition-all">
+                      Read Report
+                      <ChevronRight className="w-4 h-4 text-blue-600" />
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">{post.title}</h2>
-                  <p className="text-slate-500 font-medium leading-relaxed mb-8">{post.excerpt}</p>
-                  <div className="flex items-center gap-2 text-sm font-bold text-slate-900 group-hover:gap-4 transition-all">
-                    Read Report
-                    <ChevronRight className="w-4 h-4 text-blue-600" />
-                  </div>
-                </div>
+                </Link>
               </motion.article>
             ))}
           </div>

@@ -11,6 +11,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/terms',
     '/disclaimer',
+    '/blog/physics-of-zero-server-link-cleaning',
+    '/blog/mastering-bulk-url-trimming-seo-best-practices',
+    '/blog/link-protocol-v1-4-0-release-notes',
   ];
 
   return routes.map((route) => ({

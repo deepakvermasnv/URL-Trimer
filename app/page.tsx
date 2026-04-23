@@ -256,7 +256,7 @@ export default function URLTrimmer() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
               >
-                Welcome to <span className="text-blue-600">URL Trimmer</span>
+                Welcome to <span className="text-blue-600">Free Bulk URL Cleaner</span>
               </motion.h1>
 
               <motion.div
@@ -338,9 +338,9 @@ export default function URLTrimmer() {
             transition={{ delay: 0.4 }}
             className="text-4xl sm:text-7xl font-extrabold text-slate-900 tracking-tight mb-6"
           >
-            Trim your links with <br className="hidden sm:block" />
+            Free Bulk URL Cleaner — <br className="hidden sm:block" />
             <span className="relative inline-block">
-              <span className="relative z-10 text-blue-600">precision.</span>
+              <span className="relative z-10 text-blue-600">Strip Paths & Queries.</span>
               <motion.span 
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
@@ -687,7 +687,92 @@ export default function URLTrimmer() {
                 ))}
               </div>
             </div>
-          </motion.section>
+            </motion.section>
+
+          {/* SEO Optimized Long-Form Content */}
+          <section className="space-y-20 pb-20 border-t border-slate-100 pt-32">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+              <div className="lg:col-span-8 space-y-12">
+                <div className="space-y-6">
+                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">What Is URL Trimmer? The Ultimate Bulk URL Cleaning Tool</h2>
+                  <p className="text-slate-600 leading-relaxed text-lg font-medium">
+                    URL Trimmer is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you're dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trimmer strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold text-slate-900">Why Do You Need a Bulk URL Cleaner?</h3>
+                  <div className="space-y-4 text-slate-600 leading-relaxed font-medium">
+                    <p>
+                      Modern URLs are cluttered. Every time you share a link, visit a page, or export a URL list from an analytics tool, you end up with strings full of <strong className="text-slate-800">tracking parameters</strong> (like <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">utm_source</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">fbclid</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">gclid</code>), nested paths, redirects, and query fragments. These make your data analysis messy, your spreadsheets unreadable, and your reports inaccurate.
+                    </p>
+                    <p>
+                      URL Trimmer solves this problem instantly. Paste your raw URL list — no matter how large — and our intelligent engine strips everything down to the clean root domain or your preferred structure within seconds.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+                    <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs">Who Uses URL Trimmer?</h4>
+                    <ul className="space-y-3 text-sm text-slate-500 font-medium list-disc pl-5">
+                      <li><strong>SEO Professionals:</strong> Audit backlink profiles and extract clean unique referring domains.</li>
+                      <li><strong>Digital Marketers:</strong> Sanitize lists before importing into campaign tools.</li>
+                      <li><strong>Web Developers:</strong> Validate domain lists or preprocess datasets easily.</li>
+                      <li><strong>Privacy Users:</strong> Remove tracking identifiers before sharing links.</li>
+                      <li><strong>Data Analysts:</strong> Normalize datasets for accurate reporting and mapping.</li>
+                    </ul>
+                  </div>
+                  <div className="bg-blue-600 p-8 rounded-[2rem] shadow-xl shadow-blue-200 space-y-4 text-white">
+                    <h4 className="font-black uppercase tracking-widest text-xs opacity-80">Privacy First Policy</h4>
+                    <p className="text-sm font-medium leading-relaxed">
+                      Privacy isn't just a promise here — it's enforced by physics. Your data never leaves your device. All processing happens 100% locally in your browser. No servers, no logs, no risks.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <h3 className="text-2xl font-bold text-slate-900">URL Trimmer vs. Manual Cleaning</h3>
+                  <p className="text-slate-600 leading-relaxed font-medium">
+                    Manually cleaning URLs in Excel using complex formulas is tedious and breaks with non-standard URL structures. Python scripts work but require technical knowledge and environment setup. URL Trimmer gives you the power of a programmatic solution with the simplicity of a no-code tool — no spreadsheet gymnastics, no scripting, no server uploads.
+                  </p>
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 space-y-8">
+                <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-slate-100">
+                  <h3 className="text-xl font-bold text-slate-900 mb-8">Frequently Asked Questions</h3>
+                  <div className="space-y-8">
+                    {[
+                      { q: "Is URL Trimmer completely free?", a: "Yes, URL Trimmer is completely free to use with no limits on the number of URLs you can process." },
+                      { q: "What is the URL limit?", a: "Our optimized chunking engine handles 10,000+ URLs simultaneously without blocking your browser's main thread." },
+                      { q: "Can I use it on mobile?", a: "Yes, URL Trimmer works on all modern mobile browsers including iOS and Android." },
+                      { q: "What about IDNs?", a: "Our engine correctly handles international domain names and punycode-encoded URLs with high precision." }
+                    ].map((faq, i) => (
+                      <div key={i} className="space-y-2">
+                        <h4 className="text-sm font-black text-slate-800">{faq.q}</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">{faq.a}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-900/40">
+                  <h3 className="text-lg font-bold mb-4">Ready to Protocol?</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium">
+                    Start trimming your links with surgical precision. 
+                    No registration. No tracking. Just speed.
+                  </p>
+                  <button 
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-xs uppercase tracking-widest transition-colors"
+                  >
+                    Back to Terminal
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
       <Footer />
