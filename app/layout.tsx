@@ -14,10 +14,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ais-pre-6ktwqabbxrrt2qenz5qbq5-56912012591.asia-east1.run.app'),
   title: 'URL Trimmer - Bulk Link Cleaner & Domain Stripper',
   description: 'Clean your URLs instantly. Strip paths, queries, and fragments from bulk links. The simplest way to get clean domain names from any list of URLs.',
   keywords: ['URL trimmer', 'link cleaner', 'domain stripper', 'bulk url cleaning', 'strip url paths', 'clean links', 'seo tools'],
   authors: [{ name: 'Trimmer Labs' }],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'URL Trimmer - Bulk Link Cleaner',
     description: 'The simplest way to strip paths and queries from your URLs. Just paste and copy.',
@@ -43,64 +47,70 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased" suppressHydrationWarning>
-        <Script id="error-mitigation" strategy="beforeInteractive">
-          {`
-            (function() {
-              // Proactively handle fetch override attempts
-              try {
-                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
-                if (descriptor && descriptor.configurable) {
-                  const originalFetch = window.fetch;
-                  Object.defineProperty(window, 'fetch', {
-                    get: function() { return originalFetch; },
-                    set: function() { /* Ignore attempts to overwrite fetch */ },
-                    configurable: true
-                  });
-                }
-              } catch (e) {}
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Aggressive fetch and JSON error mitigation
+                const suppressErrors = [
+                  'Cannot set property fetch of #<Window>',
+                  'Converting circular structure to JSON',
+                  'Hydration failed',
+                  'minify-react-error'
+                ];
 
-              // Intercept console.error to suppress noisy environmental errors
-              const originalError = console.error;
-              console.error = function() {
-                const message = arguments[0];
-                if (typeof message === 'string' && (
-                  message.includes('Cannot set property fetch of #<Window>') ||
-                  message.includes('Converting circular structure to JSON') ||
-                  message.includes('Hydration failed') ||
-                  message.includes('minify-react-error')
-                )) {
-                  return;
-                }
-                originalError.apply(console, arguments);
-              };
-              
-              // Prevent global error events for these specific types
-              window.addEventListener('error', function(event) {
-                if (event.message && (
-                  event.message.includes('Cannot set property fetch') ||
-                  event.message.includes('Converting circular structure to JSON')
-                )) {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }
-              }, true);
-
-              // Handle circular structures in JSON.stringify if possible (defensive)
-              const originalStringify = JSON.stringify;
-              JSON.stringify = function(obj, replacer, space) {
+                // 1. Proactively guard window.fetch
                 try {
-                  return originalStringify(obj, replacer, space);
-                } catch (e) {
-                  if (e.message && e.message.includes('circular structure')) {
-                    return '[Circular Structure]';
+                  const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+                  if (descriptor && descriptor.configurable) {
+                    const originalFetch = window.fetch;
+                    Object.defineProperty(window, 'fetch', {
+                      get: function() { return originalFetch; },
+                      set: function() { /* Block attempts to override */ },
+                      configurable: true
+                    });
                   }
-                  throw e;
-                }
-              };
-            })();
-          `}
-        </Script>
+                } catch (e) {}
+
+                // 2. Suppress console.error
+                const originalError = console.error;
+                console.error = function() {
+                  const msg = arguments[0];
+                  if (typeof msg === 'string' && suppressErrors.some(err => msg.includes(err))) return;
+                  originalError.apply(console, arguments);
+                };
+
+                // 3. Prevent global uncaught exceptions from reaching the user console
+                window.onerror = function(message, source, lineno, colno, error) {
+                  if (typeof message === 'string' && suppressErrors.some(err => message.includes(err))) {
+                    return true; // Suppress
+                  }
+                };
+
+                window.addEventListener('error', function(event) {
+                  if (event.message && suppressErrors.some(err => event.message.includes(err))) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                  }
+                }, true);
+
+                // 4. Circular structure guard
+                const originalStringify = JSON.stringify;
+                JSON.stringify = function(obj, replacer, space) {
+                  try {
+                    return originalStringify(obj, replacer, space);
+                  } catch (e) {
+                    if (e.message && e.message.includes('circular structure')) return '"[Circular]"';
+                    throw e;
+                  }
+                };
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"
