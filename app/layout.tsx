@@ -40,8 +40,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: '/favicon-16x16.png',
-    apple: '/favicon-16x16.png',
+    icon: 'https://i.postimg.cc/5209g15c/favicon-32x32.png',
+    apple: 'https://i.postimg.cc/5209g15c/favicon-32x32.png',
   },
 };
 
@@ -85,7 +85,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                   const originalFetch = window.fetch;
                   Object.defineProperty(window, 'fetch', {
                     get: function() { return originalFetch; },
-                    set: function() { /* Block attempts to override */ },
+                    set: function(v) { 
+                      console.warn('Blocked attempt to override window.fetch');
+                      return originalFetch; 
+                    },
                     configurable: true
                   });
                 }
@@ -108,6 +111,13 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
 
               window.addEventListener('error', function(event) {
                 if (event.message && suppressErrors.some(err => event.message.includes(err))) {
+                  event.preventDefault();
+                  event.stopImmediatePropagation();
+                }
+              }, true);
+
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.message && suppressErrors.some(err => event.reason.message.includes(err))) {
                   event.preventDefault();
                   event.stopImmediatePropagation();
                 }

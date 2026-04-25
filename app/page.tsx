@@ -696,7 +696,7 @@ export default function URLTrimmer() {
                 <div className="space-y-6">
                   <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">What Is URL Trimmer? The Ultimate Bulk URL Cleaning Tool</h2>
                   <p className="text-slate-600 leading-relaxed text-lg font-medium">
-                    URL Trimmer is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you're dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trimmer strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
+                    URL Trimmer is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you&apos;re dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trimmer strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
                   </p>
                 </div>
 
@@ -726,7 +726,7 @@ export default function URLTrimmer() {
                   <div className="bg-blue-600 p-8 rounded-[2rem] shadow-xl shadow-blue-200 space-y-4 text-white">
                     <h4 className="font-black uppercase tracking-widest text-xs opacity-80">Privacy First Policy</h4>
                     <p className="text-sm font-medium leading-relaxed">
-                      Privacy isn't just a promise here — it's enforced by physics. Your data never leaves your device. All processing happens 100% locally in your browser. No servers, no logs, no risks.
+                      Privacy isn&apos;t just a promise here — it&apos;s enforced by physics. Your data never leaves your device. All processing happens 100% locally in your browser. No servers, no logs, no risks.
                     </p>
                   </div>
                 </div>
