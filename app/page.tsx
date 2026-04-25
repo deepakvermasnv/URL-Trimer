@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -308,14 +309,32 @@ export default function URLTrimmer() {
         ))}
       </div>
 
-      {/* Eye-catching Floating Blobs */}
+      {/* Optimized Floating Blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-blue-400/20 rounded-full blur-[80px] animate-float opacity-40" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-indigo-400/10 rounded-full blur-[100px] animate-float opacity-30" style={{ animationDelay: '-3s' }} />
-        <div className="absolute top-[50%] left-[40%] w-48 h-48 bg-sky-300/15 rounded-full blur-[60px] animate-float opacity-20" style={{ animationDelay: '-1.5s' }} />
+        <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-blue-400/20 rounded-full blur-[60px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-indigo-400/10 rounded-full blur-[80px]" />
+        <div className="absolute top-[50%] left-[40%] w-48 h-48 bg-sky-300/10 rounded-full blur-[40px]" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-24 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 pt-8 pb-12 sm:pb-24 relative z-10">
+        {/* Navigation / Actions bar */}
+        <div className="flex justify-end mb-12 sm:mb-20">
+          <Link
+            href="/tools"
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-blue-900/5 text-slate-900 text-[13px] font-black uppercase tracking-widest hover:bg-white hover:shadow-blue-900/10 hover:-translate-y-0.5 transition-all duration-300 group"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="flex items-center gap-2.5"
+            >
+              Find More tools
+              <ExternalLink className="w-4 h-4 text-blue-600 group-hover:rotate-12 transition-transform" />
+            </motion.div>
+          </Link>
+        </div>
+
         {/* Hero Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
