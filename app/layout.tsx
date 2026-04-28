@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
+import { ScrollToTop } from '../components/ScrollToTop';
 import './globals.css';
 
 const inter = Inter({
@@ -70,7 +71,22 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <Script id="error-mitigation" strategy="beforeInteractive">
           {`
             (function() {
-              // Aggressive fetch and JSON error mitigation
+              // 1. Guard window.fetch against read-only property errors
+              try {
+                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+                if (descriptor && descriptor.configurable && !descriptor.set && !descriptor.writable) {
+                  const originalFetch = window.fetch;
+                  Object.defineProperty(window, 'fetch', {
+                    get: function() { return originalFetch; },
+                    set: function(v) { 
+                      console.warn('Blocked attempt to override window.fetch');
+                    },
+                    configurable: true
+                  });
+                }
+              } catch (e) {}
+
+              // 2. Aggressive error mitigation
               const suppressErrors = [
                 'Cannot set property fetch of #<Window>',
                 'Converting circular structure to JSON',
@@ -78,23 +94,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 'minify-react-error'
               ];
 
-              // 1. Proactively guard window.fetch
-              try {
-                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
-                if (descriptor && descriptor.configurable) {
-                  const originalFetch = window.fetch;
-                  Object.defineProperty(window, 'fetch', {
-                    get: function() { return originalFetch; },
-                    set: function(v) { 
-                      console.warn('Blocked attempt to override window.fetch');
-                      return originalFetch; 
-                    },
-                    configurable: true
-                  });
-                }
-              } catch (e) {}
-
-              // 2. Suppress console.error
+              // Suppress console.error
               const originalError = console.error;
               console.error = function() {
                 const msg = arguments[0];
@@ -102,7 +102,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 originalError.apply(console, arguments);
               };
 
-              // 3. Prevent global uncaught exceptions from reaching the user console
+              // Prevent global uncaught exceptions from reaching the user console
               window.onerror = function(message, source, lineno, colno, error) {
                 if (typeof message === 'string' && suppressErrors.some(err => message.includes(err))) {
                   return true; // Suppress
@@ -123,7 +123,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 }
               }, true);
 
-              // 4. Circular structure guard
+              // 3. Circular structure guard
               const originalStringify = JSON.stringify;
               JSON.stringify = function(obj, replacer, space) {
                 try {
@@ -156,6 +156,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           `}
         </Script>
         {children}
+        <ScrollToTop />
       </body>
     </html>
   );

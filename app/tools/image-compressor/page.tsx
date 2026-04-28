@@ -19,8 +19,13 @@ import {
   Zap
 } from 'lucide-react';
 import Footer from '@/components/Footer';
+import PageLayout from '@/components/PageLayout';
+import Hero from '@/components/Hero';
+import NavAction from '@/components/NavAction';
+import Badge from '@/components/Badge';
 
 export default function ImageCompressor() {
+// ... (rest of the component remains same, I will just apply the layout changes)
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [quality, setQuality] = useState(0.8);
@@ -104,48 +109,41 @@ export default function ImageCompressor() {
   };
 
   return (
-    <div className="min-h-screen blue-gradient-bg selection:bg-blue-100 selection:text-blue-900 relative">
-      <div className="absolute inset-x-0 top-0 h-[500px] pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-blue-400/10 rounded-full blur-[100px] animate-float" />
-        <div className="absolute top-[20%] right-[-5%] w-64 h-64 bg-indigo-400/10 rounded-full blur-[80px] animate-float opacity-50" />
+    <PageLayout showBlobs={true}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
+        <NavAction 
+          href="/tools" 
+          label="Tool Library" 
+          type="back" 
+          className="mb-0 sm:mb-0" 
+        />
+        
+        <div className="flex items-center gap-4 justify-center sm:justify-end">
+          <Badge variant="blue">
+            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1" />
+            Surgical Compression
+          </Badge>
+          {file && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={reset}
+              className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-100 shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Discard
+            </motion.button>
+          )}
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-24 relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
-          <Link href="/tools" className="inline-flex items-center gap-2 text-xs font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Tool Library
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <div className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-              Surgical Compression
-            </div>
-            {file && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={reset}
-                className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-100 shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Discard
-              </motion.button>
-            )}
-          </div>
-        </div>
+      <Hero 
+        centered
+        title={<>Image <span className="text-blue-600">Compressor.</span></>}
+        subtitle="Reduce payload volume with our local compression engine. Optimized for web assets while preserving spectral fidelity."
+      />
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-          <h1 className="text-4xl sm:text-7xl font-black text-slate-900 tracking-tighter mb-6">
-            Image <span className="text-blue-600">Compressor.</span>
-          </h1>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            Reduce payload volume with our local compression engine. Optimized for web assets while preserving spectral fidelity.
-          </p>
-        </motion.div>
-
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto">
           {!file ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -299,8 +297,6 @@ export default function ImageCompressor() {
             </div>
           )}
         </div>
-      </div>
-      <Footer />
-    </div>
+      </PageLayout>
   );
 }

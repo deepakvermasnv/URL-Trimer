@@ -7,6 +7,10 @@ import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loa
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Footer from '@/components/Footer';
+import PageLayout from '@/components/PageLayout';
+import Hero from '@/components/Hero';
+import NavAction from '@/components/NavAction';
+import { Zap } from 'lucide-react';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -287,97 +291,37 @@ export default function URLTrimmer() {
         )}
       </AnimatePresence>
 
-      <main className="min-h-screen blue-gradient-bg selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative">
-      {/* Interactive Spotlight Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-0 spotlight" />
+      <PageLayout className="selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative" showBlobs={true}>
+        {/* Interactive Spotlight Overlay */}
+        <div className="fixed inset-0 pointer-events-none z-0 spotlight" />
+        
+        <NavAction 
+          href="/tools" 
+          label="Find More tools" 
+          type="forward" 
+          className="pt-0"
+        />
 
-      {/* Background Particles Layer */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {particles.map((p, i) => (
-          <div 
-            key={i}
-            className="absolute bg-blue-500/10 rounded-full animate-particle"
-            style={{
-              width: `${p.width}px`,
-              height: `${p.height}px`,
-              left: `${p.left}%`,
-              bottom: `-20px`,
-              animationDelay: `${p.delay}s`,
-              animationDuration: `${p.duration}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Optimized Floating Blobs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-blue-400/20 rounded-full blur-[60px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-indigo-400/10 rounded-full blur-[80px]" />
-        <div className="absolute top-[50%] left-[40%] w-48 h-48 bg-sky-300/10 rounded-full blur-[40px]" />
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 pt-8 pb-12 sm:pb-24 relative z-10">
-        {/* Navigation / Actions bar */}
-        <div className="flex justify-end mb-12 sm:mb-20">
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-blue-900/5 text-slate-900 text-[13px] font-black uppercase tracking-widest hover:bg-white hover:shadow-blue-900/10 hover:-translate-y-0.5 transition-all duration-300 group"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="flex items-center gap-2.5"
-            >
-              Find More tools
-              <ExternalLink className="w-4 h-4 text-blue-600 group-hover:rotate-12 transition-transform" />
-            </motion.div>
-          </Link>
-        </div>
-
-        {/* Hero Section */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "backOut" }}
-          className="text-center mb-20"
-        >
-          <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm border border-blue-100/50"
-          >
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse-glow" />
-            Fast & Local URL Processor
-          </motion.div>
-          <motion.h1 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-4xl sm:text-7xl font-extrabold text-slate-900 tracking-tight mb-6"
-          >
-            Free Bulk URL Cleaner — <br className="hidden sm:block" />
-            <span className="relative inline-block">
-              <span className="relative z-10 text-blue-600">Strip Paths & Queries.</span>
-              <motion.span 
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="absolute bottom-1 left-0 h-3 bg-blue-100 -z-0 rounded-full" 
-              />
-            </span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed"
-          >
-            Clean your bulk URL lists by stripping paths, queries, and fragments instantly. 
-            All processing happens right in your browser.
-          </motion.p>
-        </motion.div>
+        <Hero 
+          centered 
+          badgeText="Fast & Local URL Processor"
+          badgeIcon={Zap}
+          title={
+            <>
+              Free Bulk URL Cleaner — <br className="hidden sm:block" />
+              <span className="relative inline-block">
+                <span className="relative z-10 text-blue-600">Strip Paths & Queries.</span>
+                <motion.span 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 1, duration: 0.8 }}
+                  className="absolute bottom-1 left-0 h-3 bg-blue-100 -z-0 rounded-full" 
+                />
+              </span>
+            </>
+          }
+          subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left Column: Settings */}
@@ -697,7 +641,7 @@ export default function URLTrimmer() {
                     transition={{ delay: 0.4 + i * 0.1 }}
                     className="space-y-6 group"
                   >
-                    <div className="text-6xl font-black text-blue-500 tabular-nums transition-all duration-500 group-hover:text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{s.step}</div>
+                    <div className="text-5xl font-black text-blue-500 tabular-nums transition-all duration-500 group-hover:text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{s.step}</div>
                     <h4 className="text-sm font-bold uppercase tracking-[0.2em]">{s.title}</h4>
                     <p className="text-xs text-slate-400 leading-relaxed font-medium">
                       {s.desc}
@@ -793,9 +737,7 @@ export default function URLTrimmer() {
             </div>
           </section>
         </div>
-      </div>
-      <Footer />
-    </main>
+      </PageLayout>
     </>
   );
 }
