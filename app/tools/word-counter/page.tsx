@@ -490,6 +490,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 export default function WordCounter() {
+  const STORAGE_KEY = 'word-counter-content';
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -531,6 +532,17 @@ export default function WordCounter() {
     },
   });
 
+  // Load content from localStorage on mount
+  useEffect(() => {
+    if (editor && mounted) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        editor.commands.setContent(saved);
+      }
+    }
+    // Only run once on mount when editor is ready
+  }, [editor, mounted]);
+
   const [stats, setStats] = useState({
     characters: 0,
     words: 0,
@@ -560,6 +572,11 @@ export default function WordCounter() {
         paragraphs,
         readingTime
       });
+
+      // Save to localStorage
+      if (mounted) {
+        localStorage.setItem(STORAGE_KEY, html);
+      }
     };
 
     editor.on('update', handleUpdate);
@@ -569,7 +586,7 @@ export default function WordCounter() {
     return () => {
       editor.off('update', handleUpdate);
     };
-  }, [editor]);
+  }, [editor, mounted]);
 
   const handleCopy = async () => {
     if (!editor) return;
@@ -581,6 +598,7 @@ export default function WordCounter() {
 
   const handleClear = () => {
     editor?.commands.clearContent();
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const editorContainerRef = React.useRef<HTMLDivElement>(null);
