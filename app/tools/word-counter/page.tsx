@@ -45,8 +45,9 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import TextAlign from '@tiptap/extension-text-align';
 import CharacterCount from '@tiptap/extension-character-count';
 import { Extension } from '@tiptap/core';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// Dynamic imports for heavy libraries to improve performance
+const jsPDF = async () => (await import('jspdf')).default;
+const html2canvas = async () => (await import('html2canvas')).default;
 
 // Custom Font Size Extension
 const FontSize = Extension.create({
@@ -94,6 +95,7 @@ const FontSize = Extension.create({
   },
 });
 
+import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -169,6 +171,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="relative">
         <button 
           onClick={() => toggleDropdown('size')}
+          aria-label="Change font size"
+          aria-expanded={activeDropdown === 'size'}
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
             activeDropdown === 'size' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
@@ -222,6 +226,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="relative">
         <button 
           onClick={() => toggleDropdown('format')}
+          aria-label="Change text format"
+          aria-expanded={activeDropdown === 'format'}
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest min-w-[100px] justify-between",
             activeDropdown === 'format' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
@@ -285,6 +291,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="relative">
         <button 
           onClick={() => toggleDropdown('align')}
+          aria-label="Change text alignment"
+          aria-expanded={activeDropdown === 'align'}
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
             activeDropdown === 'align' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
@@ -336,6 +344,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="flex items-center bg-slate-100/50 p-1 rounded-xl gap-1">
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
+          aria-label="Toggle bold"
           className={cn("p-2 rounded-lg transition-all", editor.isActive('bold') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
           title="Bold"
         >
@@ -343,6 +352,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         </button>
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          aria-label="Toggle italic"
           className={cn("p-2 rounded-lg transition-all", editor.isActive('italic') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
           title="Italic"
         >
@@ -350,6 +360,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         </button>
         <button
           onClick={() => editor.chain().focus().toggleUnderline().run()}
+          aria-label="Toggle underline"
           className={cn("p-2 rounded-lg transition-all", editor.isActive('underline') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
           title="Underline"
         >
@@ -383,6 +394,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="flex items-center bg-slate-100/50 p-1 rounded-xl gap-1">
         <button
           onClick={addImage}
+          aria-label="Upload image"
           className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white transition-all"
           title="Upload Image"
         >
@@ -400,6 +412,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
                 setActiveDropdown(null);
               }
             }}
+            aria-label="Insert link"
             className={cn("p-2 rounded-lg transition-all", editor.isActive('link') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
             title="Link"
           >
@@ -444,6 +457,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="relative">
         <button 
           onClick={() => toggleDropdown('colors')}
+          aria-label="Change text color"
           className={cn(
             "p-2 rounded-xl transition-all",
             activeDropdown === 'colors' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
@@ -641,11 +655,14 @@ export default function WordCounter() {
     setIsExporting(true);
 
     try {
+      const JsPDFLib = await jsPDF();
+      const html2canvasLib = await html2canvas();
+
       // Find the tiptap element specifically for best results
       const tiptapElement = editorContainerRef.current.querySelector('.tiptap') as HTMLElement;
       const targetElement = tiptapElement || editorContainerRef.current;
 
-      const canvas = await html2canvas(targetElement, {
+      const canvas = await html2canvasLib(targetElement, {
         scale: 2,
         backgroundColor: '#ffffff',
         logging: false,
@@ -656,7 +673,7 @@ export default function WordCounter() {
       });
       
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
+      const pdf = new JsPDFLib({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
@@ -670,7 +687,6 @@ export default function WordCounter() {
       pdf.save(`document-${new Date().getTime()}.pdf`);
     } catch (error) {
       console.error('PDF Export failed:', error);
-      alert('PDF generation failed. Please try again or use HTML export.');
     } finally {
       setIsExporting(false);
     }
@@ -695,6 +711,7 @@ export default function WordCounter() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleDownload}
+            aria-label="Export document as HTML"
             className="px-5 py-2 rounded-2xl bg-slate-900 shadow-xl shadow-slate-900/10 flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest hover:bg-slate-800 transition-colors"
           >
             <FileDown className="w-3.5 h-3.5" />
@@ -748,6 +765,7 @@ export default function WordCounter() {
                     whileTap={!isExporting ? { scale: 0.95 } : {}}
                     onClick={handlePdfExport}
                     disabled={isExporting}
+                    aria-label={isExporting ? "Exporting PDF..." : "Export document as PDF"}
                     className={cn(
                       "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all",
                       isExporting 
@@ -766,6 +784,7 @@ export default function WordCounter() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleClear}
+                    aria-label="Clear document content"
                     className="p-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors"
                     title="Clear Document"
                   >
@@ -775,6 +794,7 @@ export default function WordCounter() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCopy}
+                    aria-label={copied ? "Text copied" : "Copy text to clipboard"}
                     className={cn(
                       "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all",
                       copied ? "bg-emerald-500 text-white shadow-emerald-200" : "bg-slate-900 text-white shadow-slate-200"
@@ -847,6 +867,65 @@ export default function WordCounter() {
             </div>
           </motion.aside>
         </div>
+
+        {/* SEO Schemas */}
+        <Script id="word-counter-schema" type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Online Word Counter",
+            "url": "https://www.urltrim.online/tools/word-counter",
+            "description": "Free online word counter tool. Count words, characters, sentences and check readability score instantly. Browser-based, private and secure.",
+            "applicationCategory": "UtilityApplication",
+            "operatingSystem": "Web Browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Word count",
+              "Character count",
+              "Sentence count",
+              "Readability score",
+              "Reading time estimation",
+              "Rich text editor",
+              "Export to HTML and PDF"
+            ],
+            "browserRequirements": "Modern web browser with JavaScript enabled",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "URL Trimmer",
+              "url": "https://www.urltrim.online/"
+            }
+          })}
+        </Script>
+        <Script id="word-counter-breadcrumb" type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.urltrim.online/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Tools",
+                "item": "https://www.urltrim.online/tools"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Word Counter",
+                "item": "https://www.urltrim.online/tools/word-counter"
+              }
+            ]
+          })}
+        </Script>
       </PageLayout>
   );
 }

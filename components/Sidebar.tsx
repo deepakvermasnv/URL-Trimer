@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
+import Image from 'next/image';
 import { 
   LayoutGrid, 
   MoreHorizontal,
@@ -60,6 +61,7 @@ export function Sidebar() {
           <div className="mb-10 px-2">
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               className="w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:bg-white hover:shadow-sm text-blue-600 active:scale-95"
             >
               <Menu className="w-7 h-7" />
@@ -111,11 +113,13 @@ export function Sidebar() {
 
         {/* Profile / Custom Logo at Bottom */}
         <div className="mt-auto mb-6 px-2">
-           <Link href="/" className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm hover:border-blue-400 transition-colors cursor-pointer bg-white block">
-              <img 
+           <Link href="/" aria-label="Go to home" className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm hover:border-blue-400 transition-colors cursor-pointer bg-white block relative">
+              <Image 
                 src="https://i.postimg.cc/hGDBjM9R/logo.png" 
                 alt="Profile" 
-                className="w-full h-full object-cover" 
+                fill
+                className="object-cover" 
+                referrerPolicy="no-referrer"
               />
            </Link>
         </div>
@@ -123,7 +127,10 @@ export function Sidebar() {
 
       {/* Mobile Menu Placeholder (Optional visibility) */}
       <div className="md:hidden fixed top-4 left-4 z-50">
-        <button className="bg-white p-2 rounded-lg shadow-md border border-slate-100">
+        <button 
+          aria-label="Open mobile menu"
+          className="bg-white p-2 rounded-lg shadow-md border border-slate-100"
+        >
           <Menu className="w-6 h-6 text-blue-600" />
         </button>
       </div>

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
+import NextImage from 'next/image';
 import { 
   ArrowLeft, 
   FileDown, 
@@ -18,6 +19,7 @@ import {
   Gauge,
   Zap
 } from 'lucide-react';
+import Script from 'next/script';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -59,7 +61,7 @@ export default function ImageCompressor() {
     setCompressing(true);
     
     try {
-      const img = new Image();
+      const img = new window.Image();
       img.src = preview;
       await new Promise((resolve) => (img.onload = resolve));
 
@@ -169,9 +171,15 @@ export default function ImageCompressor() {
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                 <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-900/5 aspect-square relative overflow-hidden flex items-center justify-center">
                   {preview && (
-                    <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain rounded-xl" />
+                    <NextImage 
+                      src={preview} 
+                      alt="Preview" 
+                      fill
+                      unoptimized
+                      className="object-contain rounded-xl p-4" 
+                    />
                   )}
-                  <div className="absolute top-6 left-6 py-1.5 px-4 rounded-full bg-slate-900/10 backdrop-blur-xl border border-white/20 text-[10px] font-black text-slate-900 uppercase tracking-widest">
+                  <div className="absolute top-6 left-6 py-1.5 px-4 rounded-full bg-slate-900/10 backdrop-blur-xl border border-white/20 text-[10px] font-black text-slate-900 uppercase tracking-widest z-10">
                     Live Buffer
                   </div>
                 </div>
@@ -297,6 +305,59 @@ export default function ImageCompressor() {
             </div>
           )}
         </div>
+
+        {/* SEO Schemas */}
+        <Script id="image-compressor-schema" type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Free Image Compressor",
+            "url": "https://www.urltrim.online/tools/image-compressor",
+            "description": "Compress JPG, PNG and WebP images online for free. Reduce file size without losing quality. 100% offline browser-based processing — no images are uploaded to any server.",
+            "applicationCategory": "MultimediaApplication",
+            "operatingSystem": "Web Browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "JPEG compression",
+              "PNG compression",
+              "WebP compression",
+              "Adjustable quality settings",
+              "No file size limits",
+              "100% offline processing",
+              "Preserves image quality"
+            ],
+            "browserRequirements": "Modern web browser with JavaScript enabled",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "URL Trimmer",
+              "url": "https://www.urltrim.online/"
+            }
+          })}
+        </Script>
+        <Script id="image-compressor-breadcrumb" type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem", "position": 1, "name": "Home",
+                "item": "https://www.urltrim.online/"
+              },
+              {
+                "@type": "ListItem", "position": 2, "name": "Tools",
+                "item": "https://www.urltrim.online/tools"
+              },
+              {
+                "@type": "ListItem", "position": 3, "name": "Image Compressor",
+                "item": "https://www.urltrim.online/tools/image-compressor"
+              }
+            ]
+          })}
+        </Script>
       </PageLayout>
   );
 }

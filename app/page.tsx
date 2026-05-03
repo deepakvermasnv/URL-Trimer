@@ -27,20 +27,11 @@ export default function URLTrimmer() {
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
-  const [particles, setParticles] = useState<{ width: number; height: number; left: number; delay: number; duration: number }[]>([]);
 
-  // Initialize Particles and Mounting state
+  // Initialize mounting state
   useEffect(() => {
     requestAnimationFrame(() => {
       setIsMounted(true);
-      const newParticles = Array.from({ length: 15 }).map(() => ({
-        width: Math.random() * 8 + 4,
-        height: Math.random() * 8 + 4,
-        left: Math.random() * 100,
-        delay: Math.random() * 15,
-        duration: Math.random() * 10 + 15
-      }));
-      setParticles(newParticles);
     });
   }, []);
 
@@ -54,12 +45,21 @@ export default function URLTrimmer() {
 
   // Mouse Spotlight Effect
   useEffect(() => {
+    let frameId: number;
     const handleMouseMove = (e: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+      // Performance optimization: skip processing if width is small (mobile) or spotlight not needed
+      if (window.innerWidth < 768) return;
+      
+      frameId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+        document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+      });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(frameId);
+    };
   }, []);
 
   useEffect(() => {
@@ -365,6 +365,7 @@ export default function URLTrimmer() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setRemoveDuplicates(!removeDuplicates)}
+                    aria-label={removeDuplicates ? "Disable deduplication" : "Enable deduplication"}
                     className={cn(
                       "w-full px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-between group overflow-hidden relative",
                       removeDuplicates 
@@ -438,6 +439,7 @@ export default function URLTrimmer() {
                       whileHover={{ scale: 1.1, color: "#ef4444" }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleClear}
+                      aria-label="Clear input buffer"
                       className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors uppercase tracking-widest"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -500,6 +502,7 @@ export default function URLTrimmer() {
                           whileTap={{ scale: 0.95 }}
                           onClick={handleOpenAll}
                           disabled={isProcessing || !output}
+                          aria-label="Open all links in new tabs"
                           className="px-6 py-3 rounded-2xl text-xs font-bold transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
@@ -510,6 +513,7 @@ export default function URLTrimmer() {
                           whileTap={{ scale: 0.95 }}
                           onClick={handleCopy}
                           disabled={isProcessing || !output}
+                          aria-label={copied ? "Copied" : "Copy results to clipboard"}
                           className={cn(
                             "px-6 py-3 rounded-2xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
                             copied 

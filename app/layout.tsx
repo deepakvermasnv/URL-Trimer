@@ -9,11 +9,13 @@ import './globals.css';
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -70,74 +72,39 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Script id="error-mitigation" strategy="beforeInteractive">
-          {`
-            (function() {
-              // 1. Guard window.fetch against read-only property errors
-              try {
-                const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
-                if (descriptor && descriptor.configurable && !descriptor.set && !descriptor.writable) {
-                  const originalFetch = window.fetch;
-                  Object.defineProperty(window, 'fetch', {
-                    get: function() { return originalFetch; },
-                    set: function(v) { 
-                      console.warn('Blocked attempt to override window.fetch');
-                    },
-                    configurable: true
-                  });
-                }
-              } catch (e) {}
-
-              // 2. Aggressive error mitigation
-              const suppressErrors = [
-                'Cannot set property fetch of #<Window>',
-                'Converting circular structure to JSON',
-                'Hydration failed',
-                'minify-react-error'
-              ];
-
-              // Suppress console.error
-              const originalError = console.error;
-              console.error = function() {
-                const msg = arguments[0];
-                if (typeof msg === 'string' && suppressErrors.some(err => msg.includes(err))) return;
-                originalError.apply(console, arguments);
-              };
-
-              // Prevent global uncaught exceptions from reaching the user console
-              window.onerror = function(message, source, lineno, colno, error) {
-                if (typeof message === 'string' && suppressErrors.some(err => message.includes(err))) {
-                  return true; // Suppress
-                }
-              };
-
-              window.addEventListener('error', function(event) {
-                if (event.message && suppressErrors.some(err => event.message.includes(err))) {
-                  event.preventDefault();
-                  event.stopImmediatePropagation();
-                }
-              }, true);
-
-              window.addEventListener('unhandledrejection', function(event) {
-                if (event.reason && event.reason.message && suppressErrors.some(err => event.reason.message.includes(err))) {
-                  event.preventDefault();
-                  event.stopImmediatePropagation();
-                }
-              }, true);
-
-              // 3. Circular structure guard
-              const originalStringify = JSON.stringify;
-              JSON.stringify = function(obj, replacer, space) {
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // 1. Guard window.fetch against read-only property errors
                 try {
-                  return originalStringify(obj, replacer, space);
+                  const originalFetch = window.fetch;
+                  if (originalFetch) {
+                    Object.defineProperty(window, 'fetch', {
+                      get: function() { return originalFetch; },
+                      set: function(v) { console.warn('Blocked attempt to override window.fetch'); },
+                      configurable: true,
+                      enumerable: true
+                    });
+                  }
                 } catch (e) {
-                  if (e.message && e.message.includes('circular structure')) return '"[Circular]"';
-                  throw e;
+                  // If it's already non-configurable, we can't do much, but we shouldn't throw here anyway
                 }
-              };
-            })();
-          `}
-        </Script>
+
+                // 2. Circular structure guard for JSON.stringify
+                const originalStringify = JSON.stringify;
+                JSON.stringify = function(obj, replacer, space) {
+                  try {
+                    return originalStringify(obj, replacer, space);
+                  } catch (e) {
+                    if (e && e.message && e.message.includes('circular structure')) return '"[Circular]"';
+                    throw e;
+                  }
+                };
+              })();
+            `
+          }}
+        />
         {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"
