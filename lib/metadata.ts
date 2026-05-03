@@ -68,6 +68,5 @@ export const SEO_METADATA = {
  */
 export function getCanonical(path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const withTrailingSlash = normalizedPath.endsWith('/') ? normalizedPath : `${normalizedPath}/`;
-  return `${SITE_CONFIG.baseUrl}${withTrailingSlash}`;
+  return `${SITE_CONFIG.baseUrl}${normalizedPath}`;
 }
