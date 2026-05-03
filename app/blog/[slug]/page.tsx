@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { SITE_CONFIG } from '@/lib/metadata';
+import { SITE_CONFIG, getCanonical } from '@/lib/metadata';
 import BlogPostClient from './BlogPostClient';
 
 const BLOG_POSTS = {
@@ -178,7 +178,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${post.title} | URL Trimmer Blog`,
     description: post.content.props.children[0].props.children.substring(0, 160) + '...',
     alternates: {
-      canonical: `/blog/${slug}`,
+      canonical: getCanonical(`/blog/${slug}`),
     }
   };
 }

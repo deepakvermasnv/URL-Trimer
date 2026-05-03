@@ -3,7 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 import { Sidebar } from '../components/Sidebar';
 import { ScrollToTop } from '../components/ScrollToTop';
-import { SITE_CONFIG, SEO_METADATA } from '../lib/metadata';
+import { SITE_CONFIG, SEO_METADATA, getCanonical } from '../lib/metadata';
 import './globals.css';
 
 const inter = Inter({
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   keywords: ['bulk url cleaner', 'strip url parameters online', 'url domain extractor tool', 'remove tracking parameters from url', 'clean url list free', 'bulk link trimmer'],
   authors: [{ name: 'Trimmer Labs' }],
   alternates: {
-    canonical: SEO_METADATA.home.canonical,
+    canonical: getCanonical(SEO_METADATA.home.canonical),
   },
   openGraph: {
     title: 'Bulk URL Cleaner — Free Domain Stripper Tool',

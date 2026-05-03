@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
-import { SEO_METADATA } from '@/lib/metadata';
+import { SEO_METADATA, getCanonical } from '@/lib/metadata';
 
 export const metadata: Metadata = {
   title: SEO_METADATA.contact.title,
   description: SEO_METADATA.contact.description,
   alternates: {
-    canonical: SEO_METADATA.contact.canonical,
+    canonical: getCanonical(SEO_METADATA.contact.canonical),
   },
 };
 
