@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  baseUrl: 'https://urltrim.online',
+  baseUrl: 'https://www.urltrim.online',
   siteName: 'URL Trimmer',
   twitterHandle: '@urltrimmer',
 };
