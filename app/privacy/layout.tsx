@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | URL Trimmer Security',
-  description: 'Your data never leaves your device. Read about our zero-server privacy protocol.',
+  title: SEO_METADATA.privacy.title,
+  description: SEO_METADATA.privacy.description,
   alternates: {
-    canonical: '/privacy',
+    canonical: SEO_METADATA.privacy.canonical,
   },
 };
 

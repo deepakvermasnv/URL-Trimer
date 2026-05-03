@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'Contact Support | URL Trimmer Help',
-  description: 'Get in touch with Trimmer Labs for technical assistance or feature requests.',
+  title: SEO_METADATA.contact.title,
+  description: SEO_METADATA.contact.description,
   alternates: {
-    canonical: '/contact',
+    canonical: SEO_METADATA.contact.canonical,
   },
 };
 

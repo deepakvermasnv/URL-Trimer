@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | URL Trimmer Usage',
-  description: 'Usage terms and conditions for Trimmer link cleaning services.',
+  title: SEO_METADATA.terms.title,
+  description: SEO_METADATA.terms.description,
   alternates: {
-    canonical: '/terms',
+    canonical: SEO_METADATA.terms.canonical,
   },
 };
 

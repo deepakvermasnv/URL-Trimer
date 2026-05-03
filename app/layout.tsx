@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 import { Sidebar } from '../components/Sidebar';
 import { ScrollToTop } from '../components/ScrollToTop';
+import { SITE_CONFIG, SEO_METADATA } from '../lib/metadata';
 import './globals.css';
 
 const inter = Inter({
@@ -16,21 +17,21 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://urltrim.online'),
-  title: 'Bulk URL Cleaner & Domain Stripper — Free Online Tool | URL Trimmer',
-  description: 'Free bulk URL cleaner tool. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly — all in your browser. No signup needed.',
+  metadataBase: new URL(SITE_CONFIG.baseUrl),
+  title: SEO_METADATA.home.title,
+  description: SEO_METADATA.home.description,
   keywords: ['bulk url cleaner', 'strip url parameters online', 'url domain extractor tool', 'remove tracking parameters from url', 'clean url list free', 'bulk link trimmer'],
   authors: [{ name: 'Trimmer Labs' }],
   alternates: {
-    canonical: '/',
+    canonical: SEO_METADATA.home.canonical,
   },
   openGraph: {
     title: 'Bulk URL Cleaner — Free Domain Stripper Tool',
     description: 'Clean thousands of URLs instantly. Strip tracking params, paths & queries — 100% browser-based, no signup.',
     type: 'website',
     locale: 'en_US',
-    siteName: 'URL Trimmer',
-    url: 'https://urltrim.online/',
+    siteName: SITE_CONFIG.siteName,
+    url: `${SITE_CONFIG.baseUrl}/`,
   },
   twitter: {
     card: 'summary_large_image',
@@ -51,8 +52,8 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "URL Trimmer",
-    "url": "https://urltrim.online/",
+    "name": SITE_CONFIG.siteName,
+    "url": `${SITE_CONFIG.baseUrl}/`,
     "description": "Free bulk URL cleaner tool to strip tracking parameters and extract clean domains.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All",

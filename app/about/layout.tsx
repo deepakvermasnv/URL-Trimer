@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'About | URL Trimmer Protocol',
-  description: 'Learn about the technology and mission behind URL Trimmer.',
+  title: SEO_METADATA.about.title,
+  description: SEO_METADATA.about.description,
   alternates: {
-    canonical: '/about',
+    canonical: SEO_METADATA.about.canonical,
   },
 };
 

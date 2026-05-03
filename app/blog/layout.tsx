@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'Engineering Blog | URL Trimmer Insights',
-  description: 'Technical insights, SEO tips, and updates from the URL Trimmer engineering team.',
+  title: SEO_METADATA.blog.title,
+  description: SEO_METADATA.blog.description,
   alternates: {
-    canonical: '/blog',
+    canonical: SEO_METADATA.blog.canonical,
   },
 };
 

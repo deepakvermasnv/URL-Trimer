@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { SITE_CONFIG } from '@/lib/metadata';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://urltrim.online/sitemap.xml',
+    sitemap: `${SITE_CONFIG.baseUrl}/sitemap.xml`,
   };
 }

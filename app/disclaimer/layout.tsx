@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
+import { SEO_METADATA } from '@/lib/metadata';
 
 export const metadata: Metadata = {
-  title: 'Legal Disclaimer | URL Trimmer',
-  description: 'Official disclaimer regarding the usage and warranty of URL Trimmer services.',
+  title: SEO_METADATA.disclaimer.title,
+  description: SEO_METADATA.disclaimer.description,
   alternates: {
-    canonical: '/disclaimer',
+    canonical: SEO_METADATA.disclaimer.canonical,
   },
 };
 
