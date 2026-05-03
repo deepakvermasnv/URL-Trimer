@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.urltrim.online';
+  const baseUrl = 'https://urltrim.online';
   
   const routes = [
     '',

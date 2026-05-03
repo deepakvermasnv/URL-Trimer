@@ -295,13 +295,6 @@ export default function URLTrimmer() {
         {/* Interactive Spotlight Overlay */}
         <div className="fixed inset-0 pointer-events-none z-0 spotlight" />
         
-        <NavAction 
-          href="/tools" 
-          label="Find More tools" 
-          type="forward" 
-          className="pt-0"
-        />
-
         <Hero 
           centered 
           badgeText="Fast & Local URL Processor"

@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://www.urltrim.online/sitemap.xml',
+    sitemap: 'https://urltrim.online/sitemap.xml',
   };
 }

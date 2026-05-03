@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
+import { Sidebar } from '../components/Sidebar';
 import { ScrollToTop } from '../components/ScrollToTop';
 import './globals.css';
 
@@ -15,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.urltrim.online'),
+  metadataBase: new URL('https://urltrim.online'),
   title: 'Bulk URL Cleaner & Domain Stripper — Free Online Tool | URL Trimmer',
   description: 'Free bulk URL cleaner tool. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly — all in your browser. No signup needed.',
   keywords: ['bulk url cleaner', 'strip url parameters online', 'url domain extractor tool', 'remove tracking parameters from url', 'clean url list free', 'bulk link trimmer'],
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'URL Trimmer',
-    url: 'https://www.urltrim.online/',
+    url: 'https://urltrim.online/',
   },
   twitter: {
     card: 'summary_large_image',
@@ -51,7 +52,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "URL Trimmer",
-    "url": "https://www.urltrim.online/",
+    "url": "https://urltrim.online/",
     "description": "Free bulk URL cleaner tool to strip tracking parameters and extract clean domains.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All",
@@ -155,9 +156,13 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             })();
           `}
         </Script>
-        {children}
+        <Sidebar />
+        <main className="md:pl-[120px] min-h-screen">
+          {children}
+        </main>
         <ScrollToTop />
       </body>
     </html>
   );
 }
+
