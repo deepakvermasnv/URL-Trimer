@@ -111,18 +111,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Profile / Custom Logo at Bottom */}
-        <div className="mt-auto mb-6 px-2">
-           <Link href="/" aria-label="Go to home" className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm hover:border-blue-400 transition-colors cursor-pointer bg-white block relative">
-              <Image 
-                src="https://i.postimg.cc/hGDBjM9R/logo.png" 
-                alt="Profile" 
-                fill
-                className="object-cover" 
-                referrerPolicy="no-referrer"
-              />
-           </Link>
-        </div>
+        {/* Profile / Custom Logo Section Removed at user request */}
       </motion.aside>
 
       {/* Mobile Menu Placeholder (Optional visibility) */}
