@@ -732,9 +732,15 @@ export default function WordCounter() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-8 flex flex-col"
+            whileHover={{ 
+              rotateX: 0.5, 
+              rotateY: -0.5,
+              transition: { duration: 0.3 }
+            }}
+            style={{ perspective: "1500px" }}
+            className="lg:col-span-8 flex flex-col will-change-transform"
           >
-            <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden h-full flex flex-col">
+            <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden h-full flex flex-col group transition-shadow duration-500 hover:shadow-blue-900/10">
               <MenuBar editor={editor} />
               
               <div 
@@ -815,11 +821,15 @@ export default function WordCounter() {
             transition={{ delay: 0.3 }}
             className="lg:col-span-4 space-y-8 h-full"
           >
-            <div className="bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white p-10 h-full">
+            <div className="bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white p-10 h-full group hover:shadow-blue-900/10 transition-all duration-500">
               <div className="flex items-center gap-4 mb-12">
-                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <motion.div 
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.8 }}
+                  className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 cursor-pointer"
+                >
                   <AlignLeft className="w-6 h-6 text-white" />
-                </div>
+                </motion.div>
                 <div>
                   <h2 className="text-sm font-bold text-slate-900">Analytics</h2>
                   <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Document Health</p>
@@ -834,35 +844,39 @@ export default function WordCounter() {
                   { label: 'Density', value: mounted ? stats.paragraphs : 0, icon: AlignLeft, color: 'text-sky-600' },
                   { label: 'Readability', value: mounted ? `${stats.readingTime} min` : '0 min', icon: BookOpen, color: 'text-emerald-600' }
                 ].map((stat, i) => (
-                  <div 
+                  <motion.div 
                     key={stat.label}
-                    className="flex items-center justify-between group"
+                    whileHover={{ x: 5, scale: 1.02 }}
+                    className="flex items-center justify-between group cursor-default"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="p-2.5 rounded-xl bg-slate-50 group-hover:bg-blue-50 transition-colors">
+                      <div className="p-2.5 rounded-xl bg-slate-50 group-hover:bg-blue-50 transition-colors shadow-sm">
                         <stat.icon className={cn("w-4 h-4", stat.color)} />
                       </div>
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</span>
                     </div>
                     <span className="text-xl font-black text-slate-900 tracking-tight tabular-nums">{stat.value}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               <div className="mt-12 pt-10 border-t border-slate-100">
-                <div className="bg-slate-50 rounded-3xl p-8 space-y-4">
+                <motion.div 
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="bg-slate-50 rounded-3xl p-8 space-y-4 border border-slate-100 shadow-inner group/map"
+                >
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Structure Map</h4>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center transition-all group-hover/map:border-blue-100">
                       <div className="text-lg font-black text-slate-900">{mounted ? stats.words : 0}</div>
                       <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Volume</div>
                     </div>
-                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center transition-all group-hover/map:border-emerald-100">
                       <div className="text-lg font-black text-slate-900">{mounted ? stats.readingTime : 0}m</div>
                       <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Duration</div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
           </motion.aside>

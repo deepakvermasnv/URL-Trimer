@@ -152,21 +152,37 @@ export default function ImageConverter() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* Preview Column */}
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-900/5 aspect-square relative overflow-hidden flex items-center justify-center">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }} 
+                animate={{ opacity: 1, x: 0 }} 
+                className="space-y-6"
+              >
+                <motion.div 
+                  whileHover={{ 
+                    rotateX: -2,
+                    rotateY: 2,
+                    z: 20,
+                    transition: { duration: 0.4 }
+                  }}
+                  style={{ perspective: 1000, transformStyle: "preserve-3d" }}
+                  className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-900/5 aspect-square relative overflow-hidden flex items-center justify-center group will-change-transform"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   {preview && (
-                    <NextImage 
-                      src={preview} 
-                      alt="Source" 
-                      fill
-                      unoptimized
-                      className="object-contain rounded-xl p-4" 
-                    />
+                    <div className="relative w-full h-full p-4" style={{ transform: "translateZ(20px)" }}>
+                      <NextImage 
+                        src={preview} 
+                        alt="Source" 
+                        fill
+                        unoptimized
+                        className="object-contain rounded-xl drop-shadow-2xl" 
+                      />
+                    </div>
                   )}
                   <div className="absolute top-6 left-6 py-1.5 px-4 rounded-full bg-slate-900/10 backdrop-blur-xl border border-white/20 text-[10px] font-black text-slate-900 uppercase tracking-widest z-10">
                     Source Manifest
                   </div>
-                </div>
+                </motion.div>
                 <div className="bg-slate-50 p-6 rounded-3xl space-y-2">
                   <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     <span>File Context</span>

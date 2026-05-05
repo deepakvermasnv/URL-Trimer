@@ -399,9 +399,15 @@ export default function URLTrimmer() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="lg:col-span-8 space-y-8"
+            whileHover={{ 
+              rotateX: 1, 
+              rotateY: -1,
+              transition: { duration: 0.3 }
+            }}
+            style={{ perspective: 1500, transformStyle: "preserve-3d" }}
+            className="lg:col-span-8 space-y-8 will-change-transform"
           >
-            <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden transition-all duration-500 hover:shadow-blue-900/10">
+            <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden transition-all duration-500 hover:shadow-blue-900/15">
               {/* Input Area */}
               <div 
                 className={cn(
@@ -572,31 +578,50 @@ export default function URLTrimmer() {
             ].map((f, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9, y: 50, rotateY: 20 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: i * 0.15 }}
-                whileHover={{ 
-                  y: -12, 
-                  rotateX: 5, 
-                  rotateY: 5,
-                  transition: { duration: 0.2 }
+                transition={{ 
+                  duration: 0.8, 
+                  delay: i * 0.15,
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15
                 }}
-                style={{ perspective: 1000 }}
-                className="bg-white/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-white shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-shadow duration-500 group"
+                whileHover={{ 
+                  y: -15,
+                  scale: 1.02,
+                  rotateX: -5,
+                  rotateY: 5,
+                  transition: { duration: 0.2, ease: "easeOut" }
+                }}
+                style={{ 
+                  perspective: "2000px",
+                  transformStyle: "preserve-3d",
+                  backfaceVisibility: "hidden"
+                }}
+                className="bg-white/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-white shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/15 transition-all duration-500 group relative overflow-hidden will-change-transform"
               >
+                {/* 3D Inner Content shadow/glow */}
+                <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500" />
+                
                 <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center mb-8 shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6",
+                  "w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:shadow-blue-100 relative z-10",
                   f.color === "blue" ? "bg-blue-50 text-blue-600" :
                   f.color === "emerald" ? "bg-emerald-50 text-emerald-600" :
                   "bg-indigo-50 text-indigo-600"
                 )}>
-                  <f.icon className="w-6 h-6" />
+                  <f.icon className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-4">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 relative z-10">{f.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium relative z-10">
                   {f.desc}
                 </p>
+                
+                {/* 3D Decorative Accent */}
+                <div className="absolute bottom-4 right-4 text-slate-50 opacity-0 group-hover:opacity-10 group-hover:scale-150 transition-all duration-700 -rotate-12">
+                   <f.icon className="w-24 h-24" />
+                </div>
               </motion.div>
             ))}
           </section>
