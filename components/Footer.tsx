@@ -19,10 +19,10 @@ export default function Footer() {
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20 group-hover:scale-110 transition-transform duration-300">
                 <Link2 className="w-5 h-5 text-white" />
               </div>
-              <span className="text-2xl font-black text-white tracking-tighter">URL Trimmer</span>
+              <span className="text-2xl font-black text-white tracking-tighter">Web Tool Pro</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed mb-8">
-              Professional-grade link cleaning protocol. Strip paths, queries, and tracking fragments with surgical precision. All processing happens 100% locally in your session.
+              A professional collection of privacy-first web utilities. All processing happens 100% locally in your session.
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs font-medium tracking-wider">
-            &copy; {currentYear} URL TRIMMER LABS. ALL RIGHTS RESERVED.
+            &copy; {currentYear} WEB TOOL PRO. ALL RIGHTS RESERVED.
           </p>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2">

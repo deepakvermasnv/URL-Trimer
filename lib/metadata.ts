@@ -1,39 +1,44 @@
 export const SITE_CONFIG = {
   baseUrl: 'https://www.urltrim.online',
-  siteName: 'URL Trimmer',
-  twitterHandle: '@urltrimmer',
+  siteName: 'Web Tool Pro',
+  twitterHandle: '@webtoolpro',
 };
 
 export const SEO_METADATA = {
   home: {
     canonical: '/',
-    title: 'Bulk URL Cleaner & Domain Stripper — Free Online Tool | URL Trimmer',
-    description: 'Free bulk URL cleaner tool. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly — all in your browser.',
+    title: 'Online Tools Hub',
+    description: 'A collection of free, privacy-first web utilities and tools.',
   },
   tools: {
     canonical: '/tools',
-    title: 'Web Utilities Library — Free Local Browser Tools | URL Trimmer',
-    description: 'A curated collection of professional-grade web tools, built for performance and absolute privacy. No data ever leaves your device.',
+    title: 'Utility Library',
+    description: 'Browse our collection of professional web utilities.',
   },
   wordCounter: {
     canonical: '/tools/word-counter',
-    title: 'Privacy-First Word Counter — Secure Text Analysis | URL Trimmer',
-    description: 'Count words, characters, and sentences locally. Analyze readability and text density without uploading your content to any server.',
+    title: 'Word Counter — Professional Text Analysis | Web Tool Pro',
+    description: 'Count words, characters, and sentences from your text instantly with local analysis.',
   },
   imageCompressor: {
     canonical: '/tools/image-compressor',
-    title: 'Offline Image Compressor — Shrink Images Locally | URL Trimmer',
-    description: 'Reduce image file size without losing quality. All processing happens in your browser for maximum privacy and speed.',
+    title: 'Image Compressor — Shrink Images Locally | Web Tool Pro',
+    description: 'Reduce image file size while maintaining visual quality locally in your browser.',
   },
   imageConverter: {
     canonical: '/tools/image-converter',
-    title: 'Local Image Converter — PNG, JPG, WebP Converter | URL Trimmer',
-    description: 'Convert between popular image formats instantly. Secure, high-fidelity conversion entirely on your device.',
+    title: 'Image Converter — Local Format Transformer | Web Tool Pro',
+    description: 'Convert images between different formats instantly without server uploads.',
+  },
+  pdfConverter: {
+    canonical: '/tools/pdf-converter',
+    title: 'Free PDF Converter - Professional Document to PDF | URL Trim',
+    description: 'Convert images, Word docx, and PowerPoint pptx files into professional PDF documents locally in your browser.',
   },
   about: {
     canonical: '/about',
-    title: 'About Our Protocol | URL Trimmer mission',
-    description: 'Learn about the technology and mission behind URL Trimmer. We build privacy-first, client-side web utilities for SEO professionals.',
+    title: 'About Our Protocol | Web Tool Pro Mission',
+    description: 'Learn about the technology and mission behind Web Tool Pro. We build privacy-first, client-side web utilities.',
   },
   contact: {
     canonical: '/contact',

@@ -29,7 +29,7 @@ const TOOLS = [
   {
     id: 'pdf-converter',
     name: 'PDF Converter',
-    description: 'Transform images and text documents into professional PDF files instantly. 100% private and browser-based.',
+    description: 'Convert images and documents into high-quality PDF files locally.',
     icon: FileDown,
     category: 'Universal',
     href: '/tools/pdf-converter',
@@ -38,7 +38,7 @@ const TOOLS = [
   {
     id: 'word-counter',
     name: 'Word Counter',
-    description: 'Professional tool to count words, characters, and sentences from any text with real-time analysis.',
+    description: 'Count words, characters, and analyze text structure in real-time.',
     icon: Type,
     category: 'Content',
     href: '/tools/word-counter',
@@ -47,7 +47,7 @@ const TOOLS = [
   {
     id: 'url-trimmer',
     name: 'URL Trimmer',
-    description: 'Bulk clean your URL lists by stripping paths, queries, and tracking fragments instantly.',
+    description: 'Clean URL lists by removing tracking parameters and paths.',
     icon: Scissors,
     category: 'SEO',
     href: '/',
@@ -56,7 +56,7 @@ const TOOLS = [
   {
     id: 'image-compressor',
     name: 'Image Compressor',
-    description: 'Reduce image file size with surgical precision while maintaining visual quality. 100% browser-based.',
+    description: 'Reduce image file size while maintaining visual quality.',
     icon: Minimize2,
     category: 'Graphics',
     href: '/tools/image-compressor',
@@ -65,7 +65,7 @@ const TOOLS = [
   {
     id: 'image-converter',
     name: 'Image Converter',
-    description: 'Convert images between formats (PNG, JPG, WebP, BMP) instantly with zero server uploads.',
+    description: 'Convert images between different formats instantly.',
     icon: LayoutGrid,
     category: 'Graphics',
     href: '/tools/image-converter',

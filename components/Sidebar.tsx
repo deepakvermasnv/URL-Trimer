@@ -61,7 +61,7 @@ export function Sidebar() {
           animate={{ width: isCollapsed ? '80px' : '110px' }}
           transition={{ type: "spring", stiffness: 300, damping: 35, mass: 0.8 }}
           className={cn(
-            "fixed left-0 top-0 h-full bg-white/70 backdrop-blur-xl border-r border-slate-100 flex flex-col items-center py-6 z-[100] hidden md:flex",
+            "fixed left-0 top-0 h-full bg-white/70 backdrop-blur-xl border-r border-slate-100 flex flex-col items-center py-6 z-[100] hidden md:flex overflow-y-auto",
             "shadow-[10px_0_30px_rgba(0,0,0,0.02)] will-change-[width]"
           )}
           style={{ perspective: "1000px" }}

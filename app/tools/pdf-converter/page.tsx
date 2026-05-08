@@ -305,7 +305,7 @@ export default function PDFConverter() {
         centered
         badgeText="Universal Protocol"
         badgeIcon={Zap}
-        title={<>Choose Your <span className="text-blue-600">Source Format.</span></>}
+        title={<>Universal <span className="text-blue-600">Converter.</span></>}
         subtitle="Convert images, Word documents, and presentations into professional PDF files instantly. Processed 100% locally for your privacy."
       />
 

@@ -261,7 +261,7 @@ export default function URLTrimmer() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
               >
-                Welcome to <span className="text-blue-600">Free Bulk URL Cleaner</span>
+                Welcome to <span className="text-blue-600">URL Trimmer</span>
               </motion.h1>
 
               <motion.div
@@ -301,16 +301,7 @@ export default function URLTrimmer() {
           badgeIcon={Zap}
           title={
             <>
-              Free Bulk URL Cleaner — <br className="hidden sm:block" />
-              <span className="relative inline-block">
-                <span className="relative z-10 text-blue-600">Strip Paths & Queries.</span>
-                <motion.span 
-                  initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
-                  transition={{ delay: 1, duration: 0.8 }}
-                  className="absolute bottom-1 left-0 h-3 bg-blue-100 -z-0 rounded-full" 
-                />
-              </span>
+              URL <span className="text-blue-600">Trimmer.</span>
             </>
           }
           subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."

@@ -142,7 +142,7 @@ export default function ImageCompressor() {
       <Hero 
         centered
         title={<>Image <span className="text-blue-600">Compressor.</span></>}
-        subtitle="Reduce payload volume with our local compression engine. Optimized for web assets while preserving spectral fidelity."
+        subtitle="Reduce image file size while maintaining visual quality. All processing happens in your browser."
       />
 
       <div className="max-w-4xl mx-auto">

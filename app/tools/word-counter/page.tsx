@@ -723,7 +723,7 @@ export default function WordCounter() {
       <Hero 
         centered
         title={<>Rich Text <span className="text-blue-600">Workspace.</span></>}
-        subtitle="The ultimate writing environment. Precision formatting, semantic structure, and real-time textual analysis in one secure plane."
+        subtitle="Count words, characters, and sentences from any text with real-time analysis."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
