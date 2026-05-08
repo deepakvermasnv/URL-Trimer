@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   FileImage,
   ChevronLeft,
-  Menu
+  Menu,
+  FileDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -40,6 +41,12 @@ const NAV_ITEMS = [
     icon: FileImage,
     href: '/tools/image-converter',
     isActive: (path: string) => path === '/tools/image-converter'
+  },
+  {
+    label: 'PDF Converter',
+    icon: FileDown,
+    href: '/tools/pdf-converter',
+    isActive: (path: string) => path === '/tools/pdf-converter'
   }
 ];
 

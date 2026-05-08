@@ -14,7 +14,8 @@ import {
   Zap,
   Shield,
   Search,
-  Minimize2
+  Minimize2,
+  FileDown
 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
@@ -25,6 +26,15 @@ import ToolCard from '@/components/ToolCard';
 
 const TOOLS = [
 // ... (rest of the file remains same, I will just apply the layout changes)
+  {
+    id: 'pdf-converter',
+    name: 'PDF Converter',
+    description: 'Transform images and text documents into professional PDF files instantly. 100% private and browser-based.',
+    icon: FileDown,
+    category: 'Universal',
+    href: '/tools/pdf-converter',
+    status: 'Ready'
+  },
   {
     id: 'word-counter',
     name: 'Word Counter',
