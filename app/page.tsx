@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Edit3 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Footer from '@/components/Footer';
@@ -25,6 +25,7 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
+  const [isManualEditing, setIsManualEditing] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -66,6 +67,8 @@ export default function URLTrimmer() {
     let isCancelled = false;
 
     const processInput = async () => {
+      if (isManualEditing) return; // Skip automatic processing if user is manually refining results
+
       if (!input.trim()) {
         setOutput('');
         setProgress(0);
@@ -159,7 +162,7 @@ export default function URLTrimmer() {
     return () => {
       isCancelled = true;
     };
-  }, [input, customExtensions, removeDuplicates]);
+  }, [input, customExtensions, removeDuplicates, isManualEditing]);
 
   const handleCopy = async () => {
     if (!output) return;
@@ -172,6 +175,7 @@ export default function URLTrimmer() {
     setInput('');
     setOutput('');
     setProgress(0);
+    setIsManualEditing(false);
   };
 
   const handleOpenAll = () => {
@@ -325,7 +329,7 @@ export default function URLTrimmer() {
                   <Settings2 className="w-5 h-5 text-white" />
                 </motion.div>
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900">Config</h2>
+                  <h2 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Config</h2>
                   <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Adjustment Module</p>
                 </div>
               </div>
@@ -417,7 +421,7 @@ export default function URLTrimmer() {
                       className="w-1.5 h-8 bg-blue-600 rounded-full" 
                     />
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900">Input Buffer</h3>
+                      <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
                       <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
                     </div>
                   </div>
@@ -489,7 +493,7 @@ export default function URLTrimmer() {
                           className="w-1.5 h-8 bg-emerald-500 rounded-full" 
                         />
                         <div>
-                          <h3 className="text-sm font-bold text-slate-900">Output Stream</h3>
+                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Output Stream ({output.split('\n').filter(line => line.trim() !== '').length})</h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Trimmed Results</p>
                         </div>
                       </div>
@@ -497,12 +501,27 @@ export default function URLTrimmer() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
+                          onClick={() => setIsManualEditing(!isManualEditing)}
+                          disabled={isProcessing || !output}
+                          className={cn(
+                            "px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm border",
+                            isManualEditing 
+                              ? "bg-blue-50 text-blue-600 border-blue-200" 
+                              : "bg-white text-slate-700 border-slate-200 hover:border-blue-500 hover:text-blue-600"
+                          )}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          {isManualEditing ? "Exit Edit" : "Manual Edit"}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleOpenAll}
                           disabled={isProcessing || !output}
                           aria-label="Open all links in new tabs"
-                          className="px-6 py-3 rounded-2xl text-xs font-bold transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
+                          className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
                         >
-                          <ExternalLink className="w-4 h-4 mr-2" />
+                          <ExternalLink className="w-3.5 h-3.5 mr-2" />
                           Open All
                         </motion.button>
                         <motion.button
@@ -512,7 +531,7 @@ export default function URLTrimmer() {
                           disabled={isProcessing || !output}
                           aria-label={copied ? "Copied" : "Copy results to clipboard"}
                           className={cn(
-                            "px-6 py-3 rounded-2xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
+                            "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
                             copied 
                               ? "bg-emerald-500 text-white shadow-emerald-200" 
                               : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 shimmer"
@@ -541,15 +560,26 @@ export default function URLTrimmer() {
                       </div>
                     </div>
                     <motion.div 
-                      key={output}
+                      key={isManualEditing ? 'editing' : 'viewing'}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={cn(
-                        "group/output relative bg-white border border-slate-100 rounded-3xl p-8 text-sm font-mono text-slate-600 whitespace-pre-wrap max-h-[400px] overflow-y-auto custom-scrollbar transition-all duration-500 shadow-inner",
+                        "group/output relative bg-white border border-slate-100 rounded-3xl p-8 text-sm font-mono text-slate-600 transition-all duration-500 shadow-inner",
                         isProcessing && "opacity-30"
                       )}>
-                      {output || "Crunching domains..."}
-                      <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
+                      {isManualEditing ? (
+                        <textarea 
+                          value={output}
+                          onChange={(e) => setOutput(e.target.value)}
+                          className="w-full h-[300px] bg-transparent resize-none outline-none custom-scrollbar"
+                          placeholder="Edit results manually..."
+                        />
+                      ) : (
+                        <div className="whitespace-pre-wrap max-h-[400px] overflow-y-auto custom-scrollbar">
+                          {output || "Crunching domains..."}
+                        </div>
+                      )}
+                      {!isManualEditing && <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />}
                     </motion.div>
                   </motion.div>
                 )}

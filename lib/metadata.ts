@@ -1,44 +1,44 @@
 export const SITE_CONFIG = {
   baseUrl: 'https://www.urltrim.online',
-  siteName: 'Web Tool Pro',
-  twitterHandle: '@webtoolpro',
+  siteName: 'URL Trimmer',
+  twitterHandle: '@urltrimmer',
 };
 
 export const SEO_METADATA = {
   home: {
     canonical: '/',
-    title: 'Online Tools Hub',
-    description: 'A collection of free, privacy-first web utilities and tools.',
+    title: 'Free Bulk URL Cleaner — Strip Paths, Queries & Tracking | URL Trimmer',
+    description: 'The world\'s fastest bulk URL cleaner. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly in your browser.',
   },
   tools: {
     canonical: '/tools',
-    title: 'Utility Library',
-    description: 'Browse our collection of professional web utilities.',
+    title: 'Web Utilities Library — Professional Browser Tools | URL Trimmer',
+    description: 'A curated collection of professional-grade web tools, built for performance and absolute privacy. No data ever leaves your device.',
   },
   wordCounter: {
     canonical: '/tools/word-counter',
-    title: 'Word Counter — Professional Text Analysis | Web Tool Pro',
+    title: 'Word Counter — Professional Text Analysis | URL Trimmer',
     description: 'Count words, characters, and sentences from your text instantly with local analysis.',
   },
   imageCompressor: {
     canonical: '/tools/image-compressor',
-    title: 'Image Compressor — Shrink Images Locally | Web Tool Pro',
+    title: 'Image Compressor — Shrink Images Locally | URL Trimmer',
     description: 'Reduce image file size while maintaining visual quality locally in your browser.',
   },
   imageConverter: {
     canonical: '/tools/image-converter',
-    title: 'Image Converter — Local Format Transformer | Web Tool Pro',
+    title: 'Image Converter — Local Format Transformer | URL Trimmer',
     description: 'Convert images between different formats instantly without server uploads.',
   },
   pdfConverter: {
     canonical: '/tools/pdf-converter',
-    title: 'Free PDF Converter - Professional Document to PDF | URL Trim',
+    title: 'Free PDF Converter — Professional Document to PDF | URL Trimmer',
     description: 'Convert images, Word docx, and PowerPoint pptx files into professional PDF documents locally in your browser.',
   },
   about: {
     canonical: '/about',
-    title: 'About Our Protocol | Web Tool Pro Mission',
-    description: 'Learn about the technology and mission behind Web Tool Pro. We build privacy-first, client-side web utilities.',
+    title: 'About Our Protocol | URL Trimmer Mission',
+    description: 'Learn about the technology and mission behind URL Trimmer. We build privacy-first, client-side web utilities.',
   },
   contact: {
     canonical: '/contact',

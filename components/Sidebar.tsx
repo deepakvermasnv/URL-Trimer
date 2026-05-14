@@ -61,13 +61,13 @@ export function Sidebar() {
           animate={{ width: isCollapsed ? '80px' : '110px' }}
           transition={{ type: "spring", stiffness: 300, damping: 35, mass: 0.8 }}
           className={cn(
-            "fixed left-0 top-0 h-full bg-white/70 backdrop-blur-xl border-r border-slate-100 flex flex-col items-center py-6 z-[100] hidden md:flex overflow-y-auto",
-            "shadow-[10px_0_30px_rgba(0,0,0,0.02)] will-change-[width]"
+            "fixed left-0 top-0 h-screen bg-white/70 backdrop-blur-xl border-r border-slate-100 flex flex-col items-center py-6 z-[100] hidden md:flex overflow-y-auto custom-scrollbar-hide hover:custom-scrollbar",
+            "shadow-[10px_0_30px_rgba(0,0,0,0.02)] will-change-[width] scrollbar-thin scrollbar-thumb-blue-100"
           )}
           style={{ perspective: "1000px" }}
         >
           {/* Menu Toggle at Top */}
-          <div className="mb-10 px-2" style={{ transformStyle: "preserve-3d" }}>
+          <div className="mb-10 px-2 shrink-0" style={{ transformStyle: "preserve-3d" }}>
             <motion.button 
               onClick={() => setIsCollapsed(!isCollapsed)}
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}

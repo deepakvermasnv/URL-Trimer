@@ -1,5 +1,5 @@
 {
-  "name": "Web Tool Pro",
-  "description": "A professional collection of privacy-first web utilities and tools.",
+  "name": "URL Trimmer",
+  "description": "Professional-grade bulk URL cleaner. Strip paths, queries, and tracking fragments with surgical precision locally in your browser.",
   "requestFramePermissions": []
 }
