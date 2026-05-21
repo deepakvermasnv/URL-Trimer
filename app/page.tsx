@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Edit3, Star, Zap } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -21,7 +21,6 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
-  const [isManualEditing, setIsManualEditing] = useState(false);
 
   // Mouse Spotlight Effect
   useEffect(() => {
@@ -52,8 +51,6 @@ export default function URLTrimmer() {
     let isCancelled = false;
 
     const processInput = async () => {
-      if (isManualEditing) return; // Skip automatic processing if user is manually refining results
-
       if (!input.trim()) {
         setOutput('');
         setProgress(0);
@@ -147,7 +144,7 @@ export default function URLTrimmer() {
     return () => {
       isCancelled = true;
     };
-  }, [input, customExtensions, removeDuplicates, isManualEditing]);
+  }, [input, customExtensions, removeDuplicates]);
 
   const handleCopy = async () => {
     if (!output) return;
@@ -160,7 +157,6 @@ export default function URLTrimmer() {
     setInput('');
     setOutput('');
     setProgress(0);
-    setIsManualEditing(false);
   };
 
   const handleOpenAll = () => {
@@ -236,180 +232,99 @@ export default function URLTrimmer() {
           subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Settings */}
-          <motion.aside 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="lg:col-span-4 space-y-6 lg:sticky lg:top-12"
-          >
-            <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-blue-900/5 border border-white p-8 group transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1">
-              <div className="flex items-center gap-3 mb-8">
-                <motion.div 
-                  whileHover={{ rotate: 180 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 cursor-pointer"
-                >
-                  <Settings2 className="w-5 h-5 text-white" />
-                </motion.div>
-                <div>
-                  <h2 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Config</h2>
-                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Adjustment Module</p>
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    Custom Extensions
-                    <motion.span 
-                      animate={{ scale: [1, 1.5, 1] }} 
-                      transition={{ repeat: Infinity, duration: 2 }}
-                      className="w-1.5 h-1.5 bg-blue-400 rounded-full" 
-                    />
-                  </label>
-                  <input 
-                    type="text"
-                    className="w-full bg-slate-50 border border-slate-100 hover:border-blue-200 focus:border-blue-500 focus:bg-white rounded-2xl px-5 py-3.5 text-sm outline-none transition-all duration-300 shadow-sm"
-                    value={customExtensions}
-                    onChange={(e) => setCustomExtensions(e.target.value)}
-                    placeholder=".com, .net..."
-                  />
-                  <p className="text-[10px] text-slate-400">Separate multiple extensions with commas.</p>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Filtering</label>
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setRemoveDuplicates(!removeDuplicates)}
-                    aria-label={removeDuplicates ? "Disable deduplication" : "Enable deduplication"}
-                    className={cn(
-                      "w-full px-6 py-4 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-between group overflow-hidden relative",
-                      removeDuplicates 
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-200 shimmer" 
-                        : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                    )}
-                  >
-                    <span className="relative z-10">Remove Duplicates</span>
-                    <div className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 relative z-10",
-                      removeDuplicates ? "bg-white/20 rotate-0 shadow-inner" : "bg-slate-200 rotate-180"
-                    )}>
-                      <Check className={cn("w-3 h-3 transition-opacity", removeDuplicates ? "opacity-100" : "opacity-0")} />
-                    </div>
-                  </motion.button>
-                </div>
-
-                <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Engine Status</span>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                     Live
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.aside>
-
-          {/* Right Column: Main Workspace */}
+        <div className="max-w-6xl mx-auto w-full">
+          {/* Main Workspace */}
           <motion.div 
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
             whileHover={{ 
-              rotateX: 1, 
-              rotateY: -1,
+              rotateX: 0.5, 
+              rotateY: -0.5,
               transition: { duration: 0.3 }
             }}
             style={{ perspective: 1500, transformStyle: "preserve-3d" }}
-            className="lg:col-span-8 space-y-8 will-change-transform"
+            className="space-y-8 will-change-transform"
           >
             <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden transition-all duration-500 hover:shadow-blue-900/15">
-              {/* Input Area */}
-              <div 
-                className={cn(
-                  "p-8 sm:p-10 transition-colors duration-500 relative",
-                  isDragging ? "bg-blue-50/50" : "bg-white"
-                )}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                      <motion.div 
-                        animate={{ height: [32, 24, 32] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                        className="w-1.5 h-8 bg-blue-600 rounded-full" 
-                      />
-                      <div>
-                        <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
-                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+                {/* Left Side: Input Area */}
+                <div 
+                  className={cn(
+                    "p-8 sm:p-10 transition-colors duration-500 relative flex flex-col justify-between h-full",
+                    isDragging ? "bg-blue-50/50" : "bg-white"
+                  )}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <motion.div 
+                          animate={{ height: [32, 24, 32] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                          className="w-1.5 h-8 bg-blue-600 rounded-full" 
+                        />
+                        <div>
+                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
+                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-6">
+                        {isProcessing && (
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
+                          >
+                            <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                            <span className="text-xs font-bold text-blue-600">{progress}%</span>
+                          </motion.div>
+                        )}
+                        <motion.button 
+                          whileHover={{ scale: 1.1, color: "#ef4444" }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={handleClear}
+                          aria-label="Clear input buffer"
+                          className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors uppercase tracking-widest"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Clear
+                        </motion.button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      {isProcessing && (
+                    
+                    <div className="relative group/input flex-1 flex flex-col">
+                      <textarea
+                        className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-6 text-slate-700 font-medium placeholder-slate-300 h-[380px] lg:h-[460px] resize-none text-base leading-relaxed transition-all duration-300 outline-none shadow-inner"
+                        placeholder="Paste links to begin processing..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                      />
+                      <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
+                      {isDragging && (
                         <motion.div 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none"
                         >
-                          <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-                          <span className="text-xs font-bold text-blue-600">{progress}%</span>
+                          <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ repeat: Infinity, duration: 1 }}
+                          >
+                            <FileUp className="w-12 h-12 text-blue-600 mb-3" />
+                          </motion.div>
+                          <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
                         </motion.div>
                       )}
-                    <motion.button 
-                      whileHover={{ scale: 1.1, color: "#ef4444" }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handleClear}
-                      aria-label="Clear input buffer"
-                      className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors uppercase tracking-widest"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Clear
-                    </motion.button>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="relative group/input">
-                  <textarea
-                    className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-8 text-slate-700 font-medium placeholder-slate-300 min-h-[320px] resize-none text-base leading-relaxed transition-all duration-300 outline-none shadow-inner"
-                    placeholder="Paste links to begin processing..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                  />
-                  <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
-                  {isDragging && (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none"
-                    >
-                      <motion.div
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ repeat: Infinity, duration: 1 }}
-                      >
-                        <FileUp className="w-12 h-12 text-blue-600 mb-3" />
-                      </motion.div>
-                      <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
-                    </motion.div>
-                  )}
-                </div>
-              </div>
 
-              {/* Output Area */}
-              <AnimatePresence mode="wait">
-                {(output || isProcessing) && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: "circOut" }}
-                    className="p-8 sm:p-10 border-t border-slate-50 bg-slate-50/30"
-                  >
+                {/* Right Side: Output Area */}
+                <div className="p-8 sm:p-10 bg-slate-50/30 flex flex-col justify-between h-full">
+                  <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-4">
                         <motion.div 
@@ -422,31 +337,16 @@ export default function URLTrimmer() {
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Trimmed Results</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setIsManualEditing(!isManualEditing)}
-                          disabled={isProcessing || !output}
-                          className={cn(
-                            "px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm border",
-                            isManualEditing 
-                              ? "bg-blue-50 text-blue-600 border-blue-200" 
-                              : "bg-white text-slate-700 border-slate-200 hover:border-blue-500 hover:text-blue-600"
-                          )}
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          {isManualEditing ? "Exit Edit" : "Manual Edit"}
-                        </motion.button>
+                      <div className="flex items-center gap-2">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={handleOpenAll}
                           disabled={isProcessing || !output}
                           aria-label="Open all links in new tabs"
-                          className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
                         >
-                          <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                          <ExternalLink className="w-3 h-3 mr-1" />
                           Open All
                         </motion.button>
                         <motion.button
@@ -456,7 +356,7 @@ export default function URLTrimmer() {
                           disabled={isProcessing || !output}
                           aria-label={copied ? "Copied" : "Copy results to clipboard"}
                           className={cn(
-                            "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
+                            "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-1.5 relative overflow-hidden",
                             copied 
                               ? "bg-emerald-500 text-white shadow-emerald-200" 
                               : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 transition-all duration-300"
@@ -468,10 +368,10 @@ export default function URLTrimmer() {
                               initial={{ y: 20, opacity: 0 }}
                               animate={{ y: 0, opacity: 1 }}
                               exit={{ y: -20, opacity: 0 }}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-1.5"
                             >
-                              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                              <span className="relative z-10">{copied ? 'Captured!' : 'Copy List'}</span>
+                              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span className="relative z-10">{copied ? 'Copied' : 'Copy'}</span>
                             </motion.div>
                           </AnimatePresence>
                           {copied && (
@@ -484,37 +384,85 @@ export default function URLTrimmer() {
                         </motion.button>
                       </div>
                     </div>
+                    
                     <motion.div 
-                      key={isManualEditing ? 'editing' : 'viewing'}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={cn(
-                        "group/output relative bg-white border border-slate-100 rounded-3xl p-8 text-sm font-mono text-slate-600 transition-all duration-500 shadow-inner",
+                        "group/output relative bg-white border border-slate-100 rounded-3xl p-6 text-sm font-mono text-slate-600 transition-all duration-500 shadow-inner h-[380px] lg:h-[460px] flex flex-col justify-between",
                         isProcessing && "opacity-30"
                       )}>
-                      {isManualEditing ? (
-                        <textarea 
-                          value={output}
-                          onChange={(e) => setOutput(e.target.value)}
-                          className="w-full h-[300px] bg-transparent resize-none outline-none custom-scrollbar"
-                          placeholder="Edit results manually..."
-                        />
-                      ) : (
-                        <div className="whitespace-pre-wrap max-h-[400px] overflow-y-auto custom-scrollbar">
-                          {output || "Crunching domains..."}
+                      <textarea 
+                        value={output}
+                        onChange={(e) => setOutput(e.target.value)}
+                        className="w-full h-full bg-transparent resize-none outline-none custom-scrollbar z-10 relative leading-relaxed whitespace-pre"
+                        placeholder=""
+                      />
+                      
+                      {!output && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 pointer-events-none select-none z-0">
+                          <Scissors className="w-10 h-10 text-slate-300 mb-3 animate-pulse" />
+                          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
+                          <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to instantly strip extra paths offline.</p>
                         </div>
                       )}
-                      {!isManualEditing && <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />}
+                      <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
                     </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
 
         {/* Informational Sections */}
         <div className="mt-32 space-y-32">
+          {/* URL Trim Tools Section */}
+          <section id="tools" className="space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">URL Trim Tools</h2>
+              <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Professional Grade Utility Library</p>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 overflow-hidden transition-all duration-500">
+              <div className="p-8 sm:p-12">
+                <div className="flex items-center gap-2 mb-10 justify-center sm:justify-start">
+                  <Star className="w-4 h-4 text-orange-400 fill-current" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                    URL Trim’s full suite of tools
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-x-12 sm:gap-y-10">
+                  {TOOLS.slice(0, 6).map((tool) => (
+                    <Link 
+                      key={tool.id} 
+                      href={tool.href}
+                      className={cn(
+                        "flex items-center gap-4 group transition-all",
+                        tool.href === '#' && "pointer-events-none opacity-60"
+                      )}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
+                        <tool.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{tool.name}</h4>
+                        <p className="text-xs text-slate-400 line-clamp-1">{tool.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
+                  <Link href="/tools" className="inline-flex items-center gap-2 text-blue-600 font-bold text-sm hover:gap-3 transition-all">
+                    Explore Extended Library <ExternalLink className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Features Grid */}
           <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
@@ -619,52 +567,6 @@ export default function URLTrimmer() {
               </div>
             </div>
             </motion.section>
-
-          {/* URL Trim Tools Section */}
-          <section id="tools" className="space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">URL Trim Tools</h2>
-              <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Professional Grade Utility Library</p>
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 overflow-hidden transition-all duration-500">
-              <div className="p-8 sm:p-12">
-                <div className="flex items-center gap-2 mb-10 justify-center sm:justify-start">
-                  <Star className="w-4 h-4 text-orange-400 fill-current" />
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
-                    URL Trim’s full suite of tools
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-x-12 sm:gap-y-10">
-                  {TOOLS.slice(0, 6).map((tool) => (
-                    <Link 
-                      key={tool.id} 
-                      href={tool.href}
-                      className={cn(
-                        "flex items-center gap-4 group transition-all",
-                        tool.href === '#' && "pointer-events-none opacity-60"
-                      )}
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
-                        <tool.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{tool.name}</h4>
-                        <p className="text-xs text-slate-400 line-clamp-1">{tool.description}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                
-                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
-                  <Link href="/tools" className="inline-flex items-center gap-2 text-blue-600 font-bold text-sm hover:gap-3 transition-all">
-                    Explore Extended Library <ExternalLink className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* SEO Optimized Long-Form Content */}
           <section className="space-y-20 pb-20 border-t border-slate-100 pt-32">
