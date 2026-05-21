@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/disclaimer',
     '/tools',
     '/tools/word-counter',
+    '/tools/pdf-converter',
     '/tools/image-compressor',
     '/tools/image-converter',
     '/blog/physics-of-zero-server-link-cleaning',
