@@ -1,8 +1,5 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'motion/react';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import Footer from '@/components/Footer';
 
@@ -15,11 +12,7 @@ export default function DisclaimerPage() {
           Back to Terminal
         </Link>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <div>
           <div className="flex items-center gap-4 mb-8">
             <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter">
               Legal <span className="text-blue-600">Disclaimer.</span>
@@ -77,7 +70,7 @@ export default function DisclaimerPage() {
               </section>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
       <Footer />
     </div>

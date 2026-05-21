@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'motion/react';
 import { ChevronRight, LucideIcon } from 'lucide-react';
 import Badge from './Badge';
 
@@ -21,12 +20,7 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
   const isComingSoon = tool.status === 'Coming Soon';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.1 }}
-      className="group"
-    >
+    <div className="group">
       <Link 
         href={isComingSoon ? '#' : tool.href}
         className={`block h-full bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-10 shadow-xl shadow-blue-900/5 transition-all duration-500 ${
@@ -73,6 +67,6 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
           )}
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
