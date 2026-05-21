@@ -70,10 +70,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <SidebarProvider>
-          <Script
+          <script
             id="ld-json"
             type="application/ld+json"
-            strategy="beforeInteractive"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
           <script
@@ -112,20 +111,18 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           {/* Google Analytics 4 */}
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
-          <Script id="google-analytics" strategy="afterInteractive">
+          <Script id="google-analytics" strategy="lazyOnload">
             {`
-              (function() {
-                try {
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', 'G-0JPT186X09');
-                } catch (e) {
-                  console.warn('Analytics initialization failed:', e);
-                }
-              })();
+              try {
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-0JPT186X09');
+              } catch (e) {
+                console.warn('Analytics initialization failed:', e);
+              }
             `}
           </Script>
           <Navbar />

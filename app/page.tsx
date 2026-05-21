@@ -22,23 +22,6 @@ export default function URLTrimmer() {
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [removeDuplicates, setRemoveDuplicates] = useState(false);
   const [isManualEditing, setIsManualEditing] = useState(false);
-  const [showIntro, setShowIntro] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Initialize mounting state
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setIsMounted(true);
-    });
-  }, []);
-
-  // Intro Timer
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowIntro(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Mouse Spotlight Effect
   useEffect(() => {
@@ -235,67 +218,7 @@ export default function URLTrimmer() {
 
   return (
     <>
-      <AnimatePresence>
-        {showIntro && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8fafc] overflow-hidden"
-          >
-            {/* Background pattern for intro */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-              <div className="absolute inset-x-0 h-px bg-blue-600 top-1/4" />
-              <div className="absolute inset-x-0 h-px bg-blue-600 top-2/4" />
-              <div className="absolute inset-x-0 h-px bg-blue-600 top-3/4" />
-            </div>
 
-            <div className="relative text-center">
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest mb-8 mx-auto"
-              >
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                Initializing Link Protocol
-              </motion.div>
-              
-              <motion.h1
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
-              >
-                Welcome to <span className="text-blue-600">URL Trim</span>
-              </motion.h1>
-
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 1.4, ease: "linear", delay: 0.3 }}
-                className="h-1 bg-blue-600 max-w-[200px] mx-auto rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-              />
-              
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="mt-6 text-sm font-bold text-slate-400 uppercase tracking-[0.4em]"
-              >
-                Loading Assets...
-              </motion.p>
-            </div>
-
-            {/* Circular decorative elements */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute w-[600px] h-[600px] border border-blue-100 rounded-full opacity-20 pointer-events-none"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <PageLayout className="selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative" showBlobs={true}>
         {/* Interactive Spotlight Overlay */}
