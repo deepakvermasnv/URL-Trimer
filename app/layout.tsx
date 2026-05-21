@@ -2,9 +2,12 @@ import type {Metadata} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 import { Sidebar } from '../components/Sidebar';
+import { Navbar } from '../components/Navbar';
 import { ScrollToTop } from '../components/ScrollToTop';
 import { SITE_CONFIG, SEO_METADATA, getCanonical } from '../lib/metadata';
 import './globals.css';
+import { SidebarProvider } from '@/lib/SidebarContext';
+import { ContentWrapper } from '@/components/ContentWrapper';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -66,69 +69,72 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <Script
-          id="ld-json"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // 1. Guard window.fetch against read-only property errors
-                try {
-                  const originalFetch = window.fetch;
-                  if (originalFetch) {
-                    Object.defineProperty(window, 'fetch', {
-                      get: function() { return originalFetch; },
-                      set: function(v) { console.warn('Blocked attempt to override window.fetch'); },
-                      configurable: true,
-                      enumerable: true
-                    });
-                  }
-                } catch (e) {
-                  // If it's already non-configurable, we can't do much, but we shouldn't throw here anyway
-                }
-
-                // 2. Circular structure guard for JSON.stringify
-                const originalStringify = JSON.stringify;
-                JSON.stringify = function(obj, replacer, space) {
+        <SidebarProvider>
+          <Script
+            id="ld-json"
+            type="application/ld+json"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  // 1. Guard window.fetch against read-only property errors
                   try {
-                    return originalStringify(obj, replacer, space);
+                    const originalFetch = window.fetch;
+                    if (originalFetch) {
+                      Object.defineProperty(window, 'fetch', {
+                        get: function() { return originalFetch; },
+                        set: function(v) { console.warn('Blocked attempt to override window.fetch'); },
+                        configurable: true,
+                        enumerable: true
+                      });
+                    }
                   } catch (e) {
-                    if (e && e.message && e.message.includes('circular structure')) return '"[Circular]"';
-                    throw e;
+                    // If it's already non-configurable, we can't do much, but we shouldn't throw here anyway
                   }
-                };
+
+                  // 2. Circular structure guard for JSON.stringify
+                  const originalStringify = JSON.stringify;
+                  JSON.stringify = function(obj, replacer, space) {
+                    try {
+                      return originalStringify(obj, replacer, space);
+                    } catch (e) {
+                      if (e && e.message && e.message.includes('circular structure')) return '"[Circular]"';
+                      throw e;
+                    }
+                  };
+                })();
+              `
+            }}
+          />
+          {/* Google Analytics 4 */}
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              (function() {
+                try {
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-0JPT186X09');
+                } catch (e) {
+                  console.warn('Analytics initialization failed:', e);
+                }
               })();
-            `
-          }}
-        />
-        {/* Google Analytics 4 */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-0JPT186X09"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            (function() {
-              try {
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-0JPT186X09');
-              } catch (e) {
-                console.warn('Analytics initialization failed:', e);
-              }
-            })();
-          `}
-        </Script>
-        <Sidebar />
-        <main className="md:pl-[120px] min-h-screen">
-          {children}
-        </main>
-        <ScrollToTop />
+            `}
+          </Script>
+          <Navbar />
+          <Sidebar />
+          <ContentWrapper>
+            {children}
+          </ContentWrapper>
+          <ScrollToTop />
+        </SidebarProvider>
       </body>
     </html>
   );

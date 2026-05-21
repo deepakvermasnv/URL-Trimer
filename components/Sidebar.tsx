@@ -1,21 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import Image from 'next/image';
 import { 
   LayoutGrid, 
-  MoreHorizontal,
   FileText,
   Image as ImageIcon,
   FileImage,
-  ChevronLeft,
-  Menu,
   FileDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSidebar } from '@/lib/SidebarContext';
 
 const NAV_ITEMS = [
   {
@@ -52,39 +49,38 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, toggleSidebar } = useSidebar();
 
   return (
     <>
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={toggleSidebar}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[140] md:hidden"
+            />
+          )}
+        </AnimatePresence>
+
         <motion.aside 
           initial={false}
-          animate={{ width: isCollapsed ? '80px' : '110px' }}
-          transition={{ type: "spring", stiffness: 300, damping: 35, mass: 0.8 }}
+          animate={{ 
+            x: isCollapsed ? '-101%' : '0%',
+            opacity: isCollapsed ? 0 : 1
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 40 }}
           className={cn(
-            "fixed left-0 top-0 h-screen bg-white/70 backdrop-blur-xl border-r border-slate-100 flex flex-col items-center py-6 z-[100] hidden md:flex overflow-y-auto custom-scrollbar-hide hover:custom-scrollbar",
-            "shadow-[10px_0_30px_rgba(0,0,0,0.02)] will-change-[width] scrollbar-thin scrollbar-thumb-blue-100"
+            "fixed left-0 top-16 bottom-0 w-[100px] sm:w-[110px] bg-white/90 backdrop-blur-3xl border-r border-slate-200/40 flex flex-col items-center py-8 z-[145] overflow-y-auto scrollbar-none md:flex",
+            "shadow-[1px_0_20px_rgba(0,0,0,0.02)] md:shadow-none will-change-transform"
           )}
-          style={{ perspective: "1000px" }}
+          style={{ 
+            WebkitOverflowScrolling: 'touch'
+          }}
         >
-          {/* Menu Toggle at Top */}
-          <div className="mb-10 px-2 shrink-0" style={{ transformStyle: "preserve-3d" }}>
-            <motion.button 
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              whileHover={{ 
-                scale: 1.1, 
-                rotateZ: isCollapsed ? 90 : -90,
-                rotateY: 15,
-                z: 10
-              }}
-              whileTap={{ scale: 0.9, rotateZ: 0 }}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-white shadow-sm text-blue-600 border border-slate-100"
-            >
-              <Menu className="w-7 h-7" />
-            </motion.button>
-          </div>
-  
-          <nav className="flex-1 w-full flex flex-col items-center gap-8 px-1" style={{ transformStyle: "preserve-3d" }}>
+          <nav className="w-full flex-shrink-0 flex flex-col items-center gap-7 px-1 pb-24" style={{ transformStyle: "preserve-3d" }}>
           {NAV_ITEMS.map((item: any) => {
             const active = item.isActive ? item.isActive(pathname) : false;
             const Icon = item.icon;
@@ -96,7 +92,7 @@ export function Sidebar() {
                 className="group flex flex-col items-center w-full px-1"
               >
                 <motion.div 
-                  whileHover={{ 
+                   whileHover={{ 
                     scale: 1.15,
                     rotateY: 20,
                     rotateX: -10,
@@ -137,19 +133,7 @@ export function Sidebar() {
             );
           })}
         </nav>
-
-        {/* Profile / Custom Logo Section Removed at user request */}
       </motion.aside>
-
-      {/* Mobile Menu Placeholder (Optional visibility) */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
-        <button 
-          aria-label="Open mobile menu"
-          className="bg-white p-2 rounded-lg shadow-md border border-slate-100"
-        >
-          <Menu className="w-6 h-6 text-blue-600" />
-        </button>
-      </div>
     </>
   );
 }

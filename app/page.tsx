@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Edit3 } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Edit3, Star, Zap } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
-import { Zap } from 'lucide-react';
+import { TOOLS } from '@/lib/tools';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -265,7 +265,7 @@ export default function URLTrimmer() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="text-4xl sm:text-6xl font-black text-slate-900 mb-6 tracking-tighter"
               >
-                Welcome to <span className="text-blue-600">URL Trimmer</span>
+                Welcome to <span className="text-blue-600">URL Trim</span>
               </motion.h1>
 
               <motion.div
@@ -305,7 +305,7 @@ export default function URLTrimmer() {
           badgeIcon={Zap}
           title={
             <>
-              URL <span className="text-blue-600">Trimmer.</span>
+              URL <span className="text-blue-600">Trim.</span>
             </>
           }
           subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."
@@ -415,27 +415,27 @@ export default function URLTrimmer() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <motion.div 
-                      animate={{ height: [32, 24, 32] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="w-1.5 h-8 bg-blue-600 rounded-full" 
-                    />
-                    <div>
-                      <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
-                      <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    {isProcessing && (
                       <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
-                      >
-                        <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-                        <span className="text-xs font-bold text-blue-600">{progress}%</span>
-                      </motion.div>
-                    )}
+                        animate={{ height: [32, 24, 32] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                        className="w-1.5 h-8 bg-blue-600 rounded-full" 
+                      />
+                      <div>
+                        <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
+                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      {isProcessing && (
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
+                        >
+                          <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+                          <span className="text-xs font-bold text-blue-600">{progress}%</span>
+                        </motion.div>
+                      )}
                     <motion.button 
                       whileHover={{ scale: 1.1, color: "#ef4444" }}
                       whileTap={{ scale: 0.9 }}
@@ -534,7 +534,7 @@ export default function URLTrimmer() {
                             "px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 relative overflow-hidden",
                             copied 
                               ? "bg-emerald-500 text-white shadow-emerald-200" 
-                              : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 shimmer"
+                              : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 transition-all duration-300"
                           )}
                         >
                           <AnimatePresence mode="wait">
@@ -695,14 +695,60 @@ export default function URLTrimmer() {
             </div>
             </motion.section>
 
+          {/* URL Trim Tools Section */}
+          <section id="tools" className="space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">URL Trim Tools</h2>
+              <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Professional Grade Utility Library</p>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 overflow-hidden transition-all duration-500">
+              <div className="p-8 sm:p-12">
+                <div className="flex items-center gap-2 mb-10 justify-center sm:justify-start">
+                  <Star className="w-4 h-4 text-orange-400 fill-current" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                    URL Trim’s full suite of tools
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-x-12 sm:gap-y-10">
+                  {TOOLS.slice(0, 6).map((tool) => (
+                    <Link 
+                      key={tool.id} 
+                      href={tool.href}
+                      className={cn(
+                        "flex items-center gap-4 group transition-all",
+                        tool.href === '#' && "pointer-events-none opacity-60"
+                      )}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
+                        <tool.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{tool.name}</h4>
+                        <p className="text-xs text-slate-400 line-clamp-1">{tool.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
+                  <Link href="/tools" className="inline-flex items-center gap-2 text-blue-600 font-bold text-sm hover:gap-3 transition-all">
+                    Explore Extended Library <ExternalLink className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* SEO Optimized Long-Form Content */}
           <section className="space-y-20 pb-20 border-t border-slate-100 pt-32">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
               <div className="lg:col-span-8 space-y-12">
                 <div className="space-y-6">
-                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">What Is URL Trimmer? The Ultimate Bulk URL Cleaning Tool</h2>
+                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">What Is URL Trim? The Ultimate Bulk URL Cleaning Tool</h2>
                   <p className="text-slate-600 leading-relaxed text-lg font-medium">
-                    URL Trimmer is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you&apos;re dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trimmer strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
+                    URL Trim is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you&apos;re dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trim strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
                   </p>
                 </div>
 
@@ -713,14 +759,14 @@ export default function URLTrimmer() {
                       Modern URLs are cluttered. Every time you share a link, visit a page, or export a URL list from an analytics tool, you end up with strings full of <strong className="text-slate-800">tracking parameters</strong> (like <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">utm_source</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">fbclid</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">gclid</code>), nested paths, redirects, and query fragments. These make your data analysis messy, your spreadsheets unreadable, and your reports inaccurate.
                     </p>
                     <p>
-                      URL Trimmer solves this problem instantly. Paste your raw URL list — no matter how large — and our intelligent engine strips everything down to the clean root domain or your preferred structure within seconds.
+                      URL Trim solves this problem instantly. Paste your raw URL list — no matter how large — and our intelligent engine strips everything down to the clean root domain or your preferred structure within seconds.
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
-                    <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs">Who Uses URL Trimmer?</h4>
+                    <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs">Who Uses URL Trim?</h4>
                     <ul className="space-y-3 text-sm text-slate-500 font-medium list-disc pl-5">
                       <li><strong>SEO Professionals:</strong> Audit backlink profiles and extract clean unique referring domains.</li>
                       <li><strong>Digital Marketers:</strong> Sanitize lists before importing into campaign tools.</li>
@@ -738,9 +784,9 @@ export default function URLTrimmer() {
                 </div>
 
                 <div className="space-y-8">
-                  <h3 className="text-2xl font-bold text-slate-900">URL Trimmer vs. Manual Cleaning</h3>
+                  <h3 className="text-2xl font-bold text-slate-900">URL Trim vs. Manual Cleaning</h3>
                   <p className="text-slate-600 leading-relaxed font-medium">
-                    Manually cleaning URLs in Excel using complex formulas is tedious and breaks with non-standard URL structures. Python scripts work but require technical knowledge and environment setup. URL Trimmer gives you the power of a programmatic solution with the simplicity of a no-code tool — no spreadsheet gymnastics, no scripting, no server uploads.
+                    Manually cleaning URLs in Excel using complex formulas is tedious and breaks with non-standard URL structures. Python scripts work but require technical knowledge and environment setup. URL Trim gives you the power of a programmatic solution with the simplicity of a no-code tool — no spreadsheet gymnastics, no scripting, no server uploads.
                   </p>
                 </div>
               </div>
@@ -750,9 +796,9 @@ export default function URLTrimmer() {
                   <h3 className="text-xl font-bold text-slate-900 mb-8">Frequently Asked Questions</h3>
                   <div className="space-y-8">
                     {[
-                      { q: "Is URL Trimmer completely free?", a: "Yes, URL Trimmer is completely free to use with no limits on the number of URLs you can process." },
+                      { q: "Is URL Trim completely free?", a: "Yes, URL Trim is completely free to use with no limits on the number of URLs you can process." },
                       { q: "What is the URL limit?", a: "Our optimized chunking engine handles 10,000+ URLs simultaneously without blocking your browser's main thread." },
-                      { q: "Can I use it on mobile?", a: "Yes, URL Trimmer works on all modern mobile browsers including iOS and Android." },
+                      { q: "Can I use it on mobile?", a: "Yes, URL Trim works on all modern mobile browsers including iOS and Android." },
                       { q: "What about IDNs?", a: "Our engine correctly handles international domain names and punycode-encoded URLs with high precision." }
                     ].map((faq, i) => (
                       <div key={i} className="space-y-2">

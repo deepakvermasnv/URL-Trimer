@@ -1,5 +1,8 @@
 {
-  "name": "URL Trimmer",
+  "name": "URL Trim",
   "description": "Professional-grade bulk URL cleaner. Strip paths, queries, and tracking fragments with surgical precision locally in your browser.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

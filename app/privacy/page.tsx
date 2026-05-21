@@ -24,7 +24,7 @@ export default function PrivacyPage() {
             <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter">
               Privacy <span className="text-blue-600">Policy.</span>
             </h1>
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
               <Lock className="w-6 h-6" />
             </div>
           </div>
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-4 uppercase tracking-widest text-[11px]">Core Security Protocol</h2>
               <p className="text-slate-600 font-medium leading-relaxed">
-                URL Trimmer is a client-side application. This means <strong>all URL processing happens exclusively within your browser&apos;s memory.</strong> 
+                URL Trim is a client-side application. This means <strong>all URL processing happens exclusively within your browser&apos;s memory.</strong> 
                 No data is ever sent to our servers for storage, analysis, or monitoring. Your privacy is protected by physics: the data never leaves your device.
               </p>
             </section>

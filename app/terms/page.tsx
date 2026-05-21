@@ -31,7 +31,7 @@ export default function TermsPage() {
 
           <div className="prose prose-slate max-w-none space-y-12">
             <p className="text-xl text-slate-600 leading-relaxed font-medium">
-              By accessing and utilizing URL Trimmer, you acknowledge and agree to the following operational parameters. 
+              By accessing and utilizing URL Trim, you acknowledge and agree to the following operational parameters. 
               These terms are established to ensure the integrity of our link-cleaning protocol.
             </p>
 

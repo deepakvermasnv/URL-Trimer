@@ -26,7 +26,7 @@ export default function AboutPage() {
 
           <div className="prose prose-slate prose-lg max-w-none">
             <p className="text-xl text-slate-600 leading-relaxed font-medium mb-12">
-              URL Trimmer was engineered to solve a specific problem: the noise of modern links. 
+              URL Trim was engineered to solve a specific problem: the noise of modern links. 
               Between tracking parameters, nested paths, and redundant query strings, the web has become cluttered with information that obscures its source.
             </p>
 
@@ -46,15 +46,15 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Why We Built URL Trimmer</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Why We Built URL Trim</h2>
             <p className="text-slate-600 mb-8 leading-relaxed">
-              URL Trimmer was built by a small team of developers and SEO professionals who were tired of the same frustrating workflow: exporting backlink data, opening Excel, writing complex formulas, and spending an hour cleaning what should take seconds. We searched for existing tools and found two categories: server-side tools that required us to upload sensitive client data to unknown servers, or Python scripts that required technical setup every time.
+              URL Trim was built by a small team of developers and SEO professionals who were tired of the same frustrating workflow: exporting backlink data, opening Excel, writing complex formulas, and spending an hour cleaning what should take seconds. We searched for existing tools and found two categories: server-side tools that required us to upload sensitive client data to unknown servers, or Python scripts that required technical setup every time.
             </p>
             <p className="text-slate-600 mb-8 leading-relaxed">
-              We wanted something different — a tool as fast as a script but as accessible as a website, and as private as running code locally. That&apos;s URL Trimmer: professional-grade URL cleaning that runs entirely in your browser.
+              We wanted something different — a tool as fast as a script but as accessible as a website, and as private as running code locally. That&apos;s URL Trim: professional-grade URL cleaning that runs entirely in your browser.
             </p>
 
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Our Core Principles</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Core Principles</h2>
             <ul className="space-y-4 mb-12">
               <li className="text-slate-600 leading-relaxed font-medium"><strong>Privacy by Architecture:</strong> We don&apos;t just promise not to log your data — our system makes server-side data collection technically impossible.</li>
               <li className="text-slate-600 leading-relaxed font-medium"><strong>Performance Without Compromise:</strong> 10,000+ URLs processed in under a second, with a UI that stays responsive throughout.</li>
@@ -64,10 +64,10 @@ export default function AboutPage() {
 
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Who We Are</h2>
             <p className="text-slate-600 mb-8 leading-relaxed">
-              URL Trimmer is developed by <strong>Trimmer Labs</strong>, a small independent software studio focused on building privacy-first, client-side web utilities. Our team has backgrounds in software engineering, search engine optimization, and data analysis — which means we build tools we actually use in our own professional work.
+              URL Trim is developed by <strong>Trim Labs</strong>, a small independent software studio focused on building privacy-first, client-side web utilities. Our team has backgrounds in software engineering, search engine optimization, and data analysis — which means we build tools we actually use in our own professional work.
             </p>
             <p className="text-slate-600 mb-12 leading-relaxed">
-              We started with URL Trimmer because it solved a problem we faced daily. If you&apos;re using it too, we&apos;d love to hear how you&apos;re using it and what features would make your workflow even better.
+              We started with URL Trim because it solved a problem we faced daily. If you&apos;re using it too, we&apos;d love to hear how you&apos;re using it and what features would make your workflow even better.
             </p>
 
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
