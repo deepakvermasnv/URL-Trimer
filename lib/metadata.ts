@@ -30,6 +30,11 @@ export const SEO_METADATA = {
     title: 'Image Converter — Local Format Transformer | URL Trim',
     description: 'Convert images between different formats instantly without server uploads.',
   },
+  textToImage: {
+    canonical: '/tools/text-to-image',
+    title: 'AI Text-to-Image Generator — Create High-Quality Graphics | URL Trim',
+    description: 'Generate stunning, high-quality images from text prompts using Gemini AI model technology.',
+  },
   pdfConverter: {
     canonical: '/tools/pdf-converter',
     title: 'Free PDF Converter — Professional Document to PDF | URL Trim',

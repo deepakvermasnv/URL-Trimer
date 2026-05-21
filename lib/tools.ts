@@ -5,7 +5,8 @@ import {
   LayoutGrid,
   Minimize2,
   FileDown,
-  Code
+  Code,
+  Wand2
 } from 'lucide-react';
 
 export const TOOLS = [
@@ -26,6 +27,16 @@ export const TOOLS = [
     icon: Type,
     category: 'Writing',
     href: '/tools/word-counter',
+    status: 'Ready',
+    isPopular: true,
+  },
+  {
+    id: 'text-to-image',
+    name: 'AI Text-to-Image',
+    description: 'Create high-quality stunning graphics from prompts.',
+    icon: Wand2,
+    category: 'Graphics',
+    href: '/tools/text-to-image',
     status: 'Ready',
     isPopular: true,
   },
