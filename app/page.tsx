@@ -1,22 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Edit3, Star, Zap } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import { TOOLS } from '@/lib/tools';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from '@/lib/utils';
 
 export default function URLTrimmer() {
+  const spotlightRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
@@ -52,8 +48,14 @@ export default function URLTrimmer() {
       if (window.innerWidth < 768) return;
       
       frameId = requestAnimationFrame(() => {
-        document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-        document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        if (spotlightRef.current) {
+          spotlightRef.current.style.background = `radial-gradient(
+            300px circle at ${e.clientX}px ${e.clientY}px,
+            rgba(37, 99, 235, 0.15),
+            rgba(59, 130, 246, 0.05) 30%,
+            transparent 80%
+          )`;
+        }
       });
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -297,7 +299,7 @@ export default function URLTrimmer() {
 
       <PageLayout className="selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative" showBlobs={true}>
         {/* Interactive Spotlight Overlay */}
-        <div className="fixed inset-0 pointer-events-none z-0 spotlight" />
+        <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0 spotlight" />
         
         <Hero 
           centered 

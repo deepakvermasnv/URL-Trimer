@@ -101,11 +101,7 @@ import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
-
-// Helper for class merging
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
-}
+import { cn } from '@/lib/utils';
 
 const MenuBar = ({ editor }: { editor: any }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);

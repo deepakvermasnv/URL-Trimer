@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
+import NextImage from 'next/image';
 import { 
   FileDown, 
   Upload, 
@@ -24,11 +25,7 @@ import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
-
-// Helper for class merging
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
-}
+import { cn } from '@/lib/utils';
 
 // Lazy load libraries
 const getJsPDF = async () => (await import('jspdf')).default;
@@ -443,8 +440,16 @@ export default function PDFConverter() {
                           className="bg-white/80 backdrop-blur-xl border border-white p-4 rounded-3xl shadow-lg shadow-blue-900/5 flex items-center gap-6 group cursor-grab active:cursor-grabbing"
                         >
                           <GripVertical className="w-5 h-5 text-slate-300 group-hover:text-slate-400" />
-                          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 flex-shrink-0 border border-slate-100 shadow-inner">
-                            <img src={img.preview} alt={img.name} className="w-full h-full object-cover" />
+                          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 flex-shrink-0 border border-slate-100 shadow-inner relative">
+                            <NextImage 
+                              src={img.preview} 
+                              alt={img.name} 
+                              fill 
+                              sizes="64px"
+                              unoptimized 
+                              className="object-cover" 
+                              referrerPolicy="no-referrer"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-bold text-slate-900 truncate">{img.name}</h4>
