@@ -16,33 +16,19 @@ export default function Hero({ title, subtitle, badgeText, badgeIcon, centered =
     <header className={`${centered ? 'text-center' : ''} mb-16 sm:mb-20 ${className}`}>
       <div className="space-y-6">
         {badgeText && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "circOut" }}
-          >
+          <div>
             <Badge icon={badgeIcon} variant="blue" className={centered ? 'mx-auto' : ''}>
               {badgeText}
             </Badge>
-          </motion.div>
+          </div>
         )}
-        <motion.h1 
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1]"
-        >
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1]">
           {title}
-        </motion.h1>
+        </h1>
         {subtitle && (
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "circOut" }}
-            className={`text-slate-500 text-lg font-medium leading-relaxed max-w-2xl ${centered ? 'mx-auto' : ''}`}
-          >
+          <p className={`text-slate-500 text-lg font-medium leading-relaxed max-w-2xl ${centered ? 'mx-auto' : ''}`}>
             {subtitle}
-          </motion.p>
+          </p>
         )}
       </div>
     </header>

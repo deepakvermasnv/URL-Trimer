@@ -48,8 +48,7 @@ export default function ToolsLibrary() {
               >
                 {cat}
                 {activeTab === cat && (
-                  <motion.div 
-                    layoutId="activeTabIndicator"
+                  <div 
                     className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-t-full"
                   />
                 )}
@@ -60,13 +59,7 @@ export default function ToolsLibrary() {
 
         {/* Main Interface Container */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 overflow-hidden transition-all duration-500">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+            <div
               className="grid grid-cols-1"
             >
               {/* List Section */}
@@ -102,14 +95,11 @@ export default function ToolsLibrary() {
                   ))}
                 </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            </div>
         </div>
 
         {/* Security Banner Refined */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+        <div 
           className="mt-20 p-10 rounded-[3rem] bg-slate-900 text-white flex flex-col sm:flex-row items-center gap-8 shadow-2xl shadow-blue-900/40 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-[80px]" />
@@ -122,7 +112,7 @@ export default function ToolsLibrary() {
               All tools in our library operate exclusively on your device. We do not use servers to process your inputs. Your data stays in the browser and disappears when you close the tab.
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </PageLayout>
   );

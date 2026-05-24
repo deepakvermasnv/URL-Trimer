@@ -503,6 +503,7 @@ export default function WordCounter() {
   const STORAGE_KEY = 'word-counter-content';
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const initialLoadedRef = React.useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -544,7 +545,8 @@ export default function WordCounter() {
 
   // Load content from localStorage on mount
   useEffect(() => {
-    if (editor && mounted) {
+    if (editor && mounted && !initialLoadedRef.current) {
+      initialLoadedRef.current = true;
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         editor.commands.setContent(saved);

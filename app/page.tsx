@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -20,7 +20,7 @@ export default function URLTrimmer() {
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
-  const [removeDuplicates, setRemoveDuplicates] = useState(false);
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup'>('trimmer');
 
   // Mouse Spotlight Effect
   useEffect(() => {
@@ -89,32 +89,54 @@ export default function URLTrimmer() {
           if (!trimmedLine) continue;
 
           let result = trimmedLine;
-          let foundCustom = false;
 
-          // Try custom extensions first using regex for better accuracy
-          if (extensionRegex) {
-            const match = trimmedLine.match(extensionRegex);
-            if (match && match.index !== undefined) {
-              result = trimmedLine.substring(0, match.index + match[0].length);
-              foundCustom = true;
-            }
-          }
+          if (activeMode === 'trimmer') {
+            let foundCustom = false;
 
-          if (!foundCustom) {
-            try {
-              const hasProtocol = /^https?:\/\//i.test(trimmedLine);
-              const urlToParse = hasProtocol ? trimmedLine : `http://${trimmedLine}`;
-              const parsed = new URL(urlToParse);
-              result = parsed.origin;
-              if (!hasProtocol) {
-                result = result.replace(/^https?:\/\//i, '');
+            // Try custom extensions first using regex for better accuracy
+            if (extensionRegex) {
+              const match = trimmedLine.match(extensionRegex);
+              if (match && match.index !== undefined) {
+                result = trimmedLine.substring(0, match.index + match[0].length);
+                foundCustom = true;
               }
-            } catch (e) {
-              result = trimmedLine.split(/[/?#]/)[0];
             }
+
+            if (!foundCustom) {
+              try {
+                const hasProtocol = /^https?:\/\//i.test(trimmedLine);
+                const urlToParse = hasProtocol ? trimmedLine : `http://${trimmedLine}`;
+                const parsed = new URL(urlToParse);
+                result = parsed.origin;
+                if (!hasProtocol) {
+                  result = result.replace(/^https?:\/\//i, '');
+                }
+              } catch (e) {
+                result = trimmedLine.split(/[/?#]/)[0];
+              }
+            }
+          } else if (activeMode === 'slug') {
+            result = trimmedLine
+              .toLowerCase()
+              .trim()
+              .replace(/[^\w\s-]/g, '')
+              .replace(/[\s_]+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-+|-+$/g, '');
+          } else if (activeMode === 'title-case') {
+            result = trimmedLine
+              .toLowerCase()
+              .split(' ')
+              .map(word => {
+                if (!word) return '';
+                return word.charAt(0).toUpperCase() + word.slice(1);
+              })
+              .join(' ');
+          } else if (activeMode === 'dedup') {
+            result = trimmedLine;
           }
           
-          if (removeDuplicates) {
+          if (activeMode === 'dedup') {
             if (!seenDomains.has(result)) {
               seenDomains.add(result);
               currentOutput.push(result);
@@ -144,7 +166,7 @@ export default function URLTrimmer() {
     return () => {
       isCancelled = true;
     };
-  }, [input, customExtensions, removeDuplicates]);
+  }, [input, customExtensions, activeMode]);
 
   const handleCopy = async () => {
     if (!output) return;
@@ -232,12 +254,69 @@ export default function URLTrimmer() {
           subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."
         />
 
-        <div className="max-w-6xl mx-auto w-full">
+        <div className="max-w-6xl mx-auto w-full space-y-6">
+          {/* Operational Mode Option */}
+          <div 
+            className="p-5 px-6 rounded-[2rem] bg-white/70 backdrop-blur-md border border-slate-100 shadow-xl shadow-slate-900/[0.02] flex items-center justify-center"
+          >
+            {/* Mode selection buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-3 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 w-full lg:w-auto">
+              <button
+                onClick={() => setActiveMode('trimmer')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'trimmer'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Scissors className="w-3.5 h-3.5 shrink-0" />
+                <span>URL Trimmer</span>
+              </button>
+
+              <button
+                onClick={() => setActiveMode('dedup')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'dedup'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Layers className="w-3.5 h-3.5 shrink-0" />
+                <span>Remove Duplicate URL</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveMode('slug')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'slug'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Fingerprint className="w-3.5 h-3.5 shrink-0" />
+                <span>Slug Generator</span>
+              </button>
+
+              <button
+                onClick={() => setActiveMode('title-case')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'title-case'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Type className="w-3.5 h-3.5 shrink-0" />
+                <span>Title Case Converter</span>
+              </button>
+            </div>
+          </div>
+
           {/* Main Workspace */}
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
             whileHover={{ 
               rotateX: 0.5, 
               rotateY: -0.5,
@@ -261,36 +340,38 @@ export default function URLTrimmer() {
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-4">
-                        <motion.div 
-                          animate={{ height: [32, 24, 32] }}
-                          transition={{ repeat: Infinity, duration: 1.5 }}
-                          className="w-1.5 h-8 bg-blue-600 rounded-full" 
-                        />
+                        <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
                         <div>
-                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Input Buffer ({input.split('\n').filter(line => line.trim() !== '').length})</h3>
-                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Load URLs Below</p>
+                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
+                            {activeMode === 'trimmer' && `Input Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'slug' && `Title Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'title-case' && `Text Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'dedup' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                          </h3>
+                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                            {activeMode === 'trimmer' && 'Load URLs Below'}
+                            {activeMode === 'slug' && 'Load Phrases Below'}
+                            {activeMode === 'title-case' && 'Load Text Below'}
+                            {activeMode === 'dedup' && 'Load URLs Below'}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
                         {isProcessing && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100"
-                          >
+                          <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
                             <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
                             <span className="text-xs font-bold text-blue-600">{progress}%</span>
-                          </motion.div>
+                          </div>
                         )}
                         <motion.button 
-                          whileHover={{ scale: 1.1, color: "#ef4444" }}
-                          whileTap={{ scale: 0.9 }}
+                          whileHover={{ scale: 1.05, backgroundColor: "#fee2e2", borderColor: "#fca5a5" }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleClear}
                           aria-label="Clear input buffer"
-                          className="group flex items-center gap-2 text-xs font-bold text-slate-400 transition-colors uppercase tracking-widest"
+                          className="group flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50/70 border border-red-100 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm shadow-red-100/50"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Clear
+                          <Trash2 className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" />
+                          <span>Clear</span>
                         </motion.button>
                       </div>
                     </div>
@@ -298,25 +379,24 @@ export default function URLTrimmer() {
                     <div className="relative group/input flex-1 flex flex-col">
                       <textarea
                         className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-6 text-slate-700 font-medium placeholder-slate-300 h-[380px] lg:h-[460px] resize-none text-base leading-relaxed transition-all duration-300 outline-none shadow-inner"
-                        placeholder="Paste links to begin processing..."
+                        placeholder={
+                          activeMode === 'trimmer'
+                            ? "Paste links to begin processing..."
+                            : activeMode === 'slug'
+                            ? "Paste titles or phrases to generate clean URL slugs (e.g. 'Ultimate SEO Guide 2026')..."
+                            : activeMode === 'title-case'
+                            ? "Paste text or headlines to convert to Title Case (e.g. 'how to make a website')..."
+                            : "Paste links to filter out duplicate URLs..."
+                        }
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                       />
                       <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
                       {isDragging && (
-                        <motion.div 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none"
-                        >
-                          <motion.div
-                            animate={{ y: [0, -10, 0] }}
-                            transition={{ repeat: Infinity, duration: 1 }}
-                          >
-                            <FileUp className="w-12 h-12 text-blue-600 mb-3" />
-                          </motion.div>
+                        <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none">
+                          <FileUp className="w-12 h-12 text-blue-600 mb-3" />
                           <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
-                        </motion.div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -327,28 +407,36 @@ export default function URLTrimmer() {
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-4">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: 6 }}
-                          className="w-1.5 h-8 bg-emerald-500 rounded-full" 
-                        />
+                        <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
                         <div>
-                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">Output Stream ({output.split('\n').filter(line => line.trim() !== '').length})</h3>
-                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Trimmed Results</p>
+                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
+                            {activeMode === 'trimmer' && `Output Stream (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'slug' && `Slug Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'title-case' && `Title Case Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'dedup' && `Unique URLs (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                          </h3>
+                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                            {activeMode === 'trimmer' && 'Trimmed Results'}
+                            {activeMode === 'slug' && 'Slugified Phrases'}
+                            {activeMode === 'title-case' && 'Standardized Casing'}
+                            {activeMode === 'dedup' && 'Deduplicated URLs'}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleOpenAll}
-                          disabled={isProcessing || !output}
-                          aria-label="Open all links in new tabs"
-                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
-                        >
-                          <ExternalLink className="w-3 h-3 mr-1" />
-                          Open All
-                        </motion.button>
+                        {(activeMode === 'trimmer' || activeMode === 'dedup') && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleOpenAll}
+                            disabled={isProcessing || !output}
+                            aria-label="Open all links in new tabs"
+                            className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            Open All
+                          </motion.button>
+                        )}
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -385,9 +473,7 @@ export default function URLTrimmer() {
                       </div>
                     </div>
                     
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
+                    <div 
                       className={cn(
                         "group/output relative bg-white border border-slate-100 rounded-3xl p-6 text-sm font-mono text-slate-600 transition-all duration-500 shadow-inner h-[380px] lg:h-[460px] flex flex-col justify-between",
                         isProcessing && "opacity-30"
@@ -401,13 +487,38 @@ export default function URLTrimmer() {
                       
                       {!output && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 pointer-events-none select-none z-0">
-                          <Scissors className="w-10 h-10 text-slate-300 mb-3 animate-pulse" />
-                          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
-                          <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to instantly strip extra paths offline.</p>
+                          {activeMode === 'trimmer' && (
+                            <>
+                              <Scissors className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to instantly strip extra paths offline.</p>
+                            </>
+                          )}
+                          {activeMode === 'dedup' && (
+                            <>
+                              <Layers className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste a list of URLs on the left side to automatically remove all duplicates.</p>
+                            </>
+                          )}
+                          {activeMode === 'slug' && (
+                            <>
+                              <Fingerprint className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Phrase Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste multi-word headers or book titles on the left to generate clean URL slugs offline.</p>
+                            </>
+                          )}
+                          {activeMode === 'title-case' && (
+                            <>
+                              <Type className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Word Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste lowercase headings or lines of text to automatically standardize to proper Title Case.</p>
+                            </>
+                          )}
                         </div>
                       )}
                       <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -472,16 +583,6 @@ export default function URLTrimmer() {
             ].map((f, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, scale: 0.9, y: 50, rotateY: 20 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ 
-                  duration: 0.8, 
-                  delay: i * 0.15,
-                  type: "spring",
-                  stiffness: 100,
-                  damping: 15
-                }}
                 whileHover={{ 
                   y: -15,
                   scale: 1.02,
@@ -521,26 +622,19 @@ export default function URLTrimmer() {
           </section>
 
           {/* How it Works */}
-          <motion.section 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+          <section 
             className="bg-slate-950 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30"
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2 animate-float" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-float" style={{ animationDelay: '-2s' }} />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
             
             <div className="relative z-10">
               <div className="max-w-xl mb-16">
-                <motion.h2 
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
+                <h2 
                   className="text-3xl sm:text-5xl font-bold mb-6 tracking-tight"
                 >
                   Streamlined <br /> Processing.
-                </motion.h2>
+                </h2>
                 <p className="text-blue-400 leading-relaxed uppercase text-xs tracking-[0.3em] font-bold">The 4-Step Link Protocol</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
@@ -550,11 +644,8 @@ export default function URLTrimmer() {
                   { step: "03", title: "Clean", desc: "Watch the engine strip paths in real-time." },
                   { step: "04", title: "Copy", desc: "Retrieve your purified domains instantly." }
                 ].map((s, i) => (
-                  <motion.div 
+                  <div 
                     key={i} 
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + i * 0.1 }}
                     className="space-y-6 group"
                   >
                     <div className="text-5xl font-black text-blue-500 tabular-nums transition-all duration-500 group-hover:text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{s.step}</div>
@@ -562,11 +653,11 @@ export default function URLTrimmer() {
                     <p className="text-xs text-slate-400 leading-relaxed font-medium">
                       {s.desc}
                     </p>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
-            </motion.section>
+          </section>
 
           {/* SEO Optimized Long-Form Content */}
           <section className="space-y-20 pb-20 border-t border-slate-100 pt-32">
