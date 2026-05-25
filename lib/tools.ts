@@ -6,7 +6,8 @@ import {
   Minimize2,
   FileDown,
   Code,
-  Wand2
+  Wand2,
+  Chrome
 } from 'lucide-react';
 
 export const TOOLS = [
@@ -80,14 +81,14 @@ export const TOOLS = [
     status: 'Coming Soon',
   },
   {
-    id: 'json-validator',
-    name: 'JSON Validator',
-    description: 'Format and beautify JSON data.',
-    icon: Code,
-    category: 'Developer',
-    href: '#',
-    status: 'Coming Soon',
+    id: 'chrome-extension',
+    name: 'Chrome Extension',
+    description: 'Load Word Counter as a browser extension.',
+    icon: Chrome,
+    category: 'Extensions',
+    href: '/tools/chrome-extension',
+    status: 'Ready',
   }
 ];
 
-export const CATEGORIES = ['All', 'Writing', 'SEO', 'Graphics', 'PDFs', 'Developer'];
+export const CATEGORIES = ['All', 'Writing', 'SEO', 'Graphics', 'PDFs', 'Extensions'];

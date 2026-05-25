@@ -1,0 +1,26 @@
+#selection-counter-popup {
+  position: fixed;
+  z-index: 999999;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: all 0.2s ease;
+}
+
+#selection-counter-popup.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sc-box {
+  display: flex;
+  gap: 12px;
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+}

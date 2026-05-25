@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers } from 'lucide-react';
-import Footer from '@/components/Footer';
+import dynamic from 'next/dynamic';
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: false });
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
@@ -529,7 +530,7 @@ export default function URLTrimmer() {
         {/* Informational Sections */}
         <div className="mt-32 space-y-32">
           {/* URL Trim Tools Section */}
-          <section id="tools" className="space-y-12">
+          <section id="tools" className="space-y-12" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
             <div className="text-center space-y-4">
               <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">URL Trim Tools</h2>
               <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Professional Grade Utility Library</p>
@@ -575,7 +576,7 @@ export default function URLTrimmer() {
           </section>
 
           {/* Features Grid */}
-          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-10" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
             {[
               { icon: Scissors, color: "blue", title: "Smart Trimming", desc: "Strip excess paths and parameters with surgical accuracy." },
               { icon: Check, color: "emerald", title: "Unique Logic", desc: "Instantly filter out duplicate domains for cleaner reporting." },
@@ -624,6 +625,7 @@ export default function URLTrimmer() {
           {/* How it Works */}
           <section 
             className="bg-slate-950 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30"
+            style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 650px' }}
           >
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
@@ -660,7 +662,7 @@ export default function URLTrimmer() {
           </section>
 
           {/* SEO Optimized Long-Form Content */}
-          <section className="space-y-20 pb-20 border-t border-slate-100 pt-32">
+          <section className="space-y-20 pb-20 border-t border-slate-100 pt-32" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
               <div className="lg:col-span-8 space-y-12">
                 <div className="space-y-6">

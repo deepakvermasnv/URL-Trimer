@@ -8,6 +8,7 @@ import { SITE_CONFIG, SEO_METADATA, getCanonical } from '../lib/metadata';
 import './globals.css';
 import { SidebarProvider } from '@/lib/SidebarContext';
 import { ContentWrapper } from '@/components/ContentWrapper';
+import { HydrationGuard } from '@/components/HydrationGuard';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -79,31 +80,37 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             dangerouslySetInnerHTML={{
               __html: `
                 (function() {
-                  // 1. Guard window.fetch against read-only property errors
+                  // Safe fetch patch to prevent "Cannot set property fetch of #<Window> which has only a getter"
                   try {
-                    const originalFetch = window.fetch;
-                    if (originalFetch) {
-                      Object.defineProperty(window, 'fetch', {
-                        get: function() { return originalFetch; },
-                        set: function(v) { console.warn('Blocked attempt to override window.fetch'); },
-                        configurable: true,
-                        enumerable: true
-                      });
-                    }
+                    let currentFetch = window.fetch;
+                    Object.defineProperty(window, 'fetch', {
+                      get: function() {
+                        return currentFetch;
+                      },
+                      set: function(val) {
+                        currentFetch = val;
+                      },
+                      configurable: true,
+                      enumerable: true
+                    });
                   } catch (e) {
-                    // If it's already non-configurable, we can't do much, but we shouldn't throw here anyway
+                    console.warn('window.fetch safety patch failed:', e);
                   }
 
-                  // 2. Circular structure guard for JSON.stringify
-                  const originalStringify = JSON.stringify;
-                  JSON.stringify = function(obj, replacer, space) {
-                    try {
-                      return originalStringify(obj, replacer, space);
-                    } catch (e) {
-                      if (e && e.message && e.message.includes('circular structure')) return '"[Circular]"';
-                      throw e;
-                    }
-                  };
+                  // Circular structure guard for JSON.stringify
+                  try {
+                    const originalStringify = JSON.stringify;
+                    JSON.stringify = function(obj, replacer, space) {
+                      try {
+                        return originalStringify(obj, replacer, space);
+                      } catch (e) {
+                        if (e && e.message && e.message.includes('circular structure')) return '"[Circular]"';
+                        throw e;
+                      }
+                    };
+                  } catch (e) {
+                    console.warn('JSON.stringify patch failed:', e);
+                  }
                 })();
               `
             }}
@@ -128,7 +135,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           <Navbar />
           <Sidebar />
           <ContentWrapper>
-            {children}
+            <HydrationGuard>
+              {children}
+            </HydrationGuard>
           </ContentWrapper>
           <ScrollToTop />
         </SidebarProvider>
