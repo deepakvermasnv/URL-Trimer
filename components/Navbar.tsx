@@ -6,11 +6,13 @@ import { Menu, Zap, Puzzle, ChevronDown, User } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/lib/SidebarContext';
+import { useAnimationsEnabled } from '@/hooks/useAnimationsEnabled';
 
 import { Search } from '@/components/Search';
 
 export function Navbar() {
   const { toggleSidebar } = useSidebar();
+  const animationsEnabled = useAnimationsEnabled();
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 z-[150] flex items-center justify-between px-4 sm:px-6">
@@ -26,7 +28,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 group shrink-0">
           <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200 overflow-hidden">
             <motion.div
-              whileHover={{ rotate: [0, -10, 10, 0] }}
+              whileHover={animationsEnabled ? { rotate: [0, -10, 10, 0] } : undefined}
               transition={{ duration: 0.5 }}
             >
               <Zap className="w-5 h-5 fill-current" />

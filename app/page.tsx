@@ -4,8 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers } from 'lucide-react';
-import dynamic from 'next/dynamic';
-const Footer = dynamic(() => import('@/components/Footer'), { ssr: false });
+import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
@@ -25,15 +24,23 @@ export default function URLTrimmer() {
 
   // Mouse Spotlight Effect
   useEffect(() => {
-    let frameId: number;
-    const handleMouseMove = (e: MouseEvent) => {
-      // Performance optimization: skip processing if width is small (mobile) or spotlight not needed
-      if (window.innerWidth < 768) return;
+    if (typeof window === 'undefined') return;
+    
+    // Check if user prefers reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let lastRan = 0;
+    let throttleTimeout: NodeJS.Timeout | null = null;
+    let frameId: number | null = null;
+
+    const updateSpotlight = (clientX: number, clientY: number) => {
+      if (frameId) cancelAnimationFrame(frameId);
       
       frameId = requestAnimationFrame(() => {
         if (spotlightRef.current) {
           spotlightRef.current.style.background = `radial-gradient(
-            300px circle at ${e.clientX}px ${e.clientY}px,
+            300px circle at ${clientX}px ${clientY}px,
             rgba(37, 99, 235, 0.15),
             rgba(59, 130, 246, 0.05) 30%,
             transparent 80%
@@ -41,10 +48,31 @@ export default function URLTrimmer() {
         }
       });
     };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Performance optimization: skip if under breakpoint (mobile & tablet)
+      if (window.innerWidth < 1024) return;
+
+      const now = Date.now();
+      const throttleMs = 80; // Only recalculate position every 80ms
+
+      if (!lastRan || now - lastRan >= throttleMs) {
+        updateSpotlight(e.clientX, e.clientY);
+        lastRan = now;
+      } else {
+        if (throttleTimeout) clearTimeout(throttleTimeout);
+        throttleTimeout = setTimeout(() => {
+          updateSpotlight(e.clientX, e.clientY);
+          lastRan = Date.now();
+        }, throttleMs - (now - lastRan));
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(frameId);
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+      if (frameId) cancelAnimationFrame(frameId);
     };
   }, []);
 

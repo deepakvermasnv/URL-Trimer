@@ -1,5 +1,28 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-pulse-glow,
+  .shimmer::after,
+  .animate-particle,
+  * {
+    animation: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .animate-float {
+    animation-duration: 8s !important; /* increase duration on mobile to reduce repaints */
+  }
+  .animate-pulse-glow {
+    animation: none !important; /* disable on mobile */
+  }
+}
 
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
