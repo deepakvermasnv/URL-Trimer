@@ -15,7 +15,7 @@ export function Navbar() {
   const animationsEnabled = useAnimationsEnabled();
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 z-[150] flex items-center justify-between px-4 sm:px-6">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-100 z-[150] flex items-center justify-between px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <button 
           onClick={toggleSidebar}

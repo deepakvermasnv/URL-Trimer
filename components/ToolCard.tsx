@@ -23,7 +23,7 @@ export default function ToolCard({ tool, index }: ToolCardProps) {
     <div className="group">
       <Link 
         href={isComingSoon ? '#' : tool.href}
-        className={`block h-full bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-10 shadow-xl shadow-blue-900/5 transition-all duration-500 ${
+        className={`block h-full bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-blue-900/5 transition-all duration-300 ${
           isComingSoon 
             ? 'opacity-60 cursor-not-allowed' 
             : 'hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1'

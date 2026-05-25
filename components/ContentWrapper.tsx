@@ -10,7 +10,7 @@ export function ContentWrapper({ children }: { children: React.ReactNode }) {
   return (
     <main 
       className={cn(
-        "pt-16 min-h-screen transition-all duration-300 ease-in-out",
+        "pt-16 min-h-screen transition-[padding-left] duration-300 ease-in-out",
         isCollapsed ? "md:pl-0" : "md:pl-[110px]"
       )}
     >

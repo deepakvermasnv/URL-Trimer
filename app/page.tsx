@@ -229,7 +229,7 @@ export default function URLTrimmer() {
         <div className="max-w-6xl mx-auto w-full space-y-6">
           {/* Operational Mode Option */}
           <div 
-            className="p-5 px-6 rounded-[2rem] bg-white/70 backdrop-blur-md border border-slate-100 shadow-xl shadow-slate-900/[0.02] flex items-center justify-center"
+            className="p-5 px-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl shadow-slate-900/[0.01] flex items-center justify-center"
           >
             {/* Mode selection buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-3 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 w-full lg:w-auto">
@@ -288,16 +288,8 @@ export default function URLTrimmer() {
           </div>
 
           {/* Main Workspace */}
-          <motion.div 
-            whileHover={{ 
-              rotateX: 0.5, 
-              rotateY: -0.5,
-              transition: { duration: 0.3 }
-            }}
-            style={{ perspective: 1500, transformStyle: "preserve-3d" }}
-            className="space-y-8 will-change-transform"
-          >
-            <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden transition-all duration-500 hover:shadow-blue-900/15">
+          <div className="space-y-8">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 overflow-hidden transition-all duration-300">
               <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
                 {/* Left Side: Input Area */}
                 <div 
@@ -495,7 +487,7 @@ export default function URLTrimmer() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Informational Sections */}
@@ -553,21 +545,9 @@ export default function URLTrimmer() {
               { icon: Check, color: "emerald", title: "Unique Logic", desc: "Instantly filter out duplicate domains for cleaner reporting." },
               { icon: Settings2, color: "indigo", title: "Custom TLDs", desc: "Target exactly the extensions you need for specialized cleaning." }
             ].map((f, i) => (
-              <motion.div 
+              <div 
                 key={i}
-                whileHover={{ 
-                  y: -15,
-                  scale: 1.02,
-                  rotateX: -5,
-                  rotateY: 5,
-                  transition: { duration: 0.2, ease: "easeOut" }
-                }}
-                style={{ 
-                  perspective: "2000px",
-                  transformStyle: "preserve-3d",
-                  backfaceVisibility: "hidden"
-                }}
-                className="bg-white/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-white shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/15 transition-all duration-500 group relative overflow-hidden will-change-transform"
+                className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden"
               >
                 {/* 3D Inner Content shadow/glow */}
                 <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500" />
@@ -589,7 +569,7 @@ export default function URLTrimmer() {
                 <div className="absolute bottom-4 right-4 text-slate-50 opacity-0 group-hover:opacity-10 group-hover:scale-150 transition-all duration-700 -rotate-12">
                    <f.icon className="w-24 h-24" />
                 </div>
-              </motion.div>
+              </div>
             ))}
           </section>
 

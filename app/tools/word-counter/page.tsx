@@ -162,7 +162,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   const fontSizes = ['12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px'];
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 p-4 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
+    <div className="flex flex-wrap items-center gap-1.5 p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
       {/* Font Size Selector */}
       <div className="relative">
         <button 

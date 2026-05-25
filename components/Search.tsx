@@ -85,7 +85,7 @@ export function Search() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm pointer-events-auto"
+            className="absolute inset-0 bg-slate-900/40 pointer-events-auto"
           />
 
           {/* Modal Content */}

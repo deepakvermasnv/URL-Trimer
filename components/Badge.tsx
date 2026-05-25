@@ -15,7 +15,7 @@ export default function Badge({ children, icon: Icon, className, variant = 'defa
     indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
     amber: 'bg-amber-50 text-amber-500 border-amber-100',
     slate: 'bg-slate-50 text-slate-500 border-slate-100',
-    default: 'bg-white/70 backdrop-blur-xl border-white text-slate-400',
+    default: 'bg-slate-50 border-slate-100 text-slate-400',
   };
 
   return (

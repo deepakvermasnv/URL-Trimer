@@ -26,7 +26,7 @@ export default function NavAction({ href, label, type = 'back', className, cente
       <Link
         href={href}
         className={cn(
-          "inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white shadow-xl shadow-blue-900/5 text-slate-900 text-[13px] font-black uppercase tracking-widest hover:bg-white hover:shadow-blue-900/10 hover:-translate-y-0.5 transition-all duration-300 group",
+          "inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-white border border-slate-100 shadow-xl shadow-blue-900/5 text-slate-900 text-[13px] font-black uppercase tracking-widest hover:bg-white hover:shadow-blue-900/10 hover:-translate-y-0.5 transition-all duration-300 group",
           type === 'back' && "text-blue-600 hover:text-blue-700 font-black"
         )}
       >

@@ -62,7 +62,7 @@ export function Sidebar() {
               animate={animationsEnabled ? { opacity: 1 } : { opacity: 1 }}
               exit={animationsEnabled ? { opacity: 0 } : undefined}
               onClick={toggleSidebar}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[140] md:hidden"
+              className="fixed inset-0 bg-slate-900/40 z-[140] md:hidden"
             />
           )}
         </AnimatePresence>
@@ -73,10 +73,10 @@ export function Sidebar() {
             x: isCollapsed ? '-101%' : '0%',
             opacity: isCollapsed ? 0 : 1
           }}
-          transition={animationsEnabled ? { type: "spring", stiffness: 400, damping: 40 } : { duration: 0.1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
           className={cn(
-            "fixed left-0 top-16 bottom-0 w-[100px] sm:w-[110px] bg-white/90 backdrop-blur-3xl border-r border-slate-200/40 flex flex-col items-center py-8 z-[145] overflow-y-auto scrollbar-none md:flex",
-            "shadow-[1px_0_20px_rgba(0,0,0,0.02)] md:shadow-none will-change-transform"
+            "fixed left-0 top-16 bottom-0 w-[100px] sm:w-[110px] bg-white border-r border-slate-200/60 flex flex-col items-center py-8 z-[145] overflow-y-auto scrollbar-none md:flex",
+            "shadow-[1px_0_10px_rgba(0,0,0,0.01)] md:shadow-none will-change-transform"
           )}
           style={{ 
             WebkitOverflowScrolling: 'touch'
