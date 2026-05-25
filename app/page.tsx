@@ -598,8 +598,6 @@ export default function URLTrimmer() {
             className="bg-slate-950 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30"
             style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 650px' }}
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/30 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
             
             <div className="relative z-10">
               <div className="max-w-xl mb-16">

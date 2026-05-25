@@ -102,7 +102,6 @@ export default function ToolsLibrary() {
         <div 
           className="mt-20 p-10 rounded-[3rem] bg-slate-900 text-white flex flex-col sm:flex-row items-center gap-8 shadow-2xl shadow-blue-900/40 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-[80px]" />
           <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0 border border-white/10">
             <Shield className="w-8 h-8 text-blue-400" />
           </div>

@@ -49,8 +49,6 @@ export default function ContactPage() {
             </div>
 
             <div className="bg-slate-950 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-              {/* Decorative light effect */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
               
               <h3 className="text-white font-bold mb-8 flex items-center gap-2">
                 <Send className="w-4 h-4 text-blue-400" />

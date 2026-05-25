@@ -6,9 +6,6 @@ export default function Footer() {
 
   return (
     <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900 overflow-hidden relative">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
-      
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">

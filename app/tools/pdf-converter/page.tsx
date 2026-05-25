@@ -560,7 +560,6 @@ export default function PDFConverter() {
 
       {/* Security Banner */}
       <section className="mt-32 p-12 sm:p-20 rounded-[4rem] bg-slate-950 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[140px] -translate-y-1/2 translate-x-1/2" />
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
           <div className="w-24 h-24 bg-white/5 rounded-[2rem] border border-white/10 flex items-center justify-center shrink-0">
             <Shield className="w-12 h-12 text-blue-400" />

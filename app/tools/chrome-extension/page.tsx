@@ -456,7 +456,6 @@ export default function ChromeExtensionPage() {
 
         {/* Extensions Release Warning Banner */}
         <div className="p-6 bg-slate-900 rounded-[2rem] text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-xl shadow-blue-900/10">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/25 rounded-full blur-[60px]" />
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
               <Info className="w-6 h-6 text-blue-400" />
