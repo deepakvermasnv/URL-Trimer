@@ -12,7 +12,6 @@ import { TOOLS } from '@/lib/tools';
 import { cn } from '@/lib/utils';
 
 export default function URLTrimmer() {
-  const spotlightRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
@@ -21,60 +20,6 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup'>('trimmer');
-
-  // Mouse Spotlight Effect
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    // Check if user prefers reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    let lastRan = 0;
-    let throttleTimeout: NodeJS.Timeout | null = null;
-    let frameId: number | null = null;
-
-    const updateSpotlight = (clientX: number, clientY: number) => {
-      if (frameId) cancelAnimationFrame(frameId);
-      
-      frameId = requestAnimationFrame(() => {
-        if (spotlightRef.current) {
-          spotlightRef.current.style.background = `radial-gradient(
-            300px circle at ${clientX}px ${clientY}px,
-            rgba(37, 99, 235, 0.15),
-            rgba(59, 130, 246, 0.05) 30%,
-            transparent 80%
-          )`;
-        }
-      });
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      // Performance optimization: skip if under breakpoint (mobile & tablet)
-      if (window.innerWidth < 1024) return;
-
-      const now = Date.now();
-      const throttleMs = 80; // Only recalculate position every 80ms
-
-      if (!lastRan || now - lastRan >= throttleMs) {
-        updateSpotlight(e.clientX, e.clientY);
-        lastRan = now;
-      } else {
-        if (throttleTimeout) clearTimeout(throttleTimeout);
-        throttleTimeout = setTimeout(() => {
-          updateSpotlight(e.clientX, e.clientY);
-          lastRan = Date.now();
-        }, throttleMs - (now - lastRan));
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (throttleTimeout) clearTimeout(throttleTimeout);
-      if (frameId) cancelAnimationFrame(frameId);
-    };
-  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -268,8 +213,6 @@ export default function URLTrimmer() {
 
 
       <PageLayout className="selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative" showBlobs={true}>
-        {/* Interactive Spotlight Overlay */}
-        <div ref={spotlightRef} className="fixed inset-0 pointer-events-none z-0 spotlight" />
         
         <Hero 
           centered 
