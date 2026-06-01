@@ -19,7 +19,7 @@ export default function URLTrimmer() {
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
-  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup'>('trimmer');
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup' | 'add-https'>('trimmer');
 
   useEffect(() => {
     let isCancelled = false;
@@ -108,6 +108,14 @@ export default function URLTrimmer() {
               .join(' ');
           } else if (activeMode === 'dedup') {
             result = trimmedLine;
+          } else if (activeMode === 'add-https') {
+            if (/^https:\/\//i.test(trimmedLine)) {
+              result = trimmedLine;
+            } else if (/^http:\/\//i.test(trimmedLine)) {
+              result = 'https://' + trimmedLine.substring(7);
+            } else {
+              result = 'https://' + trimmedLine;
+            }
           }
           
           if (activeMode === 'dedup') {
@@ -258,6 +266,19 @@ export default function URLTrimmer() {
                 <Layers className="w-3.5 h-3.5 shrink-0" />
                 <span>Remove Duplicate URL</span>
               </button>
+
+              <button
+                onClick={() => setActiveMode('add-https')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'add-https'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Link2 className="w-3.5 h-3.5 shrink-0" />
+                <span>Add https://</span>
+              </button>
               
               <button
                 onClick={() => setActiveMode('slug')}
@@ -311,12 +332,14 @@ export default function URLTrimmer() {
                             {activeMode === 'slug' && `Title Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'title-case' && `Text Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'add-https' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Load URLs Below'}
                             {activeMode === 'slug' && 'Load Phrases Below'}
                             {activeMode === 'title-case' && 'Load Text Below'}
                             {activeMode === 'dedup' && 'Load URLs Below'}
+                            {activeMode === 'add-https' && 'Load URLs Below'}
                           </p>
                         </div>
                       </div>
@@ -350,6 +373,8 @@ export default function URLTrimmer() {
                             ? "Paste titles or phrases to generate clean URL slugs (e.g. 'Ultimate SEO Guide 2026')..."
                             : activeMode === 'title-case'
                             ? "Paste text or headlines to convert to Title Case (e.g. 'how to make a website')..."
+                            : activeMode === 'add-https'
+                            ? "Paste links to automatically prepend https://..."
                             : "Paste links to filter out duplicate URLs..."
                         }
                         value={input}
@@ -378,17 +403,19 @@ export default function URLTrimmer() {
                             {activeMode === 'slug' && `Slug Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'title-case' && `Title Case Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `Unique URLs (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'add-https' && `HTTPS Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Trimmed Results'}
                             {activeMode === 'slug' && 'Slugified Phrases'}
                             {activeMode === 'title-case' && 'Standardized Casing'}
                             {activeMode === 'dedup' && 'Deduplicated URLs'}
+                            {activeMode === 'add-https' && 'Secured HTTPS URLs'}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {(activeMode === 'trimmer' || activeMode === 'dedup') && (
+                        {(activeMode === 'trimmer' || activeMode === 'dedup' || activeMode === 'add-https') && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -477,6 +504,13 @@ export default function URLTrimmer() {
                               <Type className="w-10 h-10 text-slate-300 mb-3" />
                               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Word Stream</p>
                               <p className="text-slate-400 text-[10px] max-w-[200px]">Paste lowercase headings or lines of text to automatically standardize to proper Title Case.</p>
+                            </>
+                          )}
+                          {activeMode === 'add-https' && (
+                            <>
+                              <Link2 className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to automatically prepend https:// format.</p>
                             </>
                           )}
                         </div>
