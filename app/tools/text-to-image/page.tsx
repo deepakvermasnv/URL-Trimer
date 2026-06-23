@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import Script from 'next/script';
 import { 
   ArrowLeft, 
   Wand2, 
@@ -13,9 +12,10 @@ import {
   Copy,
   Check,
   Image as ImageIcon,
-  Layout,
   RefreshCw,
-  Clock
+  Clock,
+  Trash2,
+  Zap
 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
@@ -23,14 +23,6 @@ import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
 import { cn } from '@/lib/utils';
-
-const ASPECT_RATIOS = [
-  { label: 'Square (1:1)', value: '1:1', icon: '⏹️', description: 'Posts' },
-  { label: 'Landscape (16:9)', value: '16:9', icon: '🌅', description: 'Banners' },
-  { label: 'Portrait (9:16)', value: '9:16', icon: '📱', description: 'Reels' },
-  { label: 'Wide (4:3)', value: '4:3', icon: '🖥️', description: 'Classic Standard' },
-  { label: 'Classic Tall (3:4)', value: '3:4', icon: '📸', description: 'Social Feed Grid' }
-];
 
 const SAMPLE_PROMPTS = [
   "A majestic brass clockwork mechanical falcon, detailed obsidian eyes, high-contrast professional studio portrait",
@@ -42,41 +34,208 @@ const SAMPLE_PROMPTS = [
 // Progressive text steps to display while generating to entertain the user
 const PROGRESS_STEPS = [
   "Formulating neural seed...",
+  "Querying active image rendering cluster...",
   "Dreaming high-contrast layouts...",
   "Brushing diffuse lighting...",
   "Rasterizing pristine resolutions...",
   "Completing graphic rendering..."
 ];
 
-export default function TextToImage() {
-  const [prompt, setPrompt] = useState('');
-  const [selectedRatio, setSelectedRatio] = useState('1:1');
-  const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentProgressIndex, setCurrentProgressIndex] = useState(0);
-  const [puterReady, setPuterReady] = useState(false);
+interface GeneratedImage {
+  url?: string;
+  base64?: string;
+  mimeType?: string;
+  seed?: number;
+  engine?: string;
+  isFallback?: boolean;
+}
+
+function triggerDownload(src: string, index: number) {
+  if (typeof window === "undefined") return;
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = `ai-generated-variation-${index + 1}-${Date.now()}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function VariationCard({
+  img,
+  idx,
+  prompt,
+  copiedIndex,
+  onCopy,
+  onDownload,
+  onRegenerate
+}: {
+  img: GeneratedImage;
+  idx: number;
+  prompt: string;
+  copiedIndex: number | null;
+  onCopy: (img: GeneratedImage, idx: number) => void;
+  onDownload: (img: GeneratedImage, idx: number) => void;
+  onRegenerate: (idx: number) => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const retryTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const checkPuter = () => {
-      if (typeof window !== 'undefined' && (window as any).puter) {
-        setPuterReady(true);
-        return true;
+    return () => {
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current);
       }
-      return false;
     };
-
-    if (checkPuter()) return;
-
-    const interval = setInterval(() => {
-      if (checkPuter()) {
-        clearInterval(interval);
-      }
-    }, 250);
-
-    return () => clearInterval(interval);
   }, []);
+
+  const getDynamicSrc = () => {
+    if (!img.url) {
+      return `data:${img.mimeType || 'image/png'};base64,${img.base64}`;
+    }
+    if (retryCount > 0) {
+      return `${img.url}&retry=${retryCount}`;
+    }
+    return img.url;
+  };
+
+  const handleLoad = () => {
+    setLoading(false);
+    setError(false);
+  };
+
+  const handleError = () => {
+    console.warn(`Variation #${idx + 1} failed to load. Retry count: ${retryCount}`);
+    if (img.url && retryCount < 3) {
+      setLoading(true);
+      setError(false);
+      
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current);
+      }
+      
+      const delay = (retryCount + 1) * 1500;
+      retryTimer.current = setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+      }, delay);
+    } else {
+      setLoading(false);
+      setError(true);
+    }
+  };
+
+  const handleManualRetry = () => {
+    setLoading(true);
+    setError(false);
+    setRetryCount(0);
+  };
+
+  const src = getDynamicSrc();
+
+  return (
+    <div className="flex flex-col bg-slate-50/50 p-3 rounded-3xl border border-slate-100 hover:border-slate-200 transition-all hover:bg-white hover:shadow-lg hover:shadow-blue-900/5 group relative overflow-hidden">
+      
+      <div className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] overflow-hidden shadow-inner relative group/img flex items-center justify-center aspect-square transition-all duration-300">
+        
+        {loading && (
+          <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center p-4 text-center z-20">
+            <div className="w-12 h-12 rounded-full border-2 border-dashed border-blue-500 animate-spin flex items-center justify-center mb-2">
+              <Sparkles className="w-5 h-5 text-blue-500 animate-pulse" />
+            </div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider animate-pulse">
+              {retryCount > 0 ? `Retrying load (${retryCount}/3)...` : "Loading Asset..."}
+            </p>
+          </div>
+        )}
+
+        {error ? (
+          <div className="absolute inset-0 bg-slate-50/95 flex flex-col items-center justify-center p-4 text-center z-20 space-y-3.5">
+            <div className="w-11 h-11 bg-red-50 rounded-full flex items-center justify-center border border-red-100 shadow-inner">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-xs font-black text-slate-800">Connection Timed Out</h4>
+              <p className="text-[9px] text-slate-400 max-w-[160px] mx-auto leading-relaxed">
+                Render server was busy. You can reload this variation.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleManualRetry}
+                className="px-3.5 py-1.5 rounded-lg bg-slate-900 text-white font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className="w-2.5 h-2.5" />
+                Reload
+              </button>
+              <button
+                type="button"
+                onClick={() => onRegenerate(idx)}
+                className="px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-black text-[9px] uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <Wand2 className="w-2.5 h-2.5 text-blue-500" />
+                New Seed
+              </button>
+            </div>
+          </div>
+        ) : (
+          <img 
+            src={src} 
+            alt={`${prompt} - option ${idx + 1}`} 
+            onLoad={handleLoad}
+            onError={handleError}
+            className={cn(
+              "w-full h-full object-contain max-h-[300px] transition-all duration-500 group-hover/img:scale-105",
+              loading ? "opacity-0 scale-95" : "opacity-100 scale-100"
+            )}
+            referrerPolicy="no-referrer"
+          />
+        )}
+        
+        {!loading && !error && (
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] opacity-0 group-hover/img:opacity-100 transition-all duration-200 flex items-center justify-center gap-3.5 z-10">
+            <button
+              type="button"
+              onClick={() => onDownload(img, idx)}
+              className="w-11 h-11 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              title="Quick Download"
+            >
+              <Download className="w-5 h-5 text-slate-900" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onCopy(img, idx)}
+              className="w-11 h-11 rounded-full bg-white text-slate-800 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              title="Copy Asset Data"
+            >
+              {copiedIndex === idx ? (
+                <Check className="w-5 h-5 text-emerald-600" />
+              ) : (
+                <Copy className="w-5 h-5 text-slate-900" />
+              )}
+            </button>
+          </div>
+        )}
+
+        <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-mono font-black text-white uppercase tracking-wider z-10">
+          # {idx + 1}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function TextToImage() {
+  const [prompt, setPrompt] = useState('');
+  const [selectedEngine, setSelectedEngine] = useState('free'); // Default to 'free' (High-Speed Flux) for 100% reliable keyless creation
+  const [loading, setLoading] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+  const [images, setImages] = useState<GeneratedImage[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [fallbackNotice, setFallbackNotice] = useState<string | null>(null);
+  const [currentProgressIndex, setCurrentProgressIndex] = useState(0);
 
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -90,6 +249,34 @@ export default function TextToImage() {
     setError(null);
   };
 
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) {
+      setError('Please type or select a simple description first to enhance.');
+      return;
+    }
+    setEnhancing(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/enhance-prompt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to enhance prompt.');
+      }
+      setPrompt(data.enhancedText);
+    } catch (err: any) {
+      console.error(err);
+      setError(`Failed to enhance prompt: ${err?.message || err}`);
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError('Please input or choose a descriptive text prompt first.');
@@ -98,7 +285,8 @@ export default function TextToImage() {
 
     setLoading(true);
     setError(null);
-    setImageUrl(null);
+    setFallbackNotice(null);
+    setImages([]);
     setCurrentProgressIndex(0);
 
     // Cycle through reassuring progressive states to entertain user
@@ -112,82 +300,43 @@ export default function TextToImage() {
     }, 2800);
 
     try {
-      const cleanPrompt = prompt.trim();
-      const fullPrompt = `${cleanPrompt}, aspect ratio ${selectedRatio}`;
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          imageSize: '1K',
+          engine: selectedEngine,
+        }),
+      });
 
-      const puter = typeof window !== 'undefined' ? (window as any).puter : null;
-      let generationUploadedSuccess = false;
+      const data = await response.json();
 
-      // Plan A: Try Puter's client-side txt2img API first if it exists and works
-      if (puter && puter.ai && typeof puter.ai.txt2img === 'function') {
-        try {
-          console.log("Attempting image generation via Puter AI services...");
-          const imgElement = await puter.ai.txt2img(fullPrompt);
-          if (imgElement && imgElement.src) {
-            setImageUrl(imgElement.src);
-            generationUploadedSuccess = true;
-          }
-        } catch (puterErr: any) {
-          console.warn("Puter.js failed (likely due to sandbox environment or rate limit). Falling back to Pollinations engine...", puterErr);
-        }
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate image variations.');
       }
 
-      // Plan B: Seamless, keyless, and extremely robust fallback using Pollinations.ai (works everywhere!)
-      if (!generationUploadedSuccess) {
-        console.log("Using Pollinations engine fallback...");
-        
-        let width = 1024;
-        let height = 1024;
-        if (selectedRatio === '16:9') {
-          width = 1024;
-          height = 576;
-        } else if (selectedRatio === '9:16') {
-          width = 576;
-          height = 1024;
-        } else if (selectedRatio === '4:3') {
-          width = 1024;
-          height = 768;
-        } else if (selectedRatio === '3:4') {
-          width = 768;
-          height = 1024;
-        }
+      if (data.isFallback) {
+        setFallbackNotice(
+          `Notice: Google Imagen quota was temporarily exceeded/unavailable. We have seamlessly processed your creation with our Ultra-Flux engine instead so you don't face any blockages!`
+        );
+      }
 
-        // Add random seed to prevent caching and guarantee fresh creations on every click
-        const seed = Math.floor(Math.random() * 999999) + 1;
-        const pollinationsUrl = `https://image.pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`;
-
-        // Pre-load the image to prevent flickering or broken image frames in UI, completing the progress bar beautifully.
-        // We use a safe preloader that falls back to immediate resolution on error or timeout so it never blocks artificially.
-        try {
-          const img = new Image();
-          img.src = pollinationsUrl;
-          img.referrerPolicy = "no-referrer";
-
-          await new Promise<void>((resolve) => {
-            const timeout = setTimeout(() => {
-              console.log("Pre-loading timed out; displaying image directly.");
-              resolve();
-            }, 8000); // 8-second safety guard timeout
-
-            img.onload = () => {
-              clearTimeout(timeout);
-              resolve();
-            };
-            img.onerror = () => {
-              clearTimeout(timeout);
-              resolve(); // Fall back gracefully; let the browser load it natively
-            };
-          });
-        } catch (preloadErr) {
-          console.warn("Dynamic preloading failed to run, setting image directly:", preloadErr);
-        }
-
-        setImageUrl(pollinationsUrl);
+      if (data.images && data.images.length > 0) {
+        setImages(data.images);
+      } else if (data.url) {
+        setImages([{ url: data.url, engine: data.engine }]);
+      } else if (data.base64) {
+        setImages([{ base64: data.base64, mimeType: data.mimeType, engine: data.engine }]);
+      } else {
+        throw new Error("No image data returned from generator.");
       }
     } catch (err: any) {
-      console.error("All image generation strategies failed:", err);
+      console.error("Image generation failed:", err);
       const detailMsg = err?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err));
-      setError(`Failed to connect to image rendering engine (${detailMsg === '{}' ? 'network error' : detailMsg}). Please modify your prompt and try again.`);
+      setError(`Renderer communication error (${detailMsg}). Try switching to the Ultra-Flux Engine for 100% keyless reliability.`);
     } finally {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
@@ -197,22 +346,28 @@ export default function TextToImage() {
     }
   };
 
-  const handleDownload = () => {
-    if (!imageUrl) return;
-    const a = document.createElement('a');
-    a.href = imageUrl;
-    a.download = `ai-generated-image-${Date.now()}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const regenerateIndividualImage = async (index: number) => {
+    const newSeed = Math.floor(Math.random() * 999999) + 1;
+    const updatedImages = [...images];
+    updatedImages[index] = {
+      url: `https://image.pollinations.ai/p/${encodeURIComponent(prompt.trim())}?width=1024&height=1024&seed=${newSeed}&nologo=true&model=flux&private=true&feed=false`,
+      engine: "free",
+      seed: newSeed
+    };
+    setImages(updatedImages);
   };
 
-  const handleCopyUrl = async () => {
-    if (!imageUrl) return;
+  const downloadImage = (img: GeneratedImage, index: number) => {
+    const src = img.url || `data:${img.mimeType || 'image/png'};base64,${img.base64}`;
+    triggerDownload(src, index);
+  };
+
+  const copyImage = async (img: GeneratedImage, index: number) => {
+    const src = img.url || `data:${img.mimeType || 'image/png'};base64,${img.base64}`;
     try {
-      await navigator.clipboard.writeText(imageUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(src);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error(err);
     }
@@ -220,18 +375,15 @@ export default function TextToImage() {
 
   const handleReset = () => {
     setPrompt('');
-    setSelectedRatio('1:1');
-    setImageUrl(null);
+    setImages([]);
     setError(null);
+    setFallbackNotice(null);
   };
+
+  const hasImages = images && images.length > 0;
 
   return (
     <PageLayout showBlobs={true}>
-      <Script 
-        src="https://js.puter.com/v2/" 
-        strategy="afterInteractive"
-        onLoad={() => setPuterReady(true)}
-      />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
         <NavAction 
           href="/tools" 
@@ -245,7 +397,7 @@ export default function TextToImage() {
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse mr-1" />
             AI cloud-powered
           </Badge>
-          {(prompt || imageUrl) && (
+          {(prompt || hasImages) && (
             <button
               onClick={handleReset}
               className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-100 shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 transition-colors cursor-pointer"
@@ -266,26 +418,89 @@ export default function TextToImage() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-20">
         
         {/* Left Column: Form Settings */}
-        <div className="lg:col-span-7 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 sm:p-10 shadow-xl shadow-blue-900/5 space-y-8">
+        <div className="lg:col-span-5 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 sm:p-10 shadow-xl shadow-blue-900/5 space-y-8">
           
+          {/* Rendering Engine Selector */}
+          <div className="space-y-4">
+            <label className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-500" />
+              Select Rendering AI Engine
+            </label>
+            <div className="grid grid-cols-1 gap-3.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedEngine('free');
+                  setError(null);
+                }}
+                className={cn(
+                  "p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between h-28 group",
+                  selectedEngine === 'free'
+                    ? "border-emerald-500 bg-emerald-50/40 shadow-md shadow-emerald-500/5 ring-2 ring-emerald-500/10"
+                    : "border-slate-100 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-200"
+                )}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    🚀 Ultra-Flux Engine
+                  </span>
+                  <Badge variant="emerald" className="scale-90 origin-right py-0.5">FREE &amp; UNLIMITED</Badge>
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-1.5">
+                  Blazing fast rendering, incredibly creative open-source model. Works instantly without any keys. Generates 4 unique variations in parallel.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedEngine('gemini');
+                  setError(null);
+                }}
+                className={cn(
+                  "p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between h-28 group",
+                  selectedEngine === 'gemini'
+                    ? "border-blue-500 bg-blue-50/40 shadow-md shadow-blue-500/5 ring-2 ring-blue-500/10"
+                    : "border-slate-100 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-200"
+                )}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    ✨ Google Imagen 3
+                  </span>
+                  <Badge variant="blue" className="scale-90 origin-right py-0.5">DEV PREVIEW</Badge>
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-1.5">
+                  Google&apos;s cinematic image rendering model. Subjects to daily developer quota rates. Generates 4 high-quality variations.
+                </p>
+              </button>
+            </div>
+          </div>
+
           {/* Prompt input */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-blue-500" />
                 Descriptive Text Prompt
               </label>
-              <button 
-                type="button"
-                onClick={handleRandomPrompt}
-                className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <RefreshCw className="w-2.5 h-2.5" />
-                Surprise Me
-              </button>
+              {prompt && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrompt('');
+                    setError(null);
+                  }}
+                  className="text-[10px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Clear All
+                </button>
+              )}
             </div>
+            
             <textarea
-              className="w-full h-32 px-5 py-4 text-sm font-semibold rounded-2xl bg-slate-50/50 border border-slate-100 focus:outline-none focus:border-blue-500 focus:bg-white text-slate-800 transition-all resize-none shadow-inner"
+              className="w-full h-72 px-5 py-4 text-sm font-semibold rounded-2xl bg-slate-50/50 border border-slate-100 focus:outline-none focus:border-blue-500 focus:bg-white text-slate-800 transition-all resize-none shadow-inner leading-relaxed"
               placeholder="Example: A serene high-mountain lake during golden hour, majestic snow peaks reflected clearly in the still blue water, highly realistic photorealistic texture..."
               value={prompt}
               onChange={(e) => {
@@ -293,44 +508,35 @@ export default function TextToImage() {
                 setError(null);
               }}
             />
-          </div>
 
-          {/* Aspect Ratio choice */}
-          <div className="space-y-4">
-            <label className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-              <Layout className="w-4 h-4 text-blue-500" />
-              Desired Aspect Ratio
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {ASPECT_RATIOS.map((ratio) => {
-                const isSelected = selectedRatio === ratio.value;
-                return (
-                  <button
-                    key={ratio.value}
-                    type="button"
-                    onClick={() => setSelectedRatio(ratio.value)}
-                    className={cn(
-                      "flex flex-col items-center justify-center py-4 px-3 rounded-2xl border text-center transition-all cursor-pointer group",
-                      isSelected 
-                        ? "bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/10 text-white" 
-                        : "bg-slate-50/50 border-slate-100 text-slate-600 hover:bg-white hover:border-slate-300"
-                    )}
-                  >
-                    <span className="text-xl mb-1.5 group-hover:scale-110 transition-transform">{ratio.icon}</span>
-                    <span className="text-xs font-bold leading-tight">{ratio.value}</span>
-                    <span className={cn(
-                      "text-[9px] mt-1 font-medium block truncate max-w-full leading-none",
-                      isSelected ? "text-blue-100" : "text-slate-400"
-                    )}>
-                      {ratio.description}
-                    </span>
-                  </button>
-                );
-              })}
+            {/* Quick Prompt Controls Row */}
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <button
+                type="button"
+                onClick={handleEnhancePrompt}
+                disabled={enhancing || loading || !prompt.trim()}
+                className={cn(
+                  "flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border cursor-pointer",
+                  prompt.trim()
+                    ? "bg-gradient-to-r from-blue-500 to-indigo-600 border-transparent text-white hover:from-blue-600 hover:to-indigo-700 shadow-md shadow-blue-500/10 active:scale-[0.98]"
+                    : "bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed"
+                )}
+              >
+                <Wand2 className={cn("w-4 h-4", enhancing && "animate-spin")} />
+                {enhancing ? "Enhancing Prompt with AI..." : "Enhance Prompt with AI"}
+              </button>
+
+              <button 
+                type="button"
+                disabled={enhancing || loading}
+                onClick={handleRandomPrompt}
+                className="py-3 px-4 rounded-xl border border-blue-100 bg-blue-50/50 text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer text-xs font-bold flex items-center justify-center gap-2 active:scale-[0.98]"
+              >
+                <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+                Surprise Me
+              </button>
             </div>
           </div>
-
-
 
           {/* Error display */}
           {error && (
@@ -354,12 +560,12 @@ export default function TextToImage() {
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                Generating Graphics...
+                Generating 4 Variations...
               </>
             ) : (
               <>
                 <Wand2 className="w-4 h-4" />
-                Generate Dream Art
+                Generate Dream Art (4x)
               </>
             )}
           </button>
@@ -367,9 +573,9 @@ export default function TextToImage() {
         </div>
 
         {/* Right Column: Output / Live Rendering Status */}
-        <div className="lg:col-span-5 flex flex-col justify-stretch">
+        <div className="lg:col-span-7 flex flex-col justify-stretch">
           
-          <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 sm:p-10 shadow-xl shadow-blue-900/5 h-full flex flex-col items-center justify-center min-h-[420px] text-center relative overflow-hidden">
+          <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-6 sm:p-8 shadow-xl shadow-blue-900/5 h-full flex flex-col items-center justify-center min-h-[420px] text-center relative overflow-hidden">
             
             {loading ? (
               <div className="space-y-6 flex flex-col items-center justify-center w-full z-10 py-10">
@@ -378,7 +584,7 @@ export default function TextToImage() {
                   <span className="absolute inset-0 rounded-full border-4 border-dashed border-blue-500 animate-spin" style={{ animationDuration: '6000ms' }} />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black text-slate-800">Casting AI Canvas</h3>
+                  <h3 className="text-lg font-black text-slate-800">Casting AI Canvas Grid</h3>
                   <div className="flex items-center gap-1.5 justify-center text-xs font-mono text-blue-600">
                     <Clock className="w-3.5 h-3.5" />
                     <span>{PROGRESS_STEPS[currentProgressIndex]}</span>
@@ -393,50 +599,30 @@ export default function TextToImage() {
                   />
                 </div>
               </div>
-            ) : imageUrl ? (
+            ) : hasImages ? (
               <div className="space-y-6 w-full flex flex-col items-center justify-center h-full">
-                
-                {/* The Graphic canvas container */}
-                <div className="w-full bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden shadow-inner relative group/img aspect-square flex items-center justify-center">
-                  <img 
-                    src={imageUrl} 
-                    alt={prompt} 
-                    className="w-full h-full object-contain max-h-[400px] transition-transform duration-500 group-hover/img:scale-105" 
-                    referrerPolicy="no-referrer"
-                  />
-                  
-                  {/* Aspect Ratio Display badge */}
-                  <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-mono font-black text-white uppercase tracking-wider">
-                    {selectedRatio} RATIO
-                  </div>
+                            {/* 2x2 Interactive Grid of 4 variations */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+                  {images.map((img, idx) => (
+                    <VariationCard
+                      key={`${idx}-${img.url || img.base64 || img.seed || 'initial'}`}
+                      img={img}
+                      idx={idx}
+                      prompt={prompt}
+                      copiedIndex={copiedIndex}
+                      onCopy={copyImage}
+                      onDownload={downloadImage}
+                      onRegenerate={regenerateIndividualImage}
+                    />
+                  ))}
                 </div>
 
-                {/* Download and Share Controls */}
-                <div className="grid grid-cols-2 gap-4 w-full">
-                  <button
-                    onClick={handleDownload}
-                    className="py-3 px-4 rounded-xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/10 cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Save Asset
-                  </button>
-                  <button
-                    onClick={handleCopyUrl}
-                    className="py-3 px-4 rounded-xl bg-white border border-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-500" />
-                        Copied Base64
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        Copy Image
-                      </>
-                    )}
-                  </button>
-                </div>
+                {fallbackNotice && (
+                  <div className="p-4 bg-amber-50/70 border border-amber-100 rounded-2xl flex items-start gap-2.5 text-left animate-fadeIn w-full">
+                    <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-[10px] text-amber-700 font-semibold leading-normal">{fallbackNotice}</p>
+                  </div>
+                )}
 
               </div>
             ) : (
@@ -447,7 +633,7 @@ export default function TextToImage() {
                 <div>
                   <h3 className="text-xl font-black text-slate-800 mb-2">Artistic Studio</h3>
                   <p className="text-xs font-semibold leading-relaxed text-slate-400">
-                    Input a description on the left pane and generate clean, vector-inspired graphics and artwork in real-time.
+                    Input a description on the left pane and generate clean, vector-inspired graphics and artwork in real-time. Displays four creative alternatives in an interactive grid canvas.
                   </p>
                 </div>
               </div>
