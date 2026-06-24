@@ -50,14 +50,53 @@ interface GeneratedImage {
   isFallback?: boolean;
 }
 
-function triggerDownload(src: string, index: number) {
+async function triggerDownload(img: GeneratedImage, index: number) {
   if (typeof window === "undefined") return;
-  const a = document.createElement('a');
-  a.href = src;
-  a.download = `ai-generated-variation-${index + 1}-${Date.now()}.png`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const filename = `ai-generated-image-${index + 1}-${Date.now()}.png`;
+
+  try {
+    let blob: Blob;
+
+    if (img.base64) {
+      const byteCharacters = atob(img.base64);
+      const byteArrays = [];
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+      blob = new Blob(byteArrays, { type: img.mimeType || 'image/png' });
+    } else if (img.url) {
+      const response = await fetch(img.url);
+      if (!response.ok) throw new Error("Failed to fetch cross-origin image content");
+      blob = await response.blob();
+    } else {
+      return;
+    }
+
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+  } catch (error) {
+    console.error("Blob download failed, fallback to standard download link:", error);
+    const fallbackSrc = img.url || `data:${img.mimeType || 'image/png'};base64,${img.base64}`;
+    const a = document.createElement('a');
+    a.href = fallbackSrc;
+    a.download = filename;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 }
 
 function VariationCard({
@@ -229,6 +268,8 @@ function VariationCard({
 export default function TextToImage() {
   const [prompt, setPrompt] = useState('');
   const [selectedEngine, setSelectedEngine] = useState('free'); // Default to 'free' (High-Speed Flux) for 100% reliable keyless creation
+  const [aspectRatio, setAspectRatio] = useState('1:1');
+  const [imageSize, setImageSize] = useState('1K');
   const [loading, setLoading] = useState(false);
   const [enhancing, setEnhancing] = useState(false);
   const [images, setImages] = useState<GeneratedImage[]>([]);
@@ -307,7 +348,8 @@ export default function TextToImage() {
         },
         body: JSON.stringify({
           prompt: prompt.trim(),
-          imageSize: '1K',
+          aspectRatio,
+          imageSize,
           engine: selectedEngine,
         }),
       });
@@ -349,8 +391,23 @@ export default function TextToImage() {
   const regenerateIndividualImage = async (index: number) => {
     const newSeed = Math.floor(Math.random() * 999999) + 1;
     const updatedImages = [...images];
+    let width = 1024;
+    let height = 1024;
+    if (aspectRatio === "16:9") {
+      width = 1024;
+      height = 576;
+    } else if (aspectRatio === "9:16") {
+      width = 576;
+      height = 1024;
+    } else if (aspectRatio === "4:3") {
+      width = 1024;
+      height = 768;
+    } else if (aspectRatio === "3:4") {
+      width = 768;
+      height = 1024;
+    }
     updatedImages[index] = {
-      url: `https://image.pollinations.ai/p/${encodeURIComponent(prompt.trim())}?width=1024&height=1024&seed=${newSeed}&nologo=true&model=flux&private=true&feed=false`,
+      url: `https://image.pollinations.ai/p/${encodeURIComponent(prompt.trim())}?width=${width}&height=${height}&seed=${newSeed}&nologo=true&model=flux&private=true&feed=false`,
       engine: "free",
       seed: newSeed
     };
@@ -358,8 +415,7 @@ export default function TextToImage() {
   };
 
   const downloadImage = (img: GeneratedImage, index: number) => {
-    const src = img.url || `data:${img.mimeType || 'image/png'};base64,${img.base64}`;
-    triggerDownload(src, index);
+    triggerDownload(img, index);
   };
 
   const copyImage = async (img: GeneratedImage, index: number) => {
@@ -415,10 +471,11 @@ export default function TextToImage() {
         subtitle="Transform descriptive scripts into professional-grade digital artwork and assets instantly with the power of Gemini AI."
       />
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-20">
+      {/* Main Section container */}
+      <div className="max-w-3xl mx-auto space-y-8 mb-20">
         
-        {/* Left Column: Form Settings */}
-        <div className="lg:col-span-5 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 sm:p-10 shadow-xl shadow-blue-900/5 space-y-8">
+        {/* Prompt Section (upar wala section) */}
+        <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-8 sm:p-10 shadow-xl shadow-blue-900/5 space-y-8">
           
           {/* Rendering Engine Selector */}
           <div className="space-y-4">
@@ -426,7 +483,7 @@ export default function TextToImage() {
               <Zap className="w-4 h-4 text-amber-500" />
               Select Rendering AI Engine
             </label>
-            <div className="grid grid-cols-1 gap-3.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               <button
                 type="button"
                 onClick={() => {
@@ -447,7 +504,7 @@ export default function TextToImage() {
                   <Badge variant="emerald" className="scale-90 origin-right py-0.5">FREE &amp; UNLIMITED</Badge>
                 </div>
                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-1.5">
-                  Blazing fast rendering, incredibly creative open-source model. Works instantly without any keys. Generates 4 unique variations in parallel.
+                  Blazing fast rendering, incredibly creative open-source model. Works instantly without any keys. Generates a distinct high-quality image.
                 </p>
               </button>
 
@@ -471,7 +528,7 @@ export default function TextToImage() {
                   <Badge variant="blue" className="scale-90 origin-right py-0.5">DEV PREVIEW</Badge>
                 </div>
                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-1.5">
-                  Google&apos;s cinematic image rendering model. Subjects to daily developer quota rates. Generates 4 high-quality variations.
+                  Google&apos;s cinematic image rendering model. Subjects to daily developer quota rates. Generates a distinct high-quality image.
                 </p>
               </button>
             </div>
@@ -500,7 +557,7 @@ export default function TextToImage() {
             </div>
             
             <textarea
-              className="w-full h-72 px-5 py-4 text-sm font-semibold rounded-2xl bg-slate-50/50 border border-slate-100 focus:outline-none focus:border-blue-500 focus:bg-white text-slate-800 transition-all resize-none shadow-inner leading-relaxed"
+              className="w-full h-40 px-5 py-4 text-sm font-semibold rounded-2xl bg-slate-50/50 border border-slate-100 focus:outline-none focus:border-blue-500 focus:bg-white text-slate-800 transition-all resize-none shadow-inner leading-relaxed"
               placeholder="Example: A serene high-mountain lake during golden hour, majestic snow peaks reflected clearly in the still blue water, highly realistic photorealistic texture..."
               value={prompt}
               onChange={(e) => {
@@ -538,6 +595,66 @@ export default function TextToImage() {
             </div>
           </div>
 
+          {/* Sizing/Format Selection - STRICTLY NO ICONS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+            <div className="space-y-2.5">
+              <label className="text-[11px] font-black text-slate-800 uppercase tracking-widest block">
+                Image Format / Aspect Ratio
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: 'Square (1:1)', value: '1:1' },
+                  { label: 'Landscape (16:9)', value: '16:9' },
+                  { label: 'Portrait (9:16)', value: '9:16' },
+                  { label: 'Classic (4:3)', value: '4:3' },
+                  { label: 'Tall (3:4)', value: '3:4' }
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setAspectRatio(item.value)}
+                    className={cn(
+                      "px-3 py-2 text-[10px] font-bold rounded-xl border transition-all cursor-pointer text-center",
+                      aspectRatio === item.value
+                        ? "border-blue-500 bg-blue-50/50 text-blue-600 shadow-sm font-extrabold"
+                        : "border-slate-100 bg-slate-50/50 text-slate-500 hover:bg-slate-50 hover:border-slate-200"
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              <label className="text-[11px] font-black text-slate-800 uppercase tracking-widest block">
+                Image Quality / Size
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: 'Standard (1K)', value: '1K' },
+                  { label: 'High (2K)', value: '2K' },
+                  { label: 'Ultra (4K)', value: '4K' }
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    disabled={selectedEngine === 'free' && item.value !== '1K'}
+                    onClick={() => setImageSize(item.value)}
+                    className={cn(
+                      "px-3 py-2 text-[10px] font-bold rounded-xl border transition-all cursor-pointer text-center disabled:opacity-40 disabled:cursor-not-allowed",
+                      imageSize === item.value
+                        ? "border-blue-500 bg-blue-50/50 text-blue-600 shadow-sm font-extrabold"
+                        : "border-slate-100 bg-slate-50/50 text-slate-500 hover:bg-slate-50 hover:border-slate-200"
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Error display */}
           {error && (
             <div className="flex items-start gap-3 bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-semibold border border-red-100 animate-fadeIn">
@@ -560,22 +677,21 @@ export default function TextToImage() {
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                Generating 4 Variations...
+                Generating Image...
               </>
             ) : (
               <>
                 <Wand2 className="w-4 h-4" />
-                Generate Dream Art (4x)
+                Generate Dream Art
               </>
             )}
           </button>
 
         </div>
 
-        {/* Right Column: Output / Live Rendering Status */}
-        <div className="lg:col-span-7 flex flex-col justify-stretch">
-          
-          <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-6 sm:p-8 shadow-xl shadow-blue-900/5 h-full flex flex-col items-center justify-center min-h-[420px] text-center relative overflow-hidden">
+        {/* Image Section (neeche wala section) - by default hidden, visible when generating or has images */}
+        {(loading || hasImages) && (
+          <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-white p-6 sm:p-8 shadow-xl shadow-blue-900/5 flex flex-col items-center justify-center min-h-[420px] text-center relative overflow-hidden">
             
             {loading ? (
               <div className="space-y-6 flex flex-col items-center justify-center w-full z-10 py-10">
@@ -584,7 +700,7 @@ export default function TextToImage() {
                   <span className="absolute inset-0 rounded-full border-4 border-dashed border-blue-500 animate-spin" style={{ animationDuration: '6000ms' }} />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black text-slate-800">Casting AI Canvas Grid</h3>
+                  <h3 className="text-lg font-black text-slate-800">Casting AI Canvas</h3>
                   <div className="flex items-center gap-1.5 justify-center text-xs font-mono text-blue-600">
                     <Clock className="w-3.5 h-3.5" />
                     <span>{PROGRESS_STEPS[currentProgressIndex]}</span>
@@ -601,8 +717,8 @@ export default function TextToImage() {
               </div>
             ) : hasImages ? (
               <div className="space-y-6 w-full flex flex-col items-center justify-center h-full">
-                            {/* 2x2 Interactive Grid of 4 variations */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+                {/* Interactive Single Image Display */}
+                <div className="max-w-lg mx-auto grid grid-cols-1 gap-5 w-full">
                   {images.map((img, idx) => (
                     <VariationCard
                       key={`${idx}-${img.url || img.base64 || img.seed || 'initial'}`}
@@ -625,23 +741,10 @@ export default function TextToImage() {
                 )}
 
               </div>
-            ) : (
-              <div className="space-y-6 py-10 text-slate-400 flex flex-col items-center max-w-sm z-10">
-                <div className="w-20 h-20 bg-slate-100/80 rounded-full flex items-center justify-center shadow-inner">
-                  <ImageIcon className="w-9 h-9 text-slate-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-slate-800 mb-2">Artistic Studio</h3>
-                  <p className="text-xs font-semibold leading-relaxed text-slate-400">
-                    Input a description on the left pane and generate clean, vector-inspired graphics and artwork in real-time. Displays four creative alternatives in an interactive grid canvas.
-                  </p>
-                </div>
-              </div>
-            )}
+            ) : null}
             
           </div>
-
-        </div>
+        )}
 
       </div>
 

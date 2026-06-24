@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     // Standard High-Speed Engine (completely free, unlimited, zero secrets or keys required)
     if (engine === "free") {
-      const imagesList = Array.from({ length: 4 }).map(() => {
+      const imagesList = Array.from({ length: 1 }).map(() => {
         const seed = Math.floor(Math.random() * 999999) + 1;
         return {
           url: getPollinationsUrl(promptText, ratio, seed),
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Google Imagen Premium (using client/server provided API key)
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       throw new Error("No API key configured for Google Imagen.");
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     };
 
     const imagesList = await Promise.all(
-      Array.from({ length: 4 }).map((_, i) => generateSingleWithGemini(i))
+      Array.from({ length: 1 }).map((_, i) => generateSingleWithGemini(i))
     );
 
     const hasFallbacks = imagesList.some(img => img.engine === "free");
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     // Attempt free, keyless fallback so the user doesn't face any 429 quota or 400 expired key errors
     try {
       if (promptText) {
-        const imagesList = Array.from({ length: 4 }).map(() => {
+        const imagesList = Array.from({ length: 1 }).map(() => {
           const seed = Math.floor(Math.random() * 999999) + 1;
           return {
             url: getPollinationsUrl(promptText, ratio, seed),
