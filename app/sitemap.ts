@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/tools/image-compressor',
     '/tools/image-converter',
     '/tools/text-to-image',
+    '/tools/chrome-extension',
     '/blog/physics-of-zero-server-link-cleaning',
     '/blog/mastering-bulk-url-trimming-seo-best-practices',
     '/blog/link-protocol-v1-4-0-release-notes',

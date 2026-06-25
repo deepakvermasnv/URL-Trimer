@@ -1,0 +1,30 @@
+# URL Trim
+
+> URL Trim is a professional-grade suite of 100% browser-based, client-side web utility tools. It features a high-performance bulk URL cleaner, deduplicator, and formatting engine designed for digital marketers, SEO specialists, developers, and privacy-focused users. All data processing is done locally in your browser, ensuring absolute security with zero data transmission.
+
+## Key Features & Tools
+
+- **URL Trimmer**: Extract root domains or clean custom extensions from bulk link streams. Strip tracking parameters, query segments, and URL paths with microsecond precision. Perfect for auditing backlink profiles or cleaning campaign URLs.
+- **Remove Duplicate URLs**: Normalizes and deduplicates link databases instantly on the fly.
+- **Add HTTPS Protocol**: Prepend secure `https://` protocols to domain lists automatically.
+- **Slug Generator**: Generate clean, semantic, SEO-friendly URL slugs from text titles or headlines.
+- **Title Case Converter**: Format raw text or article headings into standard Title Case formats.
+- **Word Counter**: High-performance local text analyzer for word, sentence, readability, and character counts.
+- **PDF Converter**: Offline converter for images, DOCX, and PPTX to PDF documents.
+- **Image Compressor & Converter**: Optimize image dimensions and shrink file sizes locally without server-side uploads.
+- **AI Text-to-Image**: Access Gemini-powered high-quality image generation locally.
+
+## Architecture & Privacy Protocol
+- **Zero-Server Processing**: All utility algorithms execute 100% in local client-side memory (RAM) using non-blocking, asynchronous chunked processing loops. No server-side storage, logging, or proxying of your inputs is possible.
+- **Data Security**: Inputs are processed on your CPU and purged immediately upon closing the tab or clearing the buffer.
+
+## Key Resources & URLs
+- Home / Bulk URL Cleaner: https://www.urltrim.online/
+- Web Utility Suite: https://www.urltrim.online/tools
+- Chrome Extension: https://www.urltrim.online/tools/chrome-extension
+- Word Counter: https://www.urltrim.online/tools/word-counter
+- PDF Converter: https://www.urltrim.online/tools/pdf-converter
+- Image Compressor: https://www.urltrim.online/tools/image-compressor
+- Image Converter: https://www.urltrim.online/tools/image-converter
+- AI Text-to-Image: https://www.urltrim.online/tools/text-to-image
+- Engineering Blog: https://www.urltrim.online/blog
