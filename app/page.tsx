@@ -73,6 +73,10 @@ export default function URLTrimmer() {
               if (match && match.index !== undefined) {
                 result = trimmedLine.substring(0, match.index + match[0].length);
                 foundCustom = true;
+                const nextChar = trimmedLine.charAt(match.index + match[0].length);
+                if (nextChar === '/') {
+                  result += '/';
+                }
               }
             }
 
@@ -85,8 +89,18 @@ export default function URLTrimmer() {
                 if (!hasProtocol) {
                   result = result.replace(/^https?:\/\//i, '');
                 }
+                
+                // If there's a slash immediately after the host in the original string, preserve it
+                const hostIndex = trimmedLine.toLowerCase().indexOf(parsed.host.toLowerCase());
+                if (hostIndex !== -1 && trimmedLine.charAt(hostIndex + parsed.host.length) === '/') {
+                  result += '/';
+                }
               } catch (e) {
-                result = trimmedLine.split(/[/?#]/)[0];
+                const parts = trimmedLine.split(/[/?#]/);
+                result = parts[0];
+                if (trimmedLine.includes('/') && trimmedLine.indexOf('/') === result.length) {
+                  result += '/';
+                }
               }
             }
           } else if (activeMode === 'slug') {
