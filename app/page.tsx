@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers, Code2 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -19,7 +19,7 @@ export default function URLTrimmer() {
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
-  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup' | 'add-https'>('trimmer');
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup' | 'add-https' | 'remove-html'>('trimmer');
 
   useEffect(() => {
     let isCancelled = false;
@@ -130,6 +130,8 @@ export default function URLTrimmer() {
             } else {
               result = 'https://' + trimmedLine;
             }
+          } else if (activeMode === 'remove-html') {
+            result = trimmedLine.replace(/<[^>]*>/g, '').trim();
           }
           
           if (activeMode === 'dedup') {
@@ -308,6 +310,19 @@ export default function URLTrimmer() {
               </button>
 
               <button
+                onClick={() => setActiveMode('remove-html')}
+                className={cn(
+                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  activeMode === 'remove-html'
+                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
+                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
+                )}
+              >
+                <Code2 className="w-3.5 h-3.5 shrink-0" />
+                <span>Remove HTML Tags</span>
+              </button>
+
+              <button
                 onClick={() => setActiveMode('title-case')}
                 className={cn(
                   "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
@@ -347,6 +362,7 @@ export default function URLTrimmer() {
                             {activeMode === 'title-case' && `Text Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'add-https' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'remove-html' && `HTML Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Load URLs Below'}
@@ -354,6 +370,7 @@ export default function URLTrimmer() {
                             {activeMode === 'title-case' && 'Load Text Below'}
                             {activeMode === 'dedup' && 'Load URLs Below'}
                             {activeMode === 'add-https' && 'Load URLs Below'}
+                            {activeMode === 'remove-html' && 'Load HTML Below'}
                           </p>
                         </div>
                       </div>
@@ -389,6 +406,8 @@ export default function URLTrimmer() {
                             ? "Paste text or headlines to convert to Title Case (e.g. 'how to make a website')..."
                             : activeMode === 'add-https'
                             ? "Paste links to automatically prepend https://..."
+                            : activeMode === 'remove-html'
+                            ? "Paste HTML text to strip tags (e.g. '<p>Hello <b>World</b></p>')..."
                             : "Paste links to filter out duplicate URLs..."
                         }
                         value={input}
@@ -418,6 +437,7 @@ export default function URLTrimmer() {
                             {activeMode === 'title-case' && `Title Case Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `Unique URLs (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'add-https' && `HTTPS Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'remove-html' && `Plain Text Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Trimmed Results'}
@@ -425,6 +445,7 @@ export default function URLTrimmer() {
                             {activeMode === 'title-case' && 'Standardized Casing'}
                             {activeMode === 'dedup' && 'Deduplicated URLs'}
                             {activeMode === 'add-https' && 'Secured HTTPS URLs'}
+                            {activeMode === 'remove-html' && 'Clean Plain Text'}
                           </p>
                         </div>
                       </div>
@@ -525,6 +546,13 @@ export default function URLTrimmer() {
                               <Link2 className="w-10 h-10 text-slate-300 mb-3" />
                               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
                               <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to automatically prepend https:// format.</p>
+                            </>
+                          )}
+                          {activeMode === 'remove-html' && (
+                            <>
+                              <Code2 className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting HTML Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste HTML-formatted text on the left to automatically strip all tags offline.</p>
                             </>
                           )}
                         </div>
