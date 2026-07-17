@@ -7,8 +7,8 @@ export const SITE_CONFIG = {
 export const SEO_METADATA = {
   home: {
     canonical: '/',
-    title: 'Free Bulk URL Cleaner — Strip Paths, Queries & Tracking | URL Trim',
-    description: 'The world\'s fastest bulk URL cleaner. Strip tracking parameters, remove paths, and extract clean domains from thousands of URLs instantly in your browser.',
+    title: 'Free Bulk URL Cleaner & Text Utilities — Strip Paths, Tracking & HTML | URL Trim',
+    description: 'The fastest browser-based utility. Clean tracking parameters, remove HTML tags, extract clean domains, generate web slugs, and sanitize bulk links instantly.',
   },
   tools: {
     canonical: '/tools',
@@ -39,6 +39,11 @@ export const SEO_METADATA = {
     canonical: '/tools/pdf-converter',
     title: 'Free PDF Converter — Professional Document to PDF | URL Trim',
     description: 'Convert images, Word docx, and PowerPoint pptx files into professional PDF documents locally in your browser.',
+  },
+  chromeExtension: {
+    canonical: '/tools/chrome-extension',
+    title: 'Free Chrome Extension Builder — Custom Link Trimming | URL Trim',
+    description: 'Create and compile your own custom Chrome Extension to strip tracking parameters and clean links directly from your browser bar.',
   },
   about: {
     canonical: '/about',

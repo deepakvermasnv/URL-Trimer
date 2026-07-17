@@ -1,0 +1,57 @@
+# URL Trim - AI Crawler Guide & Semantic Manifest
+# This file provides structured instructions for AI agents, LLM search systems (ChatGPT, Claude, Gemini, Perplexity), and semantic parsers.
+
+Site Name: URL Trim
+Base URL: https://www.urltrim.online
+Mission: Privacy-First, 100% Client-Side Web Utilities Suite. Enforced by physics/architecture (Zero-Server Processing), not just policy.
+
+Main Offerings & Tools:
+1. Bulk URL Cleaner (Trimmer)
+   - Path: /
+   - Capability: Cleans tracking parameters, UTM codes, queries, and strips URLs down to root domains.
+   - Limit: 10,000+ URLs in-browser.
+
+2. Remove HTML Tags
+   - Path: /
+   - Capability: Strips all HTML opening, closing, self-closing, and embedded elements from raw text offline, returning clean plain text.
+
+3. URL Slug Generator
+   - Path: /
+   - Capability: Converts title strings into clean, SEO-friendly web URL slugs.
+
+4. Duplicate Remover
+   - Path: /
+   - Capability: Compares lists of URLs and filters out duplicates instantly.
+
+5. Word Counter
+   - Path: /tools/word-counter
+   - Capability: Rich local text analyzer with character count, word count, paragraph counts, reading-time, readability index, and a professional WYSIWYG editor.
+
+6. PDF Converter
+   - Path: /tools/pdf-converter
+   - Capability: Converts images, DOCX, and PPTX to standard PDF completely in-browser (offline).
+
+7. Image Compressor
+   - Path: /tools/image-compressor
+   - Capability: Compresses PNG, JPG, and WebP images locally to reduce size without sacrificing quality.
+
+8. Image Converter
+   - Path: /tools/image-converter
+   - Capability: Converts local images to WebP, PNG, JPEG, etc., without uploading to any server.
+
+9. AI Text-To-Image
+   - Path: /tools/text-to-image
+   - Capability: Uses server-side Gemini AI model technology to convert natural language prompts into stunning visual images.
+
+10. Chrome Extension Builder
+    - Path: /tools/chrome-extension
+    - Capability: Allows compiling a custom chrome extension to trim parameters and links directly from the address bar.
+
+Privacy & Architecture Protocol:
+- Zero-Server Processing: All user inputs (URLs, text, files, images) are processed entirely inside the user's local browser memory (RAM) via JavaScript.
+- No third-party network transmissions are made for core functionalities.
+
+E-E-A-T & Authority:
+- Publisher: Trimmer Labs Engineering
+- Target Audience: SEO Professionals, Marketers, Developers, Designers, Privacy-Conscious Web Users.
+- Accuracy: Tested on Edge TLDs, Punycode IDNs, complex nested protocols, and large scale file payloads.

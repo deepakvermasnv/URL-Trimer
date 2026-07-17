@@ -28,7 +28,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.baseUrl),
   title: SEO_METADATA.home.title,
   description: SEO_METADATA.home.description,
-  keywords: ['bulk url cleaner', 'strip url parameters online', 'url domain extractor tool', 'remove tracking parameters from url', 'clean url list free', 'bulk link trimmer'],
+  keywords: [
+    'bulk url cleaner', 
+    'strip url parameters online', 
+    'url domain extractor tool', 
+    'remove tracking parameters from url', 
+    'clean url list free', 
+    'bulk link trimmer',
+    'remove html tags',
+    'html tag stripper online',
+    'clean plain text from html',
+    'strip html tags offline',
+    'privacy first web tools'
+  ],
   authors: [{ name: 'Trimmer Labs' }],
   alternates: {
     canonical: getCanonical(SEO_METADATA.home.canonical),
@@ -72,7 +84,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
       "@type": "WebApplication",
       "name": SITE_CONFIG.siteName,
       "url": `${SITE_CONFIG.baseUrl}/`,
-      "description": "Free bulk URL cleaner tool to strip tracking parameters and extract clean domains.",
+      "description": "Free bulk URL cleaner and browser utility suite. Strip tracking parameters, remove paths, extract clean domains, generate web slugs, prepends HTTPS, and strip HTML tags instantly.",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "All",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -82,7 +94,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         "Duplicate removal",
         "Custom TLD support",
         "URL Slug Generator",
-        "Title Case Converter"
+        "Title Case Converter",
+        "Add HTTPS Prepend",
+        "Remove HTML Tags and formatting"
       ]
     },
     {
@@ -119,6 +133,22 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Our high-precision engine correctly handles international domain names and punycode-encoded URLs with extreme accuracy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the Remove HTML Tags tool work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Remove HTML Tags tool instantly strips all opening, closing, self-closing, and embedded HTML tags from your text, returning pure, clean plain text. It runs entirely locally in your browser's memory."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does URL Trim send any data to external servers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. URL Trim is designed on a 100% Zero-Server Architecture. All operations, including link trimming, slug generation, duplicate removal, and HTML tag stripping, execute directly in your browser's local RAM using your device CPU. No content is ever transmitted across the network."
           }
         }
       ]

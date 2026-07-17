@@ -187,5 +187,46 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const post = BLOG_POSTS[slug as keyof typeof BLOG_POSTS];
 
-  return <BlogPostClient post={post} slug={slug} />;
+  if (!post) return null;
+
+  // Safe mapping of publication dates for schema compliance
+  const publishDates: Record<string, string> = {
+    'physics-of-zero-server-link-cleaning': '2026-04-15T00:00:00.000Z',
+    'mastering-bulk-url-trimming-seo-best-practices': '2026-04-08T00:00:00.000Z',
+    'link-protocol-v1-4-0-release-notes': '2026-03-22T00:00:00.000Z',
+  };
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": post.title,
+    "datePublished": publishDates[slug] || new Date().toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": post.author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Trimmer Labs",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${SITE_CONFIG.baseUrl}/favicon-32x32.png`
+      }
+    },
+    "description": post.content.props.children[0].props.children.substring(0, 160) + '...',
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${SITE_CONFIG.baseUrl}/blog/${slug}`
+    }
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BlogPostClient post={post} slug={slug} />
+    </>
+  );
 }
