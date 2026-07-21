@@ -26,6 +26,30 @@ import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
 import { cn } from '@/lib/utils';
+import FAQSection from '@/components/FAQSection';
+
+const PDF_CONVERTER_FAQS = [
+  {
+    q: "What can I convert to PDF with this tool?",
+    a: "You can convert images (PNG, JPG, WEBP), Word documents (.docx), PowerPoint presentations (.pptx), and plain text."
+  },
+  {
+    q: "Is there a file size limit?",
+    a: "No strict limits, but very large files might take longer because everything runs on your device."
+  },
+  {
+    q: "Are my files uploaded to a server?",
+    a: "No. Everything is processed 100% locally in your browser."
+  },
+  {
+    q: "Can I change the order of images before generating the PDF?",
+    a: "Yes. You can drag and drop images to reorder them before exporting."
+  },
+  {
+    q: "Is this tool completely free?",
+    a: "Yes, it is free."
+  }
+];
 
 // Lazy load libraries
 const getJsPDF = async () => (await import('jspdf')).default;
@@ -634,6 +658,11 @@ export default function PDFConverter() {
           </div>
         </div>
       </section>
+
+      <FAQSection 
+        pageId="pdf-converter"
+        faqs={PDF_CONVERTER_FAQS}
+      />
     </PageLayout>
   );
 }

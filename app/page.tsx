@@ -9,6 +9,34 @@ import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import { TOOLS } from '@/lib/tools';
+import FAQSection from '@/components/FAQSection';
+
+const HOMEPAGE_FAQS = [
+  {
+    q: "What does URL Trim actually do?",
+    a: "It cleans up messy URLs. Paste in a bunch of links and it strips out tracking codes, extra paths, and junk parameters, leaving you with clean, simple links. Everything happens right in your browser."
+  },
+  {
+    q: "Do I need to sign up to use it?",
+    a: "No. There's no account, no login, nothing to set up. Just open the site and start pasting URLs."
+  },
+  {
+    q: "How many URLs can I clean at once?",
+    a: "As many as you want. You can paste a short list or a few thousand links, and it'll clean them all in one go."
+  },
+  {
+    q: "Is my data safe when I use this tool?",
+    a: "Yes. Nothing gets uploaded anywhere. The whole cleaning process happens on your own device, so your links never touch a server."
+  },
+  {
+    q: "What kind of stuff does it remove from URLs?",
+    a: "Mostly tracking junk—things like UTM tags, session IDs, and affiliate codes that get tacked onto links. It strips those out so you're left with a clean link."
+  },
+  {
+    q: "Is URL Trim really free?",
+    a: "Yes, completely. No paid plans, no limits, no catch."
+  }
+];
 import { cn } from '@/lib/utils';
 
 export default function URLTrimmer() {
@@ -770,6 +798,11 @@ export default function URLTrimmer() {
               </div>
             </div>
           </section>
+
+          <FAQSection 
+            pageId="homepage"
+            faqs={HOMEPAGE_FAQS}
+          />
         </div>
       </PageLayout>
     </>

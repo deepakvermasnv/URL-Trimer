@@ -102,6 +102,30 @@ import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
 import { cn } from '@/lib/utils';
+import FAQSection from '@/components/FAQSection';
+
+const WORD_COUNTER_FAQS = [
+  {
+    q: "What does the Word Counter tool show me?",
+    a: "It counts words, characters, sentences, reading time, and readability as you type."
+  },
+  {
+    q: "Is it free to use?",
+    a: "Yes."
+  },
+  {
+    q: "Does it save or store what I type?",
+    a: "No. Everything stays inside your browser."
+  },
+  {
+    q: "Can it tell me how easy or hard my writing is to read?",
+    a: "Yes. It provides readability and estimated reading time."
+  },
+  {
+    q: "Can I export or copy my text after checking it?",
+    a: "Yes. You can copy the text or export it as a PDF."
+  }
+];
 
 const MenuBar = ({ editor }: { editor: any }) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -879,6 +903,11 @@ export default function WordCounter() {
             </div>
           </motion.aside>
         </div>
+
+        <FAQSection 
+          pageId="word-counter"
+          faqs={WORD_COUNTER_FAQS}
+        />
 
         {/* SEO Schemas */}
         <Script id="word-counter-schema" type="application/ld+json">

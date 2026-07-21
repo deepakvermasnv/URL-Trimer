@@ -8,6 +8,30 @@ import PageLayout from '@/components/PageLayout';
 import NavAction from '@/components/NavAction';
 import { cn } from '@/lib/utils';
 import { TOOLS, CATEGORIES } from '@/lib/tools';
+import FAQSection from '@/components/FAQSection';
+
+const TOOLS_FAQS = [
+  {
+    q: "What tools does URL Trim offer besides the URL cleaner?",
+    a: "There's a Word Counter, Image Compressor, Image Converter, and PDF Converter—all free and browser-based."
+  },
+  {
+    q: "Do I have to pay for any of these tools?",
+    a: "No. Every tool is completely free and requires no signup."
+  },
+  {
+    q: "Do I need to download or install anything?",
+    a: "No. Everything runs directly inside your browser."
+  },
+  {
+    q: "Do these tools work on mobile?",
+    a: "Yes. Every tool is fully responsive and works on phones, tablets, and desktops."
+  },
+  {
+    q: "Is it safe to use these tools with personal files or text?",
+    a: "Yes. Everything is processed locally on your device."
+  }
+];
 
 export default function ToolsLibrary() {
   const [activeTab, setActiveTab] = useState('All');
@@ -112,6 +136,11 @@ export default function ToolsLibrary() {
             </p>
           </div>
         </div>
+
+        <FAQSection 
+          pageId="tools"
+          faqs={TOOLS_FAQS}
+        />
       </div>
     </PageLayout>
   );

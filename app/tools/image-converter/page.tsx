@@ -22,6 +22,30 @@ import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
+import FAQSection from '@/components/FAQSection';
+
+const IMAGE_CONVERTER_FAQS = [
+  {
+    q: "What formats does the Image Converter support?",
+    a: "You can convert images between PNG, JPG, and WebP formats."
+  },
+  {
+    q: "Is my original image uploaded to a server for conversion?",
+    a: "No. The conversion happens entirely within your web browser."
+  },
+  {
+    q: "Will converting my image make it lose quality?",
+    a: "No. It uses standard canvas methods to convert formats without unnecessary loss."
+  },
+  {
+    q: "Is this image converter completely free?",
+    a: "Yes."
+  },
+  {
+    q: "Can I convert high-resolution files?",
+    a: "Yes. High-resolution images are processed locally in your browser."
+  }
+];
 
 const SUPPORTED_FORMATS = [
 // ... (rest of the file remains same, I will just apply the layout changes)
@@ -257,6 +281,11 @@ export default function ImageConverter() {
             </div>
           )}
         </div>
+
+        <FAQSection 
+          pageId="image-converter"
+          faqs={IMAGE_CONVERTER_FAQS}
+        />
 
         {/* SEO Schemas */}
         <Script id="image-converter-schema" type="application/ld+json">

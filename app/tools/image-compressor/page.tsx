@@ -25,6 +25,30 @@ import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
+import FAQSection from '@/components/FAQSection';
+
+const IMAGE_COMPRESSOR_FAQS = [
+  {
+    q: "How does it shrink image size without ruining quality?",
+    a: "It compresses images while keeping visual quality suitable for websites."
+  },
+  {
+    q: "Do I need to upload my images somewhere?",
+    a: "No. Images never leave your device."
+  },
+  {
+    q: "What image formats does it work with?",
+    a: "JPG, PNG, and WebP."
+  },
+  {
+    q: "Why should I compress images for my website?",
+    a: "Smaller images improve page speed, SEO, and user experience."
+  },
+  {
+    q: "Can I compress more than one image at a time?",
+    a: "Yes. Multiple image compression is supported."
+  }
+];
 
 export default function ImageCompressor() {
 // ... (rest of the component remains same, I will just apply the layout changes)
@@ -321,6 +345,11 @@ export default function ImageCompressor() {
             </div>
           )}
         </div>
+
+        <FAQSection 
+          pageId="image-compressor"
+          faqs={IMAGE_COMPRESSOR_FAQS}
+        />
 
         {/* SEO Schemas */}
         <Script id="image-compressor-schema" type="application/ld+json">
