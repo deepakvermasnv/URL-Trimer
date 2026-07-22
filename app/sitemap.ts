@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/metadata';
+import { submitAllSiteUrls } from '@/lib/indexnow';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_CONFIG.baseUrl;
@@ -23,6 +24,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/blog/mastering-bulk-url-trimming-seo-best-practices',
     '/blog/link-protocol-v1-4-0-release-notes',
   ]; 
+
+  // Fire-and-forget background ping to IndexNow (deduplicated automatically)
+  submitAllSiteUrls().catch(() => {
+    // Suppress background errors during static generation or crawler fetches
+  });
 
   return routes.map((route) => ({
     url: `${baseUrl}${route}`,
