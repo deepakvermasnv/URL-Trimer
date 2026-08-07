@@ -45,6 +45,14 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import TextAlign from '@tiptap/extension-text-align';
 import CharacterCount from '@tiptap/extension-character-count';
 import { Extension } from '@tiptap/core';
+import { LanguageToolExtension } from '@/lib/languagetool/LanguageToolExtension';
+import { LanguageToolMatch } from '@/lib/languagetool/types';
+import { DictionaryManager } from '@/lib/languagetool/DictionaryManager';
+import { SpellCheckManager } from '@/lib/languagetool/SpellCheckManager';
+import { GrammarManager } from '@/lib/languagetool/GrammarManager';
+import SuggestionPopup from '@/components/languagetool/SuggestionPopup';
+import LanguageToolWidget from '@/components/languagetool/LanguageToolWidget';
+
 // Dynamic imports for heavy libraries to improve performance
 const jsPDF = async () => (await import('jspdf')).default;
 const html2canvas = async () => (await import('html2canvas')).default;
@@ -127,7 +135,23 @@ const WORD_COUNTER_FAQS = [
   }
 ];
 
-const MenuBar = ({ editor }: { editor: any }) => {
+interface MenuBarProps {
+  editor: any;
+  ltMatches?: LanguageToolMatch[];
+  ltLoading?: boolean;
+  ltEnabled?: boolean;
+  onToggleLt?: (enabled: boolean) => void;
+  onRecheckLt?: () => void;
+}
+
+const MenuBar = ({
+  editor,
+  ltMatches = [],
+  ltLoading = false,
+  ltEnabled = true,
+  onToggleLt = () => {},
+  onRecheckLt = () => {},
+}: MenuBarProps) => {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -519,6 +543,17 @@ const MenuBar = ({ editor }: { editor: any }) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* LanguageTool Status & Control Widget */}
+      <div className="ml-auto pl-2 border-l border-slate-200/80">
+        <LanguageToolWidget
+          matches={ltMatches}
+          loading={ltLoading}
+          enabled={ltEnabled}
+          onToggle={onToggleLt}
+          onRecheck={onRecheckLt}
+        />
+      </div>
     </div>
   );
 };
@@ -528,6 +563,13 @@ export default function WordCounter() {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
   const initialLoadedRef = React.useRef(false);
+
+  // LanguageTool state management
+  const [ltMatches, setLtMatches] = useState<LanguageToolMatch[]>([]);
+  const [ltLoading, setLtLoading] = useState(false);
+  const [ltEnabled, setLtEnabled] = useState(true);
+  const [activeLtMatch, setActiveLtMatch] = useState<LanguageToolMatch | null>(null);
+  const [ltPopupCoords, setLtPopupCoords] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -554,6 +596,19 @@ export default function WordCounter() {
         types: ['heading', 'paragraph'],
       }),
       CharacterCount,
+      LanguageToolExtension.configure({
+        language: 'en-US',
+        debounceMs: 600,
+        enabled: true,
+        onMatchesChange: (matches, loading) => {
+          setLtMatches(matches);
+          setLtLoading(loading);
+        },
+        onMatchSelect: (match, coords) => {
+          setActiveLtMatch(match);
+          setLtPopupCoords(coords);
+        },
+      }),
     ],
     content: `
       <h2>Welcome to the Premium Text Editor</h2>
@@ -563,6 +618,7 @@ export default function WordCounter() {
     editorProps: {
       attributes: {
         class: 'prose prose-slate prose-lg focus:outline-none max-w-none p-8 sm:p-10 min-h-[450px] leading-relaxed',
+        spellcheck: 'false',
       },
     },
   });
@@ -748,161 +804,157 @@ export default function WordCounter() {
         subtitle="Count words, characters, and sentences from any text with real-time analysis."
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Main Input Column */}
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ 
-              rotateX: 0.5, 
-              rotateY: -0.5,
-              transition: { duration: 0.3 }
-            }}
-            style={{ perspective: "1500px" }}
-            className="lg:col-span-8 flex flex-col will-change-transform"
-          >
-            <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden h-full flex flex-col group transition-shadow duration-500 hover:shadow-blue-900/10">
-              <MenuBar editor={editor} />
-              
-              <div 
-                ref={editorContainerRef}
-                className="flex-1 overflow-y-auto max-h-[600px] custom-scrollbar"
+      <div className="max-w-6xl mx-auto space-y-6 relative">
+        {/* Sticky Horizontal Analytics Banner */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="sticky top-20 z-30 w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white/80 p-4 sm:p-5 transition-all hover:shadow-blue-900/10"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+            {[
+              { label: 'Words', value: mounted ? stats.words : 0, icon: Type, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Characters', value: mounted ? stats.characters : 0, icon: Hash, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+              { label: 'Sentences', value: mounted ? stats.sentences : 0, icon: FileText, color: 'text-violet-600', bg: 'bg-violet-50' },
+              { label: 'Paragraphs', value: mounted ? stats.paragraphs : 0, icon: AlignLeft, color: 'text-sky-600', bg: 'bg-sky-50' },
+              { label: 'Read Time', value: mounted ? `${stats.readingTime} min` : '0 min', icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-50' }
+            ].map((stat) => (
+              <motion.div 
+                key={stat.label}
+                whileHover={{ y: -2, scale: 1.01 }}
+                className="bg-slate-50/80 hover:bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-100 transition-all flex items-center gap-3 shadow-sm hover:shadow-md"
               >
-                {mounted ? <EditorContent editor={editor} /> : (
-                  <div className="p-8 sm:p-10 text-slate-300 font-medium">Initializing workspace...</div>
-                )}
+                <div className={cn("p-2 rounded-xl shrink-0 shadow-sm", stat.bg)}>
+                  <stat.icon className={cn("w-4 h-4", stat.color)} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.label}</div>
+                  <div className="text-base sm:text-lg font-black text-slate-900 tracking-tight tabular-nums truncate">{stat.value}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Full Width Text Editor Column */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ perspective: "1500px" }}
+          className="w-full flex flex-col will-change-transform"
+        >
+          <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden flex flex-col group transition-shadow duration-500 hover:shadow-blue-900/10">
+            <MenuBar
+              editor={editor}
+              ltMatches={ltMatches}
+              ltLoading={ltLoading}
+              ltEnabled={ltEnabled}
+              onToggleLt={(enabled) => {
+                setLtEnabled(enabled);
+                editor?.commands.toggleLanguageTool(enabled);
+              }}
+              onRecheckLt={() => {
+                editor?.commands.checkGrammarAndSpelling();
+              }}
+            />
+            
+            <div 
+              ref={editorContainerRef}
+              className="flex-1 overflow-y-auto min-h-[450px] max-h-[650px] custom-scrollbar relative"
+            >
+              {mounted ? <EditorContent editor={editor} /> : (
+                <div className="p-8 sm:p-10 text-slate-300 font-medium">Initializing workspace...</div>
+              )}
+
+              {/* LanguageTool Interactive Suggestion Popup */}
+              <SuggestionPopup
+                match={activeLtMatch}
+                coords={ltPopupCoords}
+                onReplace={(match, replacement) => {
+                  editor?.commands.replaceLanguageToolMatch(match, replacement);
+                }}
+                onIgnore={(match) => {
+                  if (match.isSpelling) {
+                    SpellCheckManager.ignoreSpellingMatch(match);
+                  } else {
+                    GrammarManager.ignoreGrammarMatch(match);
+                  }
+                  editor?.commands.ignoreLanguageToolMatch(match.id);
+                }}
+                onAddToDictionary={(word) => {
+                  DictionaryManager.addWord(word);
+                  editor?.commands.checkGrammarAndSpelling();
+                }}
+                onClose={() => {
+                  editor?.commands.clearLanguageToolPopup();
+                }}
+              />
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-black text-blue-600">
+                      {String.fromCharCode(64 + i)}
+                    </div>
+                  ))}
+                </div>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collaborative Mode: Local</span>
               </div>
 
-              {/* Bottom Actions */}
-              <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-black text-blue-600">
-                        {String.fromCharCode(64 + i)}
-                      </div>
-                    ))}
-                  </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collaborative Mode: Local</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    whileHover={!isExporting ? { scale: 1.05 } : {}}
-                    whileTap={!isExporting ? { scale: 0.95 } : {}}
-                    onClick={handlePdfExport}
-                    disabled={isExporting}
-                    aria-label={isExporting ? "Exporting PDF..." : "Export document as PDF"}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all",
-                      isExporting 
-                        ? "bg-slate-50 text-slate-400 cursor-not-allowed" 
-                        : "bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
-                    )}
-                  >
-                    {isExporting ? (
-                      <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <FileBadge className="w-4 h-4" />
-                    )}
-                    {isExporting ? 'Generating...' : 'Export PDF'}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleClear}
-                    aria-label="Clear document content"
-                    className="p-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors"
-                    title="Clear Document"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCopy}
-                    aria-label={copied ? "Text copied" : "Copy text to clipboard"}
-                    className={cn(
-                      "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all",
-                      copied ? "bg-emerald-500 text-white shadow-emerald-200" : "bg-slate-900 text-white shadow-slate-200"
-                    )}
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    {copied ? 'Copied' : 'Copy Text'}
-                  </motion.button>
-                </div>
+              <div className="flex items-center gap-3">
+                <motion.button
+                  whileHover={!isExporting ? { scale: 1.05 } : {}}
+                  whileTap={!isExporting ? { scale: 0.95 } : {}}
+                  onClick={handlePdfExport}
+                  disabled={isExporting}
+                  aria-label={isExporting ? "Exporting PDF..." : "Export document as PDF"}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all",
+                    isExporting 
+                      ? "bg-slate-50 text-slate-400 cursor-not-allowed" 
+                      : "bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
+                  )}
+                >
+                  {isExporting ? (
+                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <FileBadge className="w-4 h-4" />
+                  )}
+                  {isExporting ? 'Generating...' : 'Export PDF'}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleClear}
+                  aria-label="Clear document content"
+                  className="p-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors"
+                  title="Clear Document"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleCopy}
+                  aria-label={copied ? "Text copied" : "Copy text to clipboard"}
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all",
+                    copied ? "bg-emerald-500 text-white shadow-emerald-200" : "bg-slate-900 text-white shadow-slate-200"
+                  )}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? 'Copied' : 'Copy Text'}
+                </motion.button>
               </div>
             </div>
-          </motion.div>
-
-          {/* Stats Column */}
-          <motion.aside 
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:col-span-4 space-y-8 h-full"
-          >
-            <div className="bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-white p-10 h-full group hover:shadow-blue-900/10 transition-all duration-500">
-              <div className="flex items-center gap-4 mb-12">
-                <motion.div 
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.8 }}
-                  className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 cursor-pointer"
-                >
-                  <AlignLeft className="w-6 h-6 text-white" />
-                </motion.div>
-                <div>
-                  <h2 className="text-sm font-bold text-slate-900">Analytics</h2>
-                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Document Health</p>
-                </div>
-              </div>
- 
-              <div className="space-y-8">
-                {[
-                  { label: 'Words', value: mounted ? stats.words : 0, icon: Type, color: 'text-blue-600' },
-                  { label: 'Characters', value: mounted ? stats.characters : 0, icon: Hash, color: 'text-indigo-600' },
-                  { label: 'Sentences', value: mounted ? stats.sentences : 0, icon: FileText, color: 'text-violet-600' },
-                  { label: 'Density', value: mounted ? stats.paragraphs : 0, icon: AlignLeft, color: 'text-sky-600' },
-                  { label: 'Readability', value: mounted ? `${stats.readingTime} min` : '0 min', icon: BookOpen, color: 'text-emerald-600' }
-                ].map((stat, i) => (
-                  <motion.div 
-                    key={stat.label}
-                    whileHover={{ x: 5, scale: 1.02 }}
-                    className="flex items-center justify-between group cursor-default"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 rounded-xl bg-slate-50 group-hover:bg-blue-50 transition-colors shadow-sm">
-                        <stat.icon className={cn("w-4 h-4", stat.color)} />
-                      </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</span>
-                    </div>
-                    <span className="text-xl font-black text-slate-900 tracking-tight tabular-nums">{stat.value}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-12 pt-10 border-t border-slate-100">
-                <motion.div 
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  className="bg-slate-50 rounded-3xl p-8 space-y-4 border border-slate-100 shadow-inner group/map"
-                >
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Structure Map</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center transition-all group-hover/map:border-blue-100">
-                      <div className="text-lg font-black text-slate-900">{mounted ? stats.words : 0}</div>
-                      <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Volume</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-center transition-all group-hover/map:border-emerald-100">
-                      <div className="text-lg font-black text-slate-900">{mounted ? stats.readingTime : 0}m</div>
-                      <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Duration</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.aside>
-        </div>
+          </div>
+        </motion.div>
+      </div>
 
         <FAQSection 
           pageId="word-counter"

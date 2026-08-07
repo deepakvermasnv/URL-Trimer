@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   ArrowLeft, 
   Wand2, 
@@ -219,9 +220,12 @@ function VariationCard({
             </div>
           </div>
         ) : (
-          <img 
+          <Image 
             src={src} 
             alt={`${prompt} - option ${idx + 1}`} 
+            width={500}
+            height={500}
+            unoptimized
             onLoad={handleLoad}
             onError={handleError}
             className={cn(

@@ -114,6 +114,47 @@
       transparent 80%
     );
   }
+
+  /* LanguageTool Spelling & Grammar Highlights */
+  .lt-spelling-error {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: #ef4444;
+    text-decoration-thickness: 2px;
+    background-color: rgba(254, 226, 226, 0.45);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .lt-spelling-error:hover {
+    background-color: rgba(254, 202, 202, 0.7);
+  }
+
+  .lt-grammar-error {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: #3b82f6;
+    text-decoration-thickness: 2px;
+    background-color: rgba(219, 234, 254, 0.45);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .lt-grammar-error:hover {
+    background-color: rgba(191, 219, 254, 0.7);
+  }
+
+  .dark .lt-spelling-error {
+    text-decoration-color: #f87171;
+    background-color: rgba(127, 29, 29, 0.45);
+  }
+
+  .dark .lt-grammar-error {
+    text-decoration-color: #60a5fa;
+    background-color: rgba(30, 58, 138, 0.45);
+  }
 }
 
 body {
