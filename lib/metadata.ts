@@ -45,6 +45,11 @@ export const SEO_METADATA = {
     title: 'Free Chrome Extension Builder — Custom Link Trimming | URL Trim',
     description: 'Create and compile your own custom Chrome Extension to strip tracking parameters and clean links directly from your browser bar.',
   },
+  xmlSitemapGenerator: {
+    canonical: '/tools/xml-sitemap-generator',
+    title: 'XML Sitemap Generator – URLTrim',
+    description: 'Generate XML sitemaps instantly for any website. Crawl pages, preview XML, and download a valid sitemap.xml for free.',
+  },
   about: {
     canonical: '/about',
     title: 'About Our Protocol | URL Trim Mission',

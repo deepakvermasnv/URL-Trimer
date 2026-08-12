@@ -7,7 +7,8 @@ import {
   FileDown,
   Code,
   Wand2,
-  Chrome
+  Chrome,
+  FileCode
 } from 'lucide-react';
 
 export const TOOLS = [
@@ -88,6 +89,16 @@ export const TOOLS = [
     category: 'Extensions',
     href: '/tools/chrome-extension',
     status: 'Ready',
+  },
+  {
+    id: 'xml-sitemap-generator',
+    name: 'XML Sitemap Generator',
+    description: 'Crawl website pages and generate valid XML sitemaps.',
+    icon: FileCode,
+    category: 'SEO',
+    href: '/tools/xml-sitemap-generator',
+    status: 'Ready',
+    isPopular: true,
   }
 ];
 
