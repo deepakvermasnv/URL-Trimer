@@ -11,7 +11,7 @@ import { useAnimationsEnabled } from '@/hooks/useAnimationsEnabled';
 import { Search } from '@/components/Search';
 
 export function Navbar() {
-  const { toggleSidebar } = useSidebar();
+  const { isCollapsed, toggleSidebar } = useSidebar();
   const animationsEnabled = useAnimationsEnabled();
 
   return (
@@ -19,10 +19,16 @@ export function Navbar() {
       <div className="flex items-center gap-4">
         <button 
           onClick={toggleSidebar}
-          aria-label="Toggle menu"
-          className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+          aria-label="Toggle sidebar menu"
+          aria-expanded={!isCollapsed}
+          className={cn(
+            "p-2 rounded-xl transition-colors cursor-pointer",
+            isCollapsed 
+              ? "hover:bg-slate-100 text-slate-600" 
+              : "bg-blue-50 text-blue-600 hover:bg-blue-100 shadow-sm"
+          )}
         >
-          <Menu className="w-6 h-6 text-slate-600" />
+          <Menu className="w-6 h-6" />
         </button>
         
         <Link href="/" className="flex items-center gap-2 group shrink-0">

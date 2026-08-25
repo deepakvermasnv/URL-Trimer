@@ -73,9 +73,10 @@ export function Sidebar() {
             x: isCollapsed ? '-101%' : '0%',
             opacity: isCollapsed ? 0 : 1
           }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
           className={cn(
             "fixed left-0 top-16 bottom-0 w-[100px] sm:w-[110px] bg-white border-r border-slate-200/60 flex flex-col items-center py-8 z-[145] overflow-y-auto scrollbar-none md:flex",
+            isCollapsed ? "pointer-events-none select-none" : "pointer-events-auto",
             "shadow-[1px_0_10px_rgba(0,0,0,0.01)] md:shadow-none will-change-transform"
           )}
           style={{ 
