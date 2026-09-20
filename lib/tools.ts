@@ -92,12 +92,12 @@ export const TOOLS = [
     status: 'Ready',
   },
   {
-    id: 'xml-sitemap-generator',
-    name: 'XML Sitemap Generator',
+    id: 'sitemap-generator',
+    name: 'Sitemap Generator',
     description: 'Crawl website pages and generate valid XML sitemaps.',
     icon: FileCode,
     category: 'SEO',
-    href: '/tools/xml-sitemap-generator',
+    href: '/tools/sitemap-generator',
     status: 'Ready',
     isPopular: true,
   }

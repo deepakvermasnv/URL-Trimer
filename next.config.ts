@@ -2,6 +2,7 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ['sitemap-generator', 'mitt'],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -58,6 +59,15 @@ const nextConfig: NextConfig = {
       };
     }
     return config;
+  },
+  async redirects() {
+    return [
+      {
+        source: '/tools/xml-sitemap-generator',
+        destination: '/tools/sitemap-generator',
+        permanent: true,
+      },
+    ];
   },
 };
 
