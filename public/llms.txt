@@ -8,7 +8,7 @@
 - **Remove Duplicate URLs**: Normalizes and deduplicates link databases instantly on the fly.
 - **Add HTTPS Protocol**: Prepend secure `https://` protocols to domain lists automatically.
 - **Slug Generator**: Generate clean, semantic, SEO-friendly URL slugs from text titles or headlines.
-- **Title Case Converter**: Format raw text or article headings into standard Title Case formats.
+- **Text to HTML**: Convert plain text into clean, safe HTML code with paragraphs and line breaks.
 - **Word Counter**: High-performance local text analyzer for word, sentence, readability, and character counts.
 - **PDF Converter**: Offline converter for images, DOCX, and PPTX to PDF documents.
 - **Image Compressor & Converter**: Optimize image dimensions and shrink file sizes locally without server-side uploads.

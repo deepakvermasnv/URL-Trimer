@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers, Code2 } from 'lucide-react';
+import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers, Code2, Code } from 'lucide-react';
 import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -39,6 +39,247 @@ const HOMEPAGE_FAQS = [
 ];
 import { cn } from '@/lib/utils';
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&(?!(amp|lt|gt|quot|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function convertParagraphToHtml(pText: string): string {
+  // Strip out outer <p>...</p> tags if present and existing font-weight: 400 spans
+  let cleanP = pText
+    .replace(/^<p[^>]*>/i, '')
+    .replace(/<\/p>$/i, '')
+    .replace(/<span\s+style=["']font-weight:\s*400;?["']>([\s\S]*?)<\/span>/gi, '$1')
+    .trim();
+
+  if (!cleanP) return '';
+
+  // Regex matching:
+  // 1. **[linkText](url)** - Entire link is bold
+  // 2. [linkText](url) - Markdown link (which may contain **bold** inside)
+  // 3. <a href="url">linkInner</a> - Pre-existing HTML link
+  // 4. **boldText** - Standalone Markdown bold
+  // 5. <strong>strongText</strong> - Pre-existing strong tag
+  // 6. <b>bText</b> - Pre-existing b tag
+  const tokenRegex = /(?:\*\*\[([^\]]+)\]\(([^)]+)\)\*\*)|(?:\[([^\]]+)\]\(([^)]+)\))|(<a\s+(?:[^>]*?\s+)?href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>)|(?:\*\*([^*]+)\*\*)|(?:<strong[^>]*>([\s\S]*?)<\/strong>)|(?:<b[^>]*>([\s\S]*?)<\/b>)/gi;
+
+  const pieces: string[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenRegex.exec(cleanP)) !== null) {
+    const normalText = cleanP.substring(lastIndex, match.index);
+    if (normalText.length > 0) {
+      pieces.push(`<span style="font-weight: 400;">${escapeHtml(normalText)}</span>`);
+    }
+
+    if (match[1] !== undefined && match[2] !== undefined) {
+      // **[linkText](url)**
+      const rawText = match[1];
+      const url = match[2].trim();
+      const text = rawText.replace(/^\*\*|\*\*$/g, '').trim();
+      pieces.push(`<a href="${url}"><strong>${escapeHtml(text)}</strong></a>`);
+    } else if (match[3] !== undefined && match[4] !== undefined) {
+      // [linkText](url)
+      const rawText = match[3];
+      const url = match[4].trim();
+      const boldMatch = rawText.match(/^\*\*([\s\S]+)\*\*$/);
+      if (boldMatch) {
+        pieces.push(`<a href="${url}"><strong>${escapeHtml(boldMatch[1].trim())}</strong></a>`);
+      } else if (/^\s*<strong>[\s\S]+<\/strong>\s*$/i.test(rawText)) {
+        const innerText = rawText.replace(/<\/?strong[^>]*>/gi, '').trim();
+        pieces.push(`<a href="${url}"><strong>${escapeHtml(innerText)}</strong></a>`);
+      } else if (rawText.includes('**')) {
+        const converted = rawText.replace(/\*\*([^*]+)\*\*/g, (_, b) => `<strong>${escapeHtml(b)}</strong>`);
+        pieces.push(`<a href="${url}">${converted}</a>`);
+      } else {
+        pieces.push(`<a href="${url}">${escapeHtml(rawText)}</a>`);
+      }
+    } else if (match[5] !== undefined) {
+      // <a href="url">linkInner</a>
+      const url = match[6].trim();
+      const linkInner = match[7];
+      const hasBold = /<\/?(strong|b)[^>]*>/i.test(linkInner) || /\*\*([^*]+)\*\*/.test(linkInner);
+      if (hasBold) {
+        const cleanInner = linkInner
+          .replace(/<\/?(strong|b)[^>]*>/gi, '')
+          .replace(/\*\*([^*]+)\*\*/g, '$1')
+          .trim();
+        pieces.push(`<a href="${url}"><strong>${escapeHtml(cleanInner)}</strong></a>`);
+      } else {
+        pieces.push(`<a href="${url}">${linkInner}</a>`);
+      }
+    } else if (match[8] !== undefined) {
+      // **boldText**
+      pieces.push(`<strong>${escapeHtml(match[8])}</strong>`);
+    } else if (match[9] !== undefined) {
+      // <strong>strongText</strong>
+      pieces.push(`<strong>${escapeHtml(match[9].replace(/<[^>]*>/g, ''))}</strong>`);
+    } else if (match[10] !== undefined) {
+      // <b>bText</b>
+      pieces.push(`<strong>${escapeHtml(match[10].replace(/<[^>]*>/g, ''))}</strong>`);
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remaining = cleanP.substring(lastIndex);
+  if (remaining.length > 0) {
+    pieces.push(`<span style="font-weight: 400;">${escapeHtml(remaining)}</span>`);
+  }
+
+  return `<p>${pieces.join('')}</p>`;
+}
+
+function convertTextToHtml(raw: string): string {
+  if (!raw.trim()) return '';
+
+  const normalized = raw.trim();
+  const rawParagraphs: string[] = [];
+
+  if (/<p[^>]*>[\s\S]*?<\/p>/i.test(normalized)) {
+    const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let match: RegExpExecArray | null;
+    let lastPIndex = 0;
+    while ((match = pRegex.exec(normalized)) !== null) {
+      const textBefore = normalized.substring(lastPIndex, match.index).trim();
+      if (textBefore) {
+        rawParagraphs.push(textBefore);
+      }
+      if (match[1].trim()) {
+        rawParagraphs.push(match[1].trim());
+      }
+      lastPIndex = match.index + match[0].length;
+    }
+    const textAfter = normalized.substring(lastPIndex).trim();
+    if (textAfter) {
+      rawParagraphs.push(textAfter);
+    }
+  } else {
+    rawParagraphs.push(
+      ...normalized
+        .split(/\r?\n\s*\r?\n/)
+        .map(p => p.trim())
+        .filter(p => p.length > 0)
+    );
+  }
+
+  if (rawParagraphs.length === 0) return '';
+
+  const htmlParagraphs = rawParagraphs
+    .map(p => convertParagraphToHtml(p))
+    .filter(p => p.length > 0);
+
+  return htmlParagraphs.join('\n');
+}
+
+function sanitizePastedContent(container: HTMLElement): string {
+  const sanitizeNode = (node: Node): string => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return escapeHtml(node.textContent || '');
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      const tag = el.tagName.toLowerCase();
+
+      // Preserve hyperlinks only, discard other formatting
+      if (tag === 'a') {
+        const rawHref = el.getAttribute('href') || '';
+        const href = rawHref.trim();
+        if (href && !href.toLowerCase().startsWith('javascript:')) {
+          let inner = '';
+          for (const child of Array.from(el.childNodes)) {
+            inner += child.textContent || '';
+          }
+          const text = inner.trim() || href;
+          const escapedText = escapeHtml(text);
+          const escapedHref = escapeHtml(href);
+          return `<a href="${escapedHref}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${escapedText}</a>`;
+        }
+      }
+
+      if (tag === 'br') {
+        return '<br>';
+      }
+
+      // Any other tag: strip formatting (bold, italic, headings, lists, spans, etc.)
+      let childrenOutput = '';
+      for (const child of Array.from(el.childNodes)) {
+        childrenOutput += sanitizeNode(child);
+      }
+
+      const isBlock = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'tr'].includes(tag);
+      if (isBlock && childrenOutput.trim()) {
+        return `<div>${childrenOutput}</div>`;
+      }
+
+      return childrenOutput;
+    }
+
+    return '';
+  };
+
+  let result = '';
+  for (const child of Array.from(container.childNodes)) {
+    result += sanitizeNode(child);
+  }
+  return result;
+}
+
+function extractEditorContent(element: HTMLElement): string {
+  let output = '';
+
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      output += node.textContent || '';
+      return;
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      const tag = el.tagName.toLowerCase();
+
+      if (tag === 'br') {
+        output += '\n';
+        return;
+      }
+
+      if (tag === 'a') {
+        const href = el.getAttribute('href') || '';
+        const text = el.textContent || '';
+        if (href) {
+          output += `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+        } else {
+          output += text;
+        }
+        return;
+      }
+
+      const isBlock = ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'tr'].includes(tag);
+      if (isBlock && output.length > 0 && !output.endsWith('\n')) {
+        output += '\n';
+      }
+
+      for (const child of Array.from(el.childNodes)) {
+        walk(child);
+      }
+
+      if (isBlock && !output.endsWith('\n')) {
+        output += '\n';
+      }
+    }
+  };
+
+  for (const child of Array.from(element.childNodes)) {
+    walk(child);
+  }
+
+  return output.replace(/\n{3,}/g, '\n\n').trim();
+}
+
 export default function URLTrimmer() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -47,7 +288,8 @@ export default function URLTrimmer() {
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
-  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'title-case' | 'dedup' | 'add-https' | 'remove-html'>('trimmer');
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'dedup' | 'add-https' | 'remove-html' | 'text-to-html'>('trimmer');
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -57,6 +299,13 @@ export default function URLTrimmer() {
         setOutput('');
         setProgress(0);
         setIsProcessing(false);
+        return;
+      }
+
+      if (activeMode === 'text-to-html') {
+        setOutput(convertTextToHtml(input));
+        setIsProcessing(false);
+        setProgress(100);
         return;
       }
 
@@ -87,8 +336,18 @@ export default function URLTrimmer() {
 
         const end = Math.min(currentIndex + chunkSize, totalLines);
         for (let i = currentIndex; i < end; i++) {
-          const trimmedLine = lines[i].trim();
-          if (!trimmedLine) continue;
+          const rawLine = lines[i].trim();
+          if (!rawLine) continue;
+
+          let targetUrl = rawLine;
+          const hrefMatch = rawLine.match(/href=["']([^"']+)["']/i);
+          if (hrefMatch && activeMode !== 'remove-html') {
+            targetUrl = hrefMatch[1].trim();
+          }
+
+          const trimmedLine = (activeMode === 'slug' && hrefMatch) 
+            ? rawLine.replace(/<[^>]*>/g, '').trim() 
+            : targetUrl;
 
           let result = trimmedLine;
 
@@ -139,15 +398,6 @@ export default function URLTrimmer() {
               .replace(/[\s_]+/g, '-')
               .replace(/-+/g, '-')
               .replace(/^-+|-+$/g, '');
-          } else if (activeMode === 'title-case') {
-            result = trimmedLine
-              .toLowerCase()
-              .split(' ')
-              .map(word => {
-                if (!word) return '';
-                return word.charAt(0).toUpperCase() + word.slice(1);
-              })
-              .join(' ');
           } else if (activeMode === 'dedup') {
             result = trimmedLine;
           } else if (activeMode === 'add-https') {
@@ -202,9 +452,74 @@ export default function URLTrimmer() {
   };
 
   const handleClear = () => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = '';
+    }
     setInput('');
     setOutput('');
     setProgress(0);
+  };
+
+  const handleInput = () => {
+    if (!editorRef.current) return;
+    const content = extractEditorContent(editorRef.current);
+    setInput(content);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const html = e.clipboardData.getData('text/html');
+    const text = e.clipboardData.getData('text/plain');
+
+    let sanitizedHtml = '';
+
+    if (html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const hasLinks = doc.querySelector('a[href]');
+
+      if (hasLinks) {
+        sanitizedHtml = sanitizePastedContent(doc.body);
+      }
+    }
+
+    if (!sanitizedHtml) {
+      const lines = text.split(/\r?\n/);
+      sanitizedHtml = lines.map(line => `<div>${escapeHtml(line) || '<br>'}</div>`).join('');
+    }
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && editorRef.current) {
+      const range = selection.getRangeAt(0);
+      if (editorRef.current.contains(range.commonAncestorContainer)) {
+        range.deleteContents();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = sanitizedHtml;
+        const frag = document.createDocumentFragment();
+        let node: Node | null;
+        let lastNode: Node | null = null;
+        while ((node = tempDiv.firstChild)) {
+          lastNode = frag.appendChild(node);
+        }
+        range.insertNode(frag);
+        if (lastNode) {
+          const newRange = document.createRange();
+          newRange.setStartAfter(lastNode);
+          newRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+      } else {
+        editorRef.current.innerHTML += sanitizedHtml;
+      }
+    } else if (editorRef.current) {
+      editorRef.current.innerHTML += sanitizedHtml;
+    }
+
+    if (editorRef.current) {
+      const newContent = extractEditorContent(editorRef.current);
+      setInput(newContent);
+    }
   };
 
   const handleOpenAll = () => {
@@ -248,12 +563,25 @@ export default function URLTrimmer() {
     setIsDragging(false);
     
     const file = e.dataTransfer.files[0];
-    if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.csv'))) {
+    if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.html'))) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
         if (content) {
-          setInput(content);
+          if (editorRef.current) {
+            if (file.name.endsWith('.html') || content.includes('<a ')) {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(content, 'text/html');
+              const cleanHtml = sanitizePastedContent(doc.body);
+              editorRef.current.innerHTML = cleanHtml;
+            } else {
+              editorRef.current.innerText = content;
+            }
+            const text = extractEditorContent(editorRef.current);
+            setInput(text);
+          } else {
+            setInput(content);
+          }
         }
       };
       reader.readAsText(file);
@@ -351,16 +679,16 @@ export default function URLTrimmer() {
               </button>
 
               <button
-                onClick={() => setActiveMode('title-case')}
+                onClick={() => setActiveMode('text-to-html')}
                 className={cn(
                   "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'title-case'
+                  activeMode === 'text-to-html'
                     ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
                     : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
                 )}
               >
-                <Type className="w-3.5 h-3.5 shrink-0" />
-                <span>Title Case Converter</span>
+                <Code className="w-3.5 h-3.5 shrink-0" />
+                <span>Text to HTML</span>
               </button>
             </div>
           </div>
@@ -387,34 +715,49 @@ export default function URLTrimmer() {
                           <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
                             {activeMode === 'trimmer' && `Input Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'slug' && `Title Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'title-case' && `Text Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'add-https' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'remove-html' && `HTML Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'text-to-html' && `Text Buffer (${input.split(/\r?\n\s*\r?\n/).filter(line => line.trim() !== '').length} paragraphs)`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Load URLs Below'}
                             {activeMode === 'slug' && 'Load Phrases Below'}
-                            {activeMode === 'title-case' && 'Load Text Below'}
                             {activeMode === 'dedup' && 'Load URLs Below'}
                             {activeMode === 'add-https' && 'Load URLs Below'}
                             {activeMode === 'remove-html' && 'Load HTML Below'}
+                            {activeMode === 'text-to-html' && 'Load Text Below'}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-3">
                         {isProcessing && (
                           <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
                             <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
                             <span className="text-xs font-bold text-blue-600">{progress}%</span>
                           </div>
                         )}
+                        {activeMode === 'text-to-html' && (
+                          <motion.button 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setOutput(convertTextToHtml(input));
+                            }}
+                            type="button"
+                            aria-label="Convert text to HTML"
+                            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50/80 border border-blue-200/60 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm cursor-pointer"
+                          >
+                            <Code className="w-4 h-4 text-blue-600" />
+                            <span>Convert</span>
+                          </motion.button>
+                        )}
                         <motion.button 
                           whileHover={{ scale: 1.05, backgroundColor: "#fee2e2", borderColor: "#fca5a5" }}
                           whileTap={{ scale: 0.95 }}
                           onClick={handleClear}
                           aria-label="Clear input buffer"
-                          className="group flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50/70 border border-red-100 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm shadow-red-100/50"
+                          className="group flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50/70 border border-red-100 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm shadow-red-100/50 cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" />
                           <span>Clear</span>
@@ -423,24 +766,34 @@ export default function URLTrimmer() {
                     </div>
                     
                     <div className="relative group/input flex-1 flex flex-col">
-                      <textarea
-                        className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-6 text-slate-700 font-medium placeholder-slate-300 h-[380px] lg:h-[460px] resize-none text-base leading-relaxed transition-all duration-300 outline-none shadow-inner"
-                        placeholder={
-                          activeMode === 'trimmer'
+                      <div
+                        ref={editorRef}
+                        contentEditable
+                        role="textbox"
+                        aria-multiline="true"
+                        suppressContentEditableWarning
+                        onInput={handleInput}
+                        onPaste={handlePaste}
+                        className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-6 text-slate-700 font-medium h-[380px] lg:h-[460px] overflow-y-auto text-base leading-relaxed transition-all duration-300 outline-none shadow-inner focus:ring-0 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-800 break-words"
+                      />
+                      {!input && (
+                        <div 
+                          onClick={() => editorRef.current?.focus()}
+                          className="absolute top-6 left-6 right-6 text-slate-300 pointer-events-none select-none font-medium text-base leading-relaxed whitespace-pre-line"
+                        >
+                          {activeMode === 'trimmer'
                             ? "Paste links to begin processing..."
                             : activeMode === 'slug'
                             ? "Paste titles or phrases to generate clean URL slugs (e.g. 'Ultimate SEO Guide 2026')..."
-                            : activeMode === 'title-case'
-                            ? "Paste text or headlines to convert to Title Case (e.g. 'how to make a website')..."
                             : activeMode === 'add-https'
                             ? "Paste links to automatically prepend https://..."
                             : activeMode === 'remove-html'
                             ? "Paste HTML text to strip tags (e.g. '<p>Hello <b>World</b></p>')..."
-                            : "Paste links to filter out duplicate URLs..."
-                        }
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                      />
+                            : activeMode === 'text-to-html'
+                            ? "Enter formatted text or Markdown (e.g. 'Our [**eyebrow shaping stencil**](https://example.com) collection...')"
+                            : "Paste links to filter out duplicate URLs..."}
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
                       {isDragging && (
                         <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none">
@@ -462,18 +815,18 @@ export default function URLTrimmer() {
                           <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
                             {activeMode === 'trimmer' && `Output Stream (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'slug' && `Slug Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'title-case' && `Title Case Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'dedup' && `Unique URLs (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'add-https' && `HTTPS Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
                             {activeMode === 'remove-html' && `Plain Text Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
+                            {activeMode === 'text-to-html' && `HTML Output (${(output.match(/<p>/g) || []).length} tags)`}
                           </h3>
                           <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
                             {activeMode === 'trimmer' && 'Trimmed Results'}
                             {activeMode === 'slug' && 'Slugified Phrases'}
-                            {activeMode === 'title-case' && 'Standardized Casing'}
                             {activeMode === 'dedup' && 'Deduplicated URLs'}
                             {activeMode === 'add-https' && 'Secured HTTPS URLs'}
                             {activeMode === 'remove-html' && 'Clean Plain Text'}
+                            {activeMode === 'text-to-html' && 'Clean HTML Code'}
                           </p>
                         </div>
                       </div>
@@ -498,7 +851,7 @@ export default function URLTrimmer() {
                           disabled={isProcessing || !output}
                           aria-label={copied ? "Copied" : "Copy results to clipboard"}
                           className={cn(
-                            "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-1.5 relative overflow-hidden",
+                            "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-1.5 relative overflow-hidden cursor-pointer",
                             copied 
                               ? "bg-emerald-500 text-white shadow-emerald-200" 
                               : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 transition-all duration-300"
@@ -513,7 +866,7 @@ export default function URLTrimmer() {
                               className="flex items-center gap-1.5"
                             >
                               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span className="relative z-10">{copied ? 'Copied' : 'Copy'}</span>
+                              <span className="relative z-10">{copied ? (activeMode === 'text-to-html' ? 'Copied HTML' : 'Copied') : (activeMode === 'text-to-html' ? 'Copy HTML' : 'Copy')}</span>
                             </motion.div>
                           </AnimatePresence>
                           {copied && (
@@ -562,13 +915,6 @@ export default function URLTrimmer() {
                               <p className="text-slate-400 text-[10px] max-w-[200px]">Paste multi-word headers or book titles on the left to generate clean URL slugs offline.</p>
                             </>
                           )}
-                          {activeMode === 'title-case' && (
-                            <>
-                              <Type className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Word Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste lowercase headings or lines of text to automatically standardize to proper Title Case.</p>
-                            </>
-                          )}
                           {activeMode === 'add-https' && (
                             <>
                               <Link2 className="w-10 h-10 text-slate-300 mb-3" />
@@ -581,6 +927,13 @@ export default function URLTrimmer() {
                               <Code2 className="w-10 h-10 text-slate-300 mb-3" />
                               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting HTML Stream</p>
                               <p className="text-slate-400 text-[10px] max-w-[200px]">Paste HTML-formatted text on the left to automatically strip all tags offline.</p>
+                            </>
+                          )}
+                          {activeMode === 'text-to-html' && (
+                            <>
+                              <Code className="w-10 h-10 text-slate-300 mb-3" />
+                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Text Stream</p>
+                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste plain text on the left to convert into clean, safe HTML paragraphs.</p>
                             </>
                           )}
                         </div>
