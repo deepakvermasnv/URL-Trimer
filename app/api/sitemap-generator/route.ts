@@ -370,7 +370,8 @@ export async function POST(req: NextRequest) {
 
         // Event: fetch complete -> enhance resource discovery for SPA / Next.js scripts & canonicals
         crawler.on('fetchcomplete', async (queueItem, responseBuffer) => {
-          const resume = crawler.wait();
+          const crawlerAny = crawler as unknown as { wait?: () => () => void };
+          const resume = typeof crawlerAny.wait === 'function' ? crawlerAny.wait() : () => {};
           try {
             const html = responseBuffer.toString('utf8');
             const $ = cheerio.load(html);

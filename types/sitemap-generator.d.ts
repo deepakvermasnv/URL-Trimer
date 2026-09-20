@@ -46,6 +46,7 @@ declare module 'sitemap-generator' {
     on: (event: string, listener: (...args: any[]) => void) => SimpleCrawlerInstance;
     start: () => void;
     stop: () => void;
+    wait: () => () => void;
   }
 
   export interface SitemapGeneratorInstance {
