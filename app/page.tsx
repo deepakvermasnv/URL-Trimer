@@ -175,111 +175,6 @@ function convertTextToHtml(raw: string): string {
   return htmlParagraphs.join('\n');
 }
 
-function sanitizePastedContent(container: HTMLElement): string {
-  const sanitizeNode = (node: Node): string => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return escapeHtml(node.textContent || '');
-    }
-
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = node as HTMLElement;
-      const tag = el.tagName.toLowerCase();
-
-      // Preserve hyperlinks only, discard other formatting
-      if (tag === 'a') {
-        const rawHref = el.getAttribute('href') || '';
-        const href = rawHref.trim();
-        if (href && !href.toLowerCase().startsWith('javascript:')) {
-          let inner = '';
-          for (const child of Array.from(el.childNodes)) {
-            inner += child.textContent || '';
-          }
-          const text = inner.trim() || href;
-          const escapedText = escapeHtml(text);
-          const escapedHref = escapeHtml(href);
-          return `<a href="${escapedHref}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${escapedText}</a>`;
-        }
-      }
-
-      if (tag === 'br') {
-        return '<br>';
-      }
-
-      // Any other tag: strip formatting (bold, italic, headings, lists, spans, etc.)
-      let childrenOutput = '';
-      for (const child of Array.from(el.childNodes)) {
-        childrenOutput += sanitizeNode(child);
-      }
-
-      const isBlock = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'tr'].includes(tag);
-      if (isBlock && childrenOutput.trim()) {
-        return `<div>${childrenOutput}</div>`;
-      }
-
-      return childrenOutput;
-    }
-
-    return '';
-  };
-
-  let result = '';
-  for (const child of Array.from(container.childNodes)) {
-    result += sanitizeNode(child);
-  }
-  return result;
-}
-
-function extractEditorContent(element: HTMLElement): string {
-  let output = '';
-
-  const walk = (node: Node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      output += node.textContent || '';
-      return;
-    }
-
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      const el = node as HTMLElement;
-      const tag = el.tagName.toLowerCase();
-
-      if (tag === 'br') {
-        output += '\n';
-        return;
-      }
-
-      if (tag === 'a') {
-        const href = el.getAttribute('href') || '';
-        const text = el.textContent || '';
-        if (href) {
-          output += `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
-        } else {
-          output += text;
-        }
-        return;
-      }
-
-      const isBlock = ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'tr'].includes(tag);
-      if (isBlock && output.length > 0 && !output.endsWith('\n')) {
-        output += '\n';
-      }
-
-      for (const child of Array.from(el.childNodes)) {
-        walk(child);
-      }
-
-      if (isBlock && !output.endsWith('\n')) {
-        output += '\n';
-      }
-    }
-  };
-
-  for (const child of Array.from(element.childNodes)) {
-    walk(child);
-  }
-
-  return output.replace(/\n{3,}/g, '\n\n').trim();
-}
-
 export default function URLTrimmer() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -289,7 +184,7 @@ export default function URLTrimmer() {
   const [isDragging, setIsDragging] = useState(false);
   const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
   const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'dedup' | 'add-https' | 'remove-html' | 'text-to-html'>('trimmer');
-  const editorRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -338,6 +233,17 @@ export default function URLTrimmer() {
         for (let i = currentIndex; i < end; i++) {
           const rawLine = lines[i].trim();
           if (!rawLine) continue;
+
+          // Skip Excel / Google Sheets HTML comments or style artifacts if pasted
+          if (
+            rawLine.startsWith('<!--') ||
+            rawLine.endsWith('-->') ||
+            rawLine.includes('mso-data-placement') ||
+            rawLine.startsWith('<style') ||
+            rawLine.startsWith('</style>')
+          ) {
+            continue;
+          }
 
           let targetUrl = rawLine;
           const hrefMatch = rawLine.match(/href=["']([^"']+)["']/i);
@@ -452,73 +358,33 @@ export default function URLTrimmer() {
   };
 
   const handleClear = () => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = '';
-    }
     setInput('');
     setOutput('');
     setProgress(0);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
   };
 
-  const handleInput = () => {
-    if (!editorRef.current) return;
-    const content = extractEditorContent(editorRef.current);
-    setInput(content);
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const html = e.clipboardData.getData('text/html');
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData('text/plain');
+    if (text.includes('<!--') || text.includes('mso-data-placement') || text.includes('<style')) {
+      e.preventDefault();
+      const cleaned = text
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/^\s*[\r\n]/gm, '')
+        .trim();
 
-    let sanitizedHtml = '';
-
-    if (html) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const hasLinks = doc.querySelector('a[href]');
-
-      if (hasLinks) {
-        sanitizedHtml = sanitizePastedContent(doc.body);
-      }
-    }
-
-    if (!sanitizedHtml) {
-      const lines = text.split(/\r?\n/);
-      sanitizedHtml = lines.map(line => `<div>${escapeHtml(line) || '<br>'}</div>`).join('');
-    }
-
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && editorRef.current) {
-      const range = selection.getRangeAt(0);
-      if (editorRef.current.contains(range.commonAncestorContainer)) {
-        range.deleteContents();
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = sanitizedHtml;
-        const frag = document.createDocumentFragment();
-        let node: Node | null;
-        let lastNode: Node | null = null;
-        while ((node = tempDiv.firstChild)) {
-          lastNode = frag.appendChild(node);
-        }
-        range.insertNode(frag);
-        if (lastNode) {
-          const newRange = document.createRange();
-          newRange.setStartAfter(lastNode);
-          newRange.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(newRange);
-        }
-      } else {
-        editorRef.current.innerHTML += sanitizedHtml;
-      }
-    } else if (editorRef.current) {
-      editorRef.current.innerHTML += sanitizedHtml;
-    }
-
-    if (editorRef.current) {
-      const newContent = extractEditorContent(editorRef.current);
-      setInput(newContent);
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentVal = textarea.value;
+      const newVal = currentVal.substring(0, start) + cleaned + currentVal.substring(end);
+      setInput(newVal);
+      requestAnimationFrame(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + cleaned.length;
+      });
     }
   };
 
@@ -568,20 +434,11 @@ export default function URLTrimmer() {
       reader.onload = (event) => {
         const content = event.target?.result as string;
         if (content) {
-          if (editorRef.current) {
-            if (file.name.endsWith('.html') || content.includes('<a ')) {
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(content, 'text/html');
-              const cleanHtml = sanitizePastedContent(doc.body);
-              editorRef.current.innerHTML = cleanHtml;
-            } else {
-              editorRef.current.innerText = content;
-            }
-            const text = extractEditorContent(editorRef.current);
-            setInput(text);
-          } else {
-            setInput(content);
-          }
+          const cleanContent = content
+            .replace(/<!--[\s\S]*?-->/g, '')
+            .replace(/<style[\s\S]*?<\/style>/gi, '')
+            .trim();
+          setInput(cleanContent);
         }
       };
       reader.readAsText(file);
@@ -765,23 +622,14 @@ export default function URLTrimmer() {
                       </div>
                     </div>
                     
-                    <div className="relative group/input flex-1 flex flex-col">
-                      <div
-                        ref={editorRef}
-                        contentEditable
-                        role="textbox"
-                        aria-multiline="true"
-                        suppressContentEditableWarning
-                        onInput={handleInput}
+                    <div className="relative group/input flex-1 flex flex-col bg-slate-50/50 hover:bg-white focus-within:bg-white border-2 border-transparent hover:border-blue-100 focus-within:border-blue-500 rounded-3xl p-6 transition-all duration-300 shadow-inner h-[380px] lg:h-[460px]">
+                      <textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
                         onPaste={handlePaste}
-                        className="w-full bg-slate-50/50 border-2 border-transparent hover:border-blue-100 focus:bg-white focus:border-blue-500 rounded-3xl p-6 text-slate-700 font-medium h-[380px] lg:h-[460px] overflow-y-auto text-base leading-relaxed transition-all duration-300 outline-none shadow-inner focus:ring-0 [&_a]:text-blue-600 [&_a]:underline hover:[&_a]:text-blue-800 break-words"
-                      />
-                      {!input && (
-                        <div 
-                          onClick={() => editorRef.current?.focus()}
-                          className="absolute top-6 left-6 right-6 text-slate-300 pointer-events-none select-none font-medium text-base leading-relaxed whitespace-pre-line"
-                        >
-                          {activeMode === 'trimmer'
+                        placeholder={
+                          activeMode === 'trimmer'
                             ? "Paste links to begin processing..."
                             : activeMode === 'slug'
                             ? "Paste titles or phrases to generate clean URL slugs (e.g. 'Ultimate SEO Guide 2026')..."
@@ -791,12 +639,14 @@ export default function URLTrimmer() {
                             ? "Paste HTML text to strip tags (e.g. '<p>Hello <b>World</b></p>')..."
                             : activeMode === 'text-to-html'
                             ? "Enter formatted text or Markdown (e.g. 'Our [**eyebrow shaping stencil**](https://example.com) collection...')"
-                            : "Paste links to filter out duplicate URLs..."}
-                        </div>
-                      )}
+                            : "Paste links to filter out duplicate URLs..."
+                        }
+                        className="w-full h-full bg-transparent resize-none outline-none custom-scrollbar z-10 relative text-sm font-mono text-slate-700 placeholder:text-slate-300 leading-relaxed whitespace-pre"
+                        spellCheck={false}
+                      />
                       <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
                       {isDragging && (
-                        <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none">
+                        <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none z-20">
                           <FileUp className="w-12 h-12 text-blue-600 mb-3" />
                           <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
                         </div>
