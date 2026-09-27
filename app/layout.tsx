@@ -9,6 +9,7 @@ import './globals.css';
 import { SidebarProvider } from '@/lib/SidebarContext';
 import { ContentWrapper } from '@/components/ContentWrapper';
 import { HydrationGuard } from '@/components/HydrationGuard';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -172,7 +173,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {/* End Google Tag Manager */}
       </head>
-      <body className="font-sans antialiased bg-[#eaf2ff] text-slate-800" suppressHydrationWarning>
+      <body className="font-sans antialiased bg-[#eaf2ff] dark:bg-[#090d16] text-slate-800 dark:text-slate-100 transition-colors duration-300" suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
@@ -183,7 +184,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
-        <SidebarProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SidebarProvider>
           <script
             id="ld-json"
             type="application/ld+json"
@@ -254,6 +256,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </ContentWrapper>
           <ScrollToTop />
         </SidebarProvider>
+      </ThemeProvider>
       </body>
     </html>
   );

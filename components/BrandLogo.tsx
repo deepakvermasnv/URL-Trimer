@@ -41,7 +41,7 @@ export default function BrandLogo({
         <Zap className={`${zapSizeClasses} fill-white stroke-none`} />
       </div>
       {!iconOnly && (
-        <span className={`${textSizeClasses} font-extrabold ${darkText ? 'text-white' : 'text-slate-900'} tracking-tight`}>
+        <span className={`${textSizeClasses} font-extrabold ${darkText ? 'text-white' : 'text-slate-900 dark:text-white'} tracking-tight`}>
           URL<span className="text-[#0066FF]">Trim</span>
         </span>
       )}

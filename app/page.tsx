@@ -226,25 +226,25 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#eaf2ff] text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-[#eaf2ff] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
       {/* Navigation Bar */}
       <Navbar />
 
       {/* Hero Header Section */}
-      <section className="pt-28 pb-10 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-[#eaf2ff] via-[#f4f8ff] to-[#f7fafe]">
+      <section className="pt-28 pb-10 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-[#eaf2ff] via-[#f4f8ff] to-[#f7fafe] dark:from-[#0b0f17] dark:via-[#111622] dark:to-[#0b0f17]">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#e3edff] text-[#0066FF] border border-blue-200/50 text-[11px] font-bold tracking-wider uppercase mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#e3edff] dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-300 border border-blue-200/50 dark:border-slate-700/60 text-[11px] font-bold tracking-wider uppercase mb-6 shadow-sm">
             <span>FAST • PRIVATE • FREE</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-4">
-            Trim URLs. Clean Lists. <span className="text-[#0066FF]">Stay Focused.</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
+            Trim URLs. Clean Lists. <span className="text-[#0066FF] dark:text-blue-400">Stay Focused.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-2">
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-2">
             Remove tracking parameters, queries and fragments from multiple URLs instantly.
             <br className="hidden sm:inline" /> Get clean, readable links in seconds.
           </p>
@@ -256,14 +256,14 @@ export default function HomePage() {
       {/* Main Tool Container */}
       <section id="trimmer-app" className="max-w-6xl mx-auto px-4 sm:px-6 mb-20">
         {/* Mode Selector Bar */}
-        <div className="bg-white rounded-3xl p-2.5 border border-slate-100/90 shadow-lg shadow-blue-500/5 max-w-5xl mx-auto mb-6 flex items-center justify-center">
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full max-w-full bg-slate-50/80 p-1.5 rounded-2xl border border-slate-100 custom-scrollbar whitespace-nowrap">
+        <div className="bg-white dark:bg-[#121723] rounded-3xl p-2.5 border border-slate-100/90 dark:border-slate-800/80 shadow-lg shadow-blue-500/5 dark:shadow-black/60 max-w-5xl mx-auto mb-6 flex items-center justify-center">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full max-w-full bg-slate-50/80 dark:bg-[#182030] p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 custom-scrollbar whitespace-nowrap">
             <button
               onClick={() => setActiveMode('trimmer')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'trimmer'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#0066FF] text-[#0066FF] dark:text-white shadow-md shadow-blue-500/20 border border-slate-200/60 dark:border-blue-400/40 font-black'
+                  : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/80'
               }`}
             >
               <Scissors className="w-3.5 h-3.5" />
@@ -274,8 +274,8 @@ export default function HomePage() {
               onClick={() => setActiveMode('dedup')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'dedup'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#0066FF] text-[#0066FF] dark:text-white shadow-md shadow-blue-500/20 border border-slate-200/60 dark:border-blue-400/40 font-black'
+                  : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/80'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -286,8 +286,8 @@ export default function HomePage() {
               onClick={() => setActiveMode('add-https')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'add-https'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#0066FF] text-[#0066FF] dark:text-white shadow-md shadow-blue-500/20 border border-slate-200/60 dark:border-blue-400/40 font-black'
+                  : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/80'
               }`}
             >
               <Link2 className="w-3.5 h-3.5" />
@@ -298,8 +298,8 @@ export default function HomePage() {
               onClick={() => setActiveMode('slug')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'slug'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#0066FF] text-[#0066FF] dark:text-white shadow-md shadow-blue-500/20 border border-slate-200/60 dark:border-blue-400/40 font-black'
+                  : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/80'
               }`}
             >
               <Fingerprint className="w-3.5 h-3.5" />
@@ -310,8 +310,8 @@ export default function HomePage() {
               onClick={() => setActiveMode('remove-html')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'remove-html'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#0066FF] text-[#0066FF] dark:text-white shadow-md shadow-blue-500/20 border border-slate-200/60 dark:border-blue-400/40 font-black'
+                  : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/80'
               }`}
             >
               <Code2 className="w-3.5 h-3.5" />
@@ -322,8 +322,8 @@ export default function HomePage() {
               onClick={() => setActiveMode('text-to-html')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'text-to-html'
-                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-white dark:bg-[#1a2130] text-[#0066FF] dark:text-white shadow-sm border border-slate-200/60 dark:border-slate-700'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50'
               }`}
             >
               <Code className="w-3.5 h-3.5" />
@@ -336,23 +336,23 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* LEFT CARD: Input Buffer */}
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 sm:p-7 flex flex-col justify-between">
+          <div className="bg-white dark:bg-[#121723] rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-xl shadow-slate-200/40 dark:shadow-black/50 p-6 sm:p-7 flex flex-col justify-between">
             <div>
               {/* Card Header */}
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-6 bg-[#0066FF] rounded-full" />
                   <div>
-                    <h2 className="text-[11px] font-black text-[#0066FF] uppercase tracking-wider leading-tight">
+                    <h2 className="text-[11px] font-black text-[#0066FF] dark:text-slate-200 uppercase tracking-wider leading-tight">
                       INPUT BUFFER ({input.trim() ? input.split('\n').filter(l => l.trim()).length : 0})
                     </h2>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">LOAD URLS BELOW</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">LOAD URLS BELOW</p>
                   </div>
                 </div>
 
                 <button
                   onClick={handleClear}
-                  className="bg-[#ffeff0] hover:bg-red-100 text-[#ff4d4f] border border-red-100 rounded-full px-3.5 py-1 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="bg-[#ffeff0] dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-[#ff4d4f] dark:text-red-400 border border-red-100 dark:border-red-900/40 rounded-full px-3.5 py-1 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>CLEAR</span>
@@ -366,7 +366,7 @@ export default function HomePage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Paste links to begin processing..."
-                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-700 bg-slate-50/50 rounded-2xl border border-slate-200/80 focus:border-[#0066FF] focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400/70"
+                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-200 bg-slate-50/50 dark:bg-[#0a0d14] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 focus:border-[#0066FF] dark:focus:border-slate-700 focus:bg-white dark:focus:bg-[#0a0d14] focus:ring-2 focus:ring-blue-100 dark:focus:ring-slate-800 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400/70 dark:placeholder:text-slate-600"
                 />
               </div>
 
@@ -385,16 +385,16 @@ export default function HomePage() {
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex items-center justify-center gap-3 ${
                   isDragging 
-                    ? 'border-[#0066FF] bg-blue-50/80 shadow-md' 
-                    : 'border-blue-200/80 bg-blue-50/30 hover:bg-blue-50/70 hover:border-[#0066FF]'
+                    ? 'border-[#0066FF] dark:border-slate-600 bg-blue-50/80 dark:bg-[#1a2130] shadow-md' 
+                    : 'border-blue-200/80 dark:border-slate-800/80 bg-blue-50/30 dark:bg-[#0e131d] hover:bg-blue-50/70 dark:hover:bg-[#141a27] hover:border-[#0066FF] dark:hover:border-slate-700'
                 }`}
               >
-                <div className="w-8 h-8 rounded-lg bg-white text-[#0066FF] flex items-center justify-center shadow-sm border border-blue-100 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-300 flex items-center justify-center shadow-sm border border-blue-100 dark:border-slate-700/60 shrink-0">
                   <Upload className="w-4 h-4" />
                 </div>
                 <div className="text-left">
-                  <p className="text-xs font-semibold text-slate-700">Or drag & drop a .txt or .csv file here</p>
-                  <p className="text-[10px] text-slate-400">Supports up to 10,000 URLs</p>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Or drag & drop a .txt or .csv file here</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">Supports up to 10,000 URLs</p>
                 </div>
               </div>
             </div>
@@ -403,17 +403,17 @@ export default function HomePage() {
           </div>
 
           {/* RIGHT CARD: Output Stream */}
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 sm:p-7 flex flex-col justify-between">
+          <div className="bg-white dark:bg-[#121723] rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-xl shadow-slate-200/40 dark:shadow-black/50 p-6 sm:p-7 flex flex-col justify-between">
             <div>
               {/* Card Header */}
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-6 bg-[#10b981] rounded-full" />
                   <div>
-                    <h2 className="text-[11px] font-black text-[#0066FF] uppercase tracking-wider leading-tight">
+                    <h2 className="text-[11px] font-black text-[#0066FF] dark:text-emerald-400 uppercase tracking-wider leading-tight">
                       OUTPUT STREAM ({totalCount})
                     </h2>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TRIMMED RESULTS</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TRIMMED RESULTS</p>
                   </div>
                 </div>
 
@@ -421,15 +421,15 @@ export default function HomePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleOpenAll}
-                    className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                    className="bg-white dark:bg-[#1a2130] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/70 rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                   >
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
                     <span>OPEN ALL</span>
                   </button>
 
                   <button
                     onClick={handleCopyAll}
-                    className="bg-[#0066FF] hover:bg-blue-700 text-white rounded-full px-4 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
+                    className="bg-[#0066FF] hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-full px-4 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
                   >
                     {copiedAll ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-white" />}
                     <span>{copiedAll ? 'COPIED!' : 'COPY'}</span>
@@ -438,25 +438,25 @@ export default function HomePage() {
               </div>
 
               {/* Clean Output Results Box */}
-              <div className="bg-slate-50/50 rounded-2xl border border-slate-100 overflow-hidden mb-4 min-h-[340px] sm:min-h-[400px] relative flex flex-col justify-center">
+              <div className="bg-slate-50/50 dark:bg-[#0a0d14] rounded-2xl border border-slate-100 dark:border-slate-800/80 overflow-hidden mb-4 min-h-[340px] sm:min-h-[400px] relative flex flex-col justify-center">
                 <textarea
                   value={outputText}
                   onChange={(e) => setOutputText(e.target.value)}
                   placeholder="Trimmed results will appear here..."
-                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-800 bg-transparent outline-none resize-none leading-relaxed custom-scrollbar focus:bg-white/70 transition-colors"
+                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-200 bg-transparent outline-none resize-none leading-relaxed custom-scrollbar focus:bg-white/70 dark:focus:bg-[#0a0d14] transition-colors"
                 />
               </div>
             </div>
 
             {/* Bottom Status Bar */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-medium text-[11px]">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-900/40 font-medium text-[11px]">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>{totalCount} URLs processed successfully.</span>
               </div>
 
-              <div className="text-slate-400 font-medium text-[11px]">
-                Total: <span className="text-slate-700">{totalCount} URLs</span> | Cleaned: <span className="text-slate-700">{cleanedCount}</span>
+              <div className="text-slate-400 dark:text-slate-500 font-medium text-[11px]">
+                Total: <span className="text-slate-700 dark:text-slate-300">{totalCount} URLs</span> | Cleaned: <span className="text-slate-700 dark:text-slate-300">{cleanedCount}</span>
               </div>
             </div>
           </div>
@@ -469,7 +469,7 @@ export default function HomePage() {
         {/* Section Title */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-col gap-1 items-start">
               <span>More Useful Tools</span>
               <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
             </h2>
@@ -477,7 +477,7 @@ export default function HomePage() {
 
           <Link 
             href="/tools" 
-            className="bg-white hover:bg-[#0066FF] text-[#0066FF] hover:text-white border border-blue-200/90 hover:border-[#0066FF] px-4.5 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm hover:shadow-md hover:shadow-blue-500/20 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out group"
+            className="bg-white dark:bg-[#121723] hover:bg-[#0066FF] dark:hover:bg-blue-600 text-[#0066FF] dark:text-slate-200 hover:text-white dark:hover:text-white border border-blue-200/90 dark:border-slate-800/80 hover:border-[#0066FF] px-4.5 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm hover:shadow-md hover:shadow-blue-500/20 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out group"
           >
             <span>View all tools</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
@@ -487,145 +487,145 @@ export default function HomePage() {
         {/* Separate Cards Grid (Matching Screenshot #2) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {/* Tool 1: URL Trimmer */}
-          <Link href="#trimmer-app" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="#trimmer-app" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Scissors className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">URL Trimmer</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Clean URL lists by stripping...</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">URL Trimmer</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Clean URL lists by stripping...</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 2: Word Counter */}
-          <Link href="/tools/word-counter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/word-counter" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 font-bold text-lg group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 font-bold text-lg group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 T
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Word Counter</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Analyze text structure and counts.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Word Counter</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Analyze text structure and counts.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 3: AI Text-to-Image */}
-          <Link href="/tools/ai-image" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/ai-image" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Wand2 className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">AI Text-to-Image</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Create high-quality stunning graphics...</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">AI Text-to-Image</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Create high-quality stunning graphics...</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 4: Image Compressor */}
-          <Link href="/tools/image-compressor" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/image-compressor" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Maximize2 className="w-5.5 h-5.5 stroke-[2] rotate-45" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Image Compressor</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Reduce image size while keeping quality.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Image Compressor</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Reduce image size while keeping quality.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 5: Image Converter */}
-          <Link href="/tools/image-converter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/image-converter" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Layers3 className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Image Converter</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Convert between imaging formats.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Image Converter</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Convert between imaging formats.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 6: PDF Converter */}
-          <Link href="/tools/pdf-converter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/pdf-converter" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <FileText className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">PDF Converter</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Convert images to PDF high-quality.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">PDF Converter</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Convert images to PDF high-quality.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 7: Text to HTML */}
-          <Link href="#trimmer-app" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="#trimmer-app" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Code className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Text to HTML</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Convert plain text to clean HTML code.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Text to HTML</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Convert plain text to clean HTML code.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 8: Chrome Extension */}
-          <Link href="/tools/chrome-extension" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/chrome-extension" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <Settings className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Chrome Extension</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Load Word Counter as browser extension.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Chrome Extension</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Load Word Counter as browser extension.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
 
           {/* Tool 9: Sitemap Generator */}
-          <Link href="/tools/sitemap-generator" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+          <Link href="/tools/sitemap-generator" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
                 <FileText className="w-5.5 h-5.5 stroke-[2]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Sitemap Generator</h3>
-                <p className="text-xs text-slate-400 font-normal leading-snug">Crawl website pages and generate sitemap.</p>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Sitemap Generator</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Crawl website pages and generate sitemap.</p>
               </div>
             </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </Link>
@@ -635,7 +635,7 @@ export default function HomePage() {
       {/* SECTION: How It Works */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-4 sm:px-6 my-20">
         <div className="mb-12">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-col gap-1 items-start">
             <span>How It Works</span>
             <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
           </h2>
@@ -643,63 +643,63 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch relative">
           {/* Step 1 Card */}
-          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
             <div className="relative mb-6">
-              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] dark:bg-blue-600 text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white dark:border-[#121723]">
                 1
               </div>
-              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100 dark:border-slate-700/60 flex items-center justify-center shadow-inner">
                 <FileText className="w-7 h-7 stroke-[2]" />
               </div>
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">Paste or Upload</h3>
-            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Paste or Upload</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed font-normal">
               Add your URLs, one per line or drag & drop a .txt or .csv file.
             </p>
           </div>
 
           {/* Arrow Divider 1 */}
-          <div className="hidden md:flex justify-center text-slate-300 absolute left-1/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
-            <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
+          <div className="hidden md:flex justify-center text-slate-300 dark:text-slate-600 absolute left-1/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <div className="w-8 h-8 rounded-full bg-white dark:bg-[#1a2130] border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-400">
               <ArrowRight className="w-4 h-4 stroke-[2]" />
             </div>
           </div>
 
           {/* Step 2 Card */}
-          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
             <div className="relative mb-6">
-              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] dark:bg-blue-600 text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white dark:border-[#121723]">
                 2
               </div>
-              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100 dark:border-slate-700/60 flex items-center justify-center shadow-inner">
                 <Settings className="w-7 h-7 stroke-[2]" />
               </div>
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">Get Clean URLs</h3>
-            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Get Clean URLs</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed font-normal">
               Click Trim URLs and process your list instantly.
             </p>
           </div>
 
           {/* Arrow Divider 2 */}
-          <div className="hidden md:flex justify-center text-slate-300 absolute left-2/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
-            <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
+          <div className="hidden md:flex justify-center text-slate-300 dark:text-slate-600 absolute left-2/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <div className="w-8 h-8 rounded-full bg-white dark:bg-[#1a2130] border border-slate-200 dark:border-slate-700/60 shadow-sm flex items-center justify-center text-slate-400 dark:text-slate-400">
               <ArrowRight className="w-4 h-4 stroke-[2]" />
             </div>
           </div>
 
           {/* Step 3 Card */}
-          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-8 sm:p-10 border border-slate-200/90 dark:border-slate-800/80 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
             <div className="relative mb-6">
-              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] dark:bg-blue-600 text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white dark:border-[#121723]">
                 3
               </div>
-              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100 dark:border-slate-700/60 flex items-center justify-center shadow-inner">
                 <CheckCircle2 className="w-7 h-7 stroke-[2]" />
               </div>
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">Copy or Download</h3>
-            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">Copy or Download</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed font-normal">
               Copy the clean URLs or download as a CSV file.
             </p>
           </div>
@@ -709,7 +709,7 @@ export default function HomePage() {
       {/* SECTION: Why Use URL Trim? */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 my-20">
         <div className="mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-col gap-1 items-start">
             <span>Why Use URL Trim?</span>
             <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
           </h2>
@@ -717,52 +717,52 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1 */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
               <Zap className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Save Time</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">Save Time</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed font-normal">
                 Clean hundreds of URLs in seconds.
               </p>
             </div>
           </div>
 
           {/* Card 2 */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-slate-900 mb-0.5">100% Private</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">100% Private</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed font-normal">
                 Runs in your browser — URLs are not uploaded.
               </p>
             </div>
           </div>
 
           {/* Card 3 */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
               <UserCheck className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Accurate Results</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">Accurate Results</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed font-normal">
                 Remove tracking, queries and fragments reliably.
               </p>
             </div>
           </div>
 
           {/* Card 4 */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#121723] rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] dark:bg-[#1a2130] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/60 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Free to Use</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">Free to Use</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 leading-relaxed font-normal">
                 All tools are completely free, with no sign up required.
               </p>
             </div>

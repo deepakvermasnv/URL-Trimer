@@ -13,7 +13,7 @@ interface PageLayoutProps {
 
 export default function PageLayout({ children, className, showBlobs = false }: PageLayoutProps) {
   return (
-    <div className={`min-h-screen blue-gradient-bg selection:bg-blue-100 selection:text-blue-900 relative overflow-x-hidden ${className}`}>
+    <div className={`min-h-screen blue-gradient-bg dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 relative overflow-x-hidden ${className}`}>
       
       <div className="max-w-6xl mx-auto px-6 py-12 sm:py-20 relative z-10">
         {children}

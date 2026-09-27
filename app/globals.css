@@ -2,8 +2,17 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html, body {
   background-color: #eaf2ff;
+  color: #0f172a;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html.dark, html.dark body, body.dark, .dark body {
+  background-color: #0b0f17 !important;
+  color: #f8fafc !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -21,10 +30,10 @@ html, body {
 
 @media (max-width: 768px) {
   .animate-float {
-    animation-duration: 8s !important; /* increase duration on mobile to reduce repaints */
+    animation-duration: 8s !important;
   }
   .animate-pulse-glow {
-    animation: none !important; /* disable on mobile */
+    animation: none !important;
   }
 }
 
@@ -43,6 +52,10 @@ html, body {
     background: rgba(59, 130, 246, 0.3);
   }
 
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+  }
+
   .blue-gradient-bg {
     background: radial-gradient(circle at 0% 0%, #eff6ff 0%, transparent 50%),
                 radial-gradient(circle at 100% 0%, #e0e7ff 0%, transparent 50%),
@@ -51,6 +64,11 @@ html, body {
     background-color: #f8fafc;
     position: relative;
     overflow: hidden;
+  }
+
+  .dark .blue-gradient-bg {
+    background: radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.5) 0%, transparent 70%);
+    background-color: #0b0f17;
   }
 
   @keyframes float {
@@ -162,8 +180,6 @@ html, body {
 }
 
 body {
-  background-color: #f8fafc;
-  color: #0f172a;
   min-height: 100vh;
   font-family: var(--font-sans), sans-serif;
 }

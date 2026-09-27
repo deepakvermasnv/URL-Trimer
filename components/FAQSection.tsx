@@ -46,8 +46,8 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
 
       {/* Section Header with Accent Bar */}
       <div className="mb-10">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
-          <span>Frequently Asked Questions</span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-col gap-1 items-start">
+          <span>{title}</span>
           <span className="w-12 h-1 bg-[#0066FF] rounded-full"></span>
         </h2>
       </div>
@@ -62,7 +62,7 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:border-blue-100 h-auto"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-all hover:border-blue-100 dark:hover:border-slate-700 h-auto"
               >
                 <button
                   onClick={() => toggleIndex(index)}
@@ -70,16 +70,16 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
                   aria-expanded={isOpen}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800 leading-snug">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">
                       {faq.q}
                     </h3>
                   </div>
                   <ChevronDown className={cn(
-                    "w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200",
-                    isOpen && "rotate-180 text-[#0066FF]"
+                    "w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 transition-transform duration-200",
+                    isOpen && "rotate-180 text-[#0066FF] dark:text-blue-400"
                   )} />
                 </button>
 
@@ -91,8 +91,8 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="px-5 pb-5 pl-11 border-t border-slate-50 pt-3">
-                        <p className="text-xs text-slate-600 font-normal leading-relaxed">
+                      <div className="px-5 pb-5 pl-11 border-t border-slate-50 dark:border-slate-800/80 pt-3">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
                           {faq.a}
                         </p>
                       </div>
@@ -112,7 +112,7 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:border-blue-100 h-auto"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-all hover:border-blue-100 dark:hover:border-slate-700 h-auto"
               >
                 <button
                   onClick={() => toggleIndex(index)}
@@ -120,16 +120,16 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
                   aria-expanded={isOpen}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800 leading-snug">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">
                       {faq.q}
                     </h3>
                   </div>
                   <ChevronDown className={cn(
-                    "w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200",
-                    isOpen && "rotate-180 text-[#0066FF]"
+                    "w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 transition-transform duration-200",
+                    isOpen && "rotate-180 text-[#0066FF] dark:text-blue-400"
                   )} />
                 </button>
 
@@ -141,8 +141,8 @@ export default function FAQSection({ pageId, title = "Frequently Asked Questions
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="px-5 pb-5 pl-11 border-t border-slate-50 pt-3">
-                        <p className="text-xs text-slate-600 font-normal leading-relaxed">
+                      <div className="px-5 pb-5 pl-11 border-t border-slate-50 dark:border-slate-800/80 pt-3">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
                           {faq.a}
                         </p>
                       </div>
