@@ -175,9 +175,16 @@ export default function HomePage() {
   };
 
   const handleDownloadCSV = () => {
-    if (results.length === 0) return;
+    const inputLines = input.trim() ? input.split('\n').filter(l => l.trim() !== '') : [];
+    const outputLines = outputText.trim() ? outputText.split('\n').filter(l => l.trim() !== '') : [];
+    if (outputLines.length === 0) return;
+
     const csvHeader = "Original URL,Clean URL\n";
-    const csvRows = results.map(r => `"${r.original.replace(/"/g, '""')}","${r.clean.replace(/"/g, '""')}"`).join('\n');
+    const csvRows = outputLines.map((clean, idx) => {
+      const orig = inputLines[idx] || clean;
+      return `"${orig.replace(/"/g, '""')}","${clean.replace(/"/g, '""')}"`;
+    }).join('\n');
+
     const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -250,10 +257,10 @@ export default function HomePage() {
       <section id="trimmer-app" className="max-w-6xl mx-auto px-4 sm:px-6 mb-20">
         {/* Mode Selector Bar */}
         <div className="bg-white rounded-3xl p-2.5 border border-slate-100/90 shadow-lg shadow-blue-500/5 max-w-5xl mx-auto mb-6 flex items-center justify-center">
-          <div className="flex items-center gap-1.5 overflow-x-auto bg-slate-50/80 p-1.5 rounded-2xl border border-slate-100">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full max-w-full bg-slate-50/80 p-1.5 rounded-2xl border border-slate-100 custom-scrollbar whitespace-nowrap">
             <button
               onClick={() => setActiveMode('trimmer')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'trimmer'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -265,7 +272,7 @@ export default function HomePage() {
 
             <button
               onClick={() => setActiveMode('dedup')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'dedup'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -277,7 +284,7 @@ export default function HomePage() {
 
             <button
               onClick={() => setActiveMode('add-https')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'add-https'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -289,7 +296,7 @@ export default function HomePage() {
 
             <button
               onClick={() => setActiveMode('slug')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'slug'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -301,7 +308,7 @@ export default function HomePage() {
 
             <button
               onClick={() => setActiveMode('remove-html')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'remove-html'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
@@ -313,7 +320,7 @@ export default function HomePage() {
 
             <button
               onClick={() => setActiveMode('text-to-html')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
                 activeMode === 'text-to-html'
                   ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'

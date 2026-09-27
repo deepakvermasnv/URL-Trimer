@@ -7,23 +7,21 @@ import {
   Sun, 
   ChevronDown, 
   ArrowRight, 
-  Link2, 
   Wand2, 
   FileText, 
-  Image as ImageIcon, 
   Layers3, 
   Scissors, 
-  Layers, 
-  Fingerprint, 
-  Code2, 
-  Code, 
   Maximize2, 
-  Settings 
+  Settings,
+  Code,
+  Menu,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function Navbar() {
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
@@ -39,13 +37,25 @@ export function Navbar() {
     }, 250);
   };
 
-  return (
-    <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6" suppressHydrationWarning>
-      <header className="max-w-6xl mx-auto h-16 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/80 shadow-xl shadow-slate-200/60 px-6 sm:px-8 flex items-center justify-between transition-all" suppressHydrationWarning>
-        {/* Brand Logo */}
-        <BrandLogo />
+  const ALL_TOOLS = [
+    { title: 'URL Trimmer', href: '/#trimmer-app', icon: <Scissors className="w-4 h-4" /> },
+    { title: 'Word Counter', href: '/tools/word-counter', icon: <span className="font-bold text-xs">T</span> },
+    { title: 'AI Text-to-Image', href: '/tools/ai-image', icon: <Wand2 className="w-4 h-4" /> },
+    { title: 'PDF Converter', href: '/tools/pdf-converter', icon: <FileText className="w-4 h-4" /> },
+    { title: 'Image Compressor', href: '/tools/image-compressor', icon: <Maximize2 className="w-4 h-4 rotate-45" /> },
+    { title: 'Image Converter', href: '/tools/image-converter', icon: <Layers3 className="w-4 h-4" /> },
+    { title: 'Text to HTML', href: '/#trimmer-app', icon: <Code className="w-4 h-4" /> },
+    { title: 'Chrome Extension', href: '/tools/chrome-extension', icon: <Settings className="w-4 h-4" /> },
+    { title: 'Sitemap Generator', href: '/tools/sitemap-generator', icon: <FileText className="w-4 h-4" /> },
+  ];
 
-        {/* Center Nav Links */}
+  return (
+    <div className="fixed top-3 sm:top-4 left-0 right-0 z-50 px-3 sm:px-6" suppressHydrationWarning>
+      <header className="max-w-6xl mx-auto h-14 sm:h-16 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/80 shadow-xl shadow-slate-200/60 px-4 sm:px-8 flex items-center justify-between transition-all" suppressHydrationWarning>
+        {/* Brand Logo */}
+        <BrandLogo size="md" />
+
+        {/* Center Nav Links (Desktop) */}
         <nav className="hidden md:flex items-center gap-8 sm:gap-9 text-sm sm:text-[15px] font-bold text-slate-700">
           <div 
             className="relative py-2" 
@@ -60,7 +70,7 @@ export function Navbar() {
               <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${toolsOpen ? 'rotate-180 text-[#0066FF]' : ''}`} />
             </button>
 
-            {/* Dropdown Menu with Hover Bridge */}
+            {/* Dropdown Menu */}
             <AnimatePresence>
               {toolsOpen && (
                 <motion.div
@@ -72,112 +82,19 @@ export function Navbar() {
                 >
                   <div className="w-68 bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-3 max-h-[420px] overflow-y-auto custom-scrollbar">
                     <div className="text-[11px] font-black text-slate-400 uppercase px-3 py-1.5 tracking-widest mb-1">ALL TOOLS</div>
-                    
-                    {/* Tool 1 */}
-                    <Link 
-                      href="/#trimmer-app" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Scissors className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">URL Trimmer</span>
-                    </Link>
-
-                    {/* Tool 2 */}
-                    <Link 
-                      href="/tools/word-counter" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center font-bold text-xs shrink-0">T</div>
-                      <span className="text-sm font-bold">Word Counter</span>
-                    </Link>
-
-                    {/* Tool 3 */}
-                    <Link 
-                      href="/tools/ai-image" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Wand2 className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">AI Text-to-Image</span>
-                    </Link>
-
-                    {/* Tool 4 */}
-                    <Link 
-                      href="/tools/pdf-converter" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">PDF Converter</span>
-                    </Link>
-
-                    {/* Tool 5 */}
-                    <Link 
-                      href="/tools/image-compressor" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Maximize2 className="w-4 h-4 rotate-45" />
-                      </div>
-                      <span className="text-sm font-bold">Image Compressor</span>
-                    </Link>
-
-                    {/* Tool 6 */}
-                    <Link 
-                      href="/tools/image-converter" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Layers3 className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">Image Converter</span>
-                    </Link>
-
-                    {/* Tool 7 */}
-                    <Link 
-                      href="/#trimmer-app" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Code className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">Text to HTML</span>
-                    </Link>
-
-                    {/* Tool 8 */}
-                    <Link 
-                      href="/tools/chrome-extension" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <Settings className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">Chrome Extension</span>
-                    </Link>
-
-                    {/* Tool 9 */}
-                    <Link 
-                      href="/tools/sitemap-generator" 
-                      onClick={() => setToolsOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
-                    >
-                      <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold">Sitemap Generator</span>
-                    </Link>
+                    {ALL_TOOLS.map((t, idx) => (
+                      <Link 
+                        key={idx}
+                        href={t.href} 
+                        onClick={() => setToolsOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#eef5ff] text-slate-800 hover:text-[#0066FF] transition-all"
+                      >
+                        <div className="w-8.5 h-8.5 rounded-xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+                          {t.icon}
+                        </div>
+                        <span className="text-sm font-bold">{t.title}</span>
+                      </Link>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -196,23 +113,99 @@ export function Navbar() {
         </nav>
 
         {/* Right Side Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             aria-label="Toggle theme"
-            className="w-9 h-9 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center hover:bg-blue-100 transition-colors border border-blue-100/80 cursor-pointer shadow-sm"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-50 text-[#0066FF] flex items-center justify-center hover:bg-blue-100 transition-colors border border-blue-100/80 cursor-pointer shadow-xs"
           >
-            <Sun className="w-4 h-4" />
+            <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           <Link
             href="/tools"
-            className="bg-[#0066FF] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full flex items-center gap-2 shadow-md shadow-blue-500/25 hover:shadow-lg transition-all cursor-pointer"
+            className="bg-[#0066FF] hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-md shadow-blue-500/25 hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
           >
-            <span>View More Tools</span>
-            <ArrowRight className="w-4 h-4" />
+            <span className="hidden sm:inline">View More Tools</span>
+            <span className="inline sm:hidden">Tools</span>
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Link>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+            className="md:hidden w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200 transition-colors cursor-pointer"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
         </div>
       </header>
+
+      {/* Mobile Drawer Navigation */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden mt-2 bg-white rounded-3xl border border-slate-200/90 shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto custom-scrollbar"
+          >
+            <div className="p-4 space-y-4">
+              <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-2">NAVIGATION</div>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm font-bold text-slate-700">
+                <a 
+                  href="#how-it-works" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-3 bg-slate-50 rounded-xl hover:bg-blue-50 hover:text-[#0066FF] transition-all"
+                >
+                  How it works
+                </a>
+                <a 
+                  href="#homepage-faqs" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-3 bg-slate-50 rounded-xl hover:bg-blue-50 hover:text-[#0066FF] transition-all"
+                >
+                  FAQ
+                </a>
+                <Link 
+                  href="/blog" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-3 bg-slate-50 rounded-xl hover:bg-blue-50 hover:text-[#0066FF] transition-all"
+                >
+                  Blog
+                </Link>
+                <Link 
+                  href="/tools" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-3 bg-[#0066FF] text-white rounded-xl hover:bg-blue-700 transition-all text-center"
+                >
+                  All Tools
+                </Link>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-2 mb-2">QUICK TOOLS</div>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {ALL_TOOLS.map((t, idx) => (
+                    <Link
+                      key={idx}
+                      href={t.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-blue-50 text-slate-800 hover:text-[#0066FF] transition-all"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#0066FF] flex items-center justify-center shrink-0">
+                        {t.icon}
+                      </div>
+                      <span className="text-xs font-bold">{t.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
