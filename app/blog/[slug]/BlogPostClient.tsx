@@ -3,68 +3,92 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { ArrowLeft, Clock, Calendar, User, Tag } from 'lucide-react';
-import Footer from '@/components/Footer';
+import { ArrowLeft, Clock, Calendar, User, ArrowRight } from 'lucide-react';
+import PageLayout from '@/components/PageLayout';
 
 export default function BlogPostClient({ post, slug }: { post: any, slug: string }) {
   if (!post) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-[#f8fafc]">
-        <div className="text-center">
-          <h1 className="text-4xl font-black text-slate-900 mb-4">Post Not Found</h1>
-          <Link href="/blog" className="text-blue-600 font-bold hover:underline">Back to Engineering Blog</Link>
+      <PageLayout showBlobs={true}>
+        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+          <h1 className="text-4xl font-bold font-serif text-slate-900 mb-4">Post Not Found</h1>
+          <Link href="/blog" className="text-[#0066FF] font-bold hover:underline">Back to Engineering Blog</Link>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] selection:bg-blue-100 selection:text-blue-900">
-      <div className="max-w-4xl mx-auto px-6 py-12 sm:py-24">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors mb-12">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Blog
-        </Link>
+    <PageLayout showBlobs={true}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-20 space-y-10">
+        {/* Navigation Link */}
+        <div>
+          <Link 
+            href="/blog" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>BACK TO BLOG</span>
+          </Link>
+        </div>
 
         <motion.article
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-8"
         >
-          <header className="mb-12">
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-[0.2em]">{post.category}</span>
-              <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
-                <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {post.date}</span>
-                <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {post.readTime}</span>
-                <span className="flex items-center gap-1.5"><User className="w-3 h-3" /> {post.author}</span>
-              </div>
-            </div>
-            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter mb-8 leading-tight">
+          {/* Header section */}
+          <header className="space-y-4">
+            <span className="text-[11px] font-bold tracking-[0.18em] text-slate-500 uppercase block">
+              {post.category}
+            </span>
+
+            <h1 className="text-3xl sm:text-5xl font-bold font-serif text-slate-900 tracking-tight leading-tight">
               {post.title}
             </h1>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-medium text-slate-500 border-t border-b border-slate-200/60 py-3">
+              <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-slate-400" /> {post.date}</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-slate-400" /> {post.readTime}</span>
+              <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-slate-400" /> {post.author}</span>
+            </div>
           </header>
 
-          <div className="bg-white p-8 sm:p-14 rounded-[3rem] border border-slate-100 shadow-sm mb-16">
+          {/* Featured Image */}
+          {post.image && (
+            <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden bg-slate-100 shadow-md">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* Article Body Content */}
+          <div className="bg-white p-6 sm:p-12 rounded-3xl border border-slate-200/80 shadow-md">
             {post.content}
           </div>
 
-          <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-900/40">
-            <h3 className="text-xl font-bold mb-4">Master Your Data Protocol</h3>
-            <p className="text-sm text-slate-400 leading-relaxed mb-8 font-medium">
-              Want to see these principles in action? Try our high-precision bulk URL cleaner today. 
-              Zero servers, absolute privacy, near-instant velocity.
-            </p>
+          {/* Bottom CTA Card */}
+          <div className="bg-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold font-serif mb-2">Try URL Trimmer Free</h3>
+              <p className="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed font-normal">
+                Experience instant client-side link cleaning, domain stripping, and sitemap generation directly in your browser.
+              </p>
+            </div>
             <Link 
               href="/"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl text-xs uppercase tracking-widest transition-colors"
+              className="px-6 py-3 bg-[#0066FF] hover:bg-blue-600 text-white font-bold text-xs rounded-xl uppercase tracking-wider transition-all whitespace-nowrap shadow-md shadow-blue-600/30 flex items-center gap-2"
             >
-              Launch Terminal
+              <span>OPEN TERMINAL</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </motion.article>
       </div>
-      <Footer />
-    </div>
+    </PageLayout>
   );
 }

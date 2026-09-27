@@ -18,12 +18,31 @@ import {
   Trash2,
   Zap
 } from 'lucide-react';
-import Footer from '@/components/Footer';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
 import NavAction from '@/components/NavAction';
 import Badge from '@/components/Badge';
 import { cn } from '@/lib/utils';
+import FAQSection from '@/components/FAQSection';
+
+const TEXT_TO_IMAGE_FAQS = [
+  {
+    q: "How does the AI Text-to-Image Generator work?",
+    a: "It converts your descriptive text prompt into high-quality digital artwork using advanced AI rendering models."
+  },
+  {
+    q: "Is this tool completely free to use?",
+    a: "Yes. You can generate unlimited images without any hidden subscription fees."
+  },
+  {
+    q: "What aspect ratios and resolutions are supported?",
+    a: "You can generate images in Square (1:1), Landscape (16:9), Portrait (9:16), Classic (4:3), and Tall (3:4) in up to 4K resolution."
+  },
+  {
+    q: "Can I download and use the generated images commercially?",
+    a: "Yes. All images created are yours to download and use for personal or commercial projects."
+  }
+];
 
 const SAMPLE_PROMPTS = [
   "A majestic brass clockwork mechanical falcon, detailed obsidian eyes, high-contrast professional studio portrait",
@@ -444,36 +463,44 @@ export default function TextToImage() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
-        <NavAction 
-          href="/tools" 
-          label="Tool Library" 
-          type="back" 
-          className="mb-0 sm:mb-0" 
-        />
-        
-        <div className="flex items-center gap-4 justify-center sm:justify-end">
-          <Badge variant="emerald">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse mr-1" />
-            AI cloud-powered
-          </Badge>
-          {(prompt || hasImages) && (
-            <button
-              onClick={handleReset}
-              className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-100 shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset Form
-            </button>
-          )}
-        </div>
-      </div>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching homepage design) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
 
-      <Hero 
-        centered
-        title={<>AI Text-To-Image <span className="text-blue-600">Generator.</span></>}
-        subtitle="Transform descriptive scripts into professional-grade digital artwork and assets instantly with the power of Gemini AI."
-      />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>AI ENGINE: READY</span>
+            </div>
+
+            {(prompt || hasImages) && (
+              <button
+                onClick={handleReset}
+                className="px-4 py-1.5 rounded-full bg-white hover:bg-red-50 text-red-500 border border-slate-200/80 text-[11px] font-extrabold tracking-wider uppercase shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>RESET FORM</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            AI Text-To-Image <span className="text-[#0066FF]">Generator.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Transform descriptive scripts into professional-grade digital artwork and assets instantly with the power of AI.
+          </p>
+        </div>
 
       {/* Main Section container */}
       <div className="max-w-3xl mx-auto space-y-8 mb-20">
@@ -752,7 +779,11 @@ export default function TextToImage() {
 
       </div>
 
-      <Footer />
+        <FAQSection 
+          pageId="text-to-image"
+          faqs={TEXT_TO_IMAGE_FAQS}
+        />
+      </div>
     </PageLayout>
   );
 }

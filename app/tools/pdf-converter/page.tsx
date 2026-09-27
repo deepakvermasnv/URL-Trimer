@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
 import NextImage from 'next/image';
+import Link from 'next/link';
 import { 
   FileDown, 
   Upload, 
@@ -19,7 +20,8 @@ import {
   X,
   Type,
   Layout,
-  FileBox
+  FileBox,
+  ArrowLeft
 } from 'lucide-react';
 import PageLayout from '@/components/PageLayout';
 import Hero from '@/components/Hero';
@@ -306,33 +308,37 @@ export default function PDFConverter() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
-        <NavAction 
-          href="/tools" 
-          label="Tool Library" 
-          type="back" 
-          className="mb-0" 
-        />
-        
-        <div className="flex items-center gap-4">
-          <Badge variant="blue">
-            <Shield className="w-3.5 h-3.5 mr-1.5" />
-            End-to-End Encryption
-          </Badge>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching homepage design) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
+              <Shield className="w-3.5 h-3.5 text-emerald-600" />
+              <span>100% PRIVATE • LOCAL</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <Hero 
-        centered
-        badgeText="Universal Protocol"
-        badgeIcon={Zap}
-        title={<>Universal <span className="text-blue-600">Converter.</span></>}
-        subtitle="Convert images, Word documents, and presentations into professional PDF files instantly. Processed 100% locally for your privacy."
-      />
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Universal <span className="text-[#0066FF]">Converter.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Convert images, Word documents, and presentations into professional PDF files instantly. Processed 100% locally for your privacy.
+          </p>
+        </div>
 
-      <div className="max-w-6xl mx-auto mb-32">
-        {/* Format Selector */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
+        {/* Format Selector Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
           {[
             { id: 'images', label: 'Images to PDF', icon: ImageIcon },
             { id: 'word', label: 'Word to PDF', icon: FileText },
@@ -347,14 +353,14 @@ export default function PDFConverter() {
                 setDocFiles([]);
               }}
               className={cn(
-                "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2.5 border-2",
+                "px-5 py-2.5 rounded-full text-xs font-extrabold transition-all flex items-center gap-2 cursor-pointer shadow-xs",
                 activeTab === mode.id 
-                  ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200" 
-                  : "bg-white text-slate-500 border-slate-100 hover:border-blue-200 hover:text-slate-900"
+                  ? "bg-[#0066FF] text-white shadow-md shadow-blue-500/20" 
+                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80"
               )}
             >
-              <mode.icon className={cn("w-4 h-4", activeTab === mode.id ? "text-white" : "text-blue-500")} />
-              {mode.label}
+              <mode.icon className="w-3.5 h-3.5" />
+              <span>{mode.label}</span>
             </button>
           ))}
         </div>

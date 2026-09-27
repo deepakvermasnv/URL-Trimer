@@ -136,40 +136,46 @@ export default function ImageCompressor() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
-        <NavAction 
-          href="/tools" 
-          label="Tool Library" 
-          type="back" 
-          className="mb-0 sm:mb-0" 
-        />
-        
-        <div className="flex items-center gap-4 justify-center sm:justify-end">
-          <Badge variant="blue">
-            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1" />
-            Surgical Compression
-          </Badge>
-          {file && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={reset}
-              className="px-5 py-2 rounded-2xl bg-white/70 backdrop-blur-xl border border-slate-100 shadow-xl shadow-blue-900/5 flex items-center gap-2 text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Discard
-            </motion.button>
-          )}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching homepage design) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>SURGICAL COMPRESSION</span>
+            </div>
+
+            {file && (
+              <button
+                onClick={reset}
+                className="px-4 py-1.5 rounded-full bg-white hover:bg-red-50 text-red-500 border border-slate-200/80 text-[11px] font-extrabold tracking-wider uppercase shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>DISCARD</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
 
-      <Hero 
-        centered
-        title={<>Image <span className="text-blue-600">Compressor.</span></>}
-        subtitle="Reduce image file size while maintaining visual quality. All processing happens in your browser."
-      />
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Image <span className="text-[#0066FF]">Compressor.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Reduce image file size while maintaining visual quality. All processing happens in your browser.
+          </p>
+        </div>
 
-      <div className="max-w-4xl mx-auto">
+        <div>
           {!file ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -180,14 +186,14 @@ export default function ImageCompressor() {
                 if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
               }}
               onClick={() => fileInputRef.current?.click()}
-              className="group cursor-pointer bg-white/90 backdrop-blur-2xl rounded-[3rem] border-4 border-dashed border-slate-100 hover:border-blue-500 hover:bg-white p-20 text-center transition-all duration-500"
+              className="group cursor-pointer bg-white rounded-3xl border-2 border-dashed border-blue-200 hover:border-[#0066FF] p-12 sm:p-16 text-center transition-all duration-300 shadow-xl shadow-slate-200/40"
             >
               <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={onFileSelect} />
-              <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
-                <Minimize2 className="w-10 h-10" />
+              <div className="w-20 h-20 bg-blue-50/80 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-[#0066FF] group-hover:text-white transition-all duration-300 text-[#0066FF]">
+                <Minimize2 className="w-9 h-9" />
               </div>
-              <h2 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">Load Payload Bundle</h2>
-              <p className="text-slate-400 font-medium max-w-xs mx-auto">Drop the image you want to compress. No data is sent to external nodes.</p>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2 group-hover:text-[#0066FF] transition-colors">Load Payload Bundle</h2>
+              <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-xs mx-auto">Drop the image you want to compress. No data is sent to external nodes.</p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -389,20 +395,27 @@ export default function ImageCompressor() {
             "@type": "BreadcrumbList",
             "itemListElement": [
               {
-                "@type": "ListItem", "position": 1, "name": "Home",
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
                 "item": "https://www.urltrim.online/"
               },
               {
-                "@type": "ListItem", "position": 2, "name": "Tools",
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Tools",
                 "item": "https://www.urltrim.online/tools"
               },
               {
-                "@type": "ListItem", "position": 3, "name": "Image Compressor",
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Image Compressor",
                 "item": "https://www.urltrim.online/tools/image-compressor"
               }
             ]
           })}
         </Script>
-      </PageLayout>
+      </div>
+    </PageLayout>
   );
 }

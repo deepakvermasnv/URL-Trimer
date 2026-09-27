@@ -210,342 +210,337 @@ const MenuBar = ({
   const fontSizes = ['12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px'];
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
-      {/* Font Size Selector */}
-      <div className="relative">
-        <button 
-          onClick={() => toggleDropdown('size')}
-          aria-label="Change font size"
-          aria-expanded={activeDropdown === 'size'}
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
-            activeDropdown === 'size' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
-          )}
-        >
-          <FontSizeIcon className="w-3.5 h-3.5" />
-          Size
-          <ChevronDown className={cn("w-3 h-3 ml-1 transition-transform", activeDropdown === 'size' && "rotate-180")} />
-        </button>
-        
-        <AnimatePresence>
-          {activeDropdown === 'size' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 grid grid-cols-3 gap-2 z-30 min-w-[200px]"
+    <div className="p-3 sm:px-5 border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3">
+      {/* Left Formatting Tools Group */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Font Size & Format Dropdowns Cluster */}
+        <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/80 p-1 rounded-full shadow-2xs">
+          {/* Size Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => toggleDropdown('size')}
+              aria-label="Change font size"
+              aria-expanded={activeDropdown === 'size'}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer",
+                activeDropdown === 'size' ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
+              )}
             >
-              {fontSizes.map(size => (
-                <button
-                  key={size}
-                  onClick={() => {
-                    editor.chain().focus().setFontSize(size).run();
-                    setActiveDropdown(null);
-                  }}
-                  className={cn(
-                    "px-2 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-blue-50 hover:text-blue-600",
-                    editor.isActive('textStyle', { fontSize: size }) ? "bg-blue-50 text-blue-600" : "text-slate-500"
-                  )}
+              <FontSizeIcon className="w-3.5 h-3.5 text-slate-400" />
+              <span>Size</span>
+              <ChevronDown className={cn("w-3 h-3 ml-0.5 text-slate-400 transition-transform", activeDropdown === 'size' && "rotate-180")} />
+            </button>
+            
+            <AnimatePresence>
+              {activeDropdown === 'size' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 grid grid-cols-3 gap-2 z-30 min-w-[200px]"
                 >
-                  {size}
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  editor.chain().focus().unsetFontSize().run();
-                  setActiveDropdown(null);
-                }}
-                className="col-span-3 px-2 py-1.5 rounded-lg text-xs font-black text-red-500 hover:bg-red-50 transition-all uppercase tracking-widest"
-              >
-                Reset Size
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                  {fontSizes.map(size => (
+                    <button
+                      key={size}
+                      onClick={() => {
+                        editor.chain().focus().setFontSize(size).run();
+                        setActiveDropdown(null);
+                      }}
+                      className={cn(
+                        "px-2 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-blue-50 hover:text-[#0066FF]",
+                        editor.isActive('textStyle', { fontSize: size }) ? "bg-blue-50 text-[#0066FF]" : "text-slate-500"
+                      )}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {
+                      editor.chain().focus().unsetFontSize().run();
+                      setActiveDropdown(null);
+                    }}
+                    className="col-span-3 px-2 py-1.5 rounded-lg text-xs font-black text-red-500 hover:bg-red-50 transition-all uppercase tracking-widest"
+                  >
+                    Reset Size
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-      <div className="w-px h-6 bg-slate-200 mx-1" />
+          <div className="w-px h-4 bg-slate-200" />
 
-      {/* Format Selector Dropdown */}
-      <div className="relative">
-        <button 
-          onClick={() => toggleDropdown('format')}
-          aria-label="Change text format"
-          aria-expanded={activeDropdown === 'format'}
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest min-w-[100px] justify-between",
-            activeDropdown === 'format' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
-          )}
-        >
-          <span className="truncate">
-            {editor.isActive('heading', { level: 1 }) ? 'Heading 1' :
-             editor.isActive('heading', { level: 2 }) ? 'Heading 2' :
-             editor.isActive('heading', { level: 3 }) ? 'Heading 3' :
-             editor.isActive('heading', { level: 4 }) ? 'Heading 4' :
-             editor.isActive('heading', { level: 5 }) ? 'Heading 5' :
-             editor.isActive('heading', { level: 6 }) ? 'Heading 6' :
-             'Paragraph'}
-          </span>
-          <ChevronDown className={cn("w-3 h-3 ml-1 flex-shrink-0 transition-transform", activeDropdown === 'format' && "rotate-180")} />
-        </button>
-
-        <AnimatePresence>
-          {activeDropdown === 'format' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col gap-1 z-30 min-w-[160px]"
+          {/* Format Selector Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => toggleDropdown('format')}
+              aria-label="Change text format"
+              aria-expanded={activeDropdown === 'format'}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer min-w-[105px] justify-between",
+                activeDropdown === 'format' ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
+              )}
             >
-              {[1, 2, 3, 4, 5, 6].map((level) => (
-                <button
-                  key={level}
-                  onClick={() => {
-                    editor.chain().focus().toggleHeading({ level: level as any }).run();
-                    setActiveDropdown(null);
-                  }}
-                  className={cn(
-                    "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50",
-                    editor.isActive('heading', { level }) ? "bg-blue-50 text-blue-600" : "text-slate-600"
-                  )}
+              <span className="truncate">
+                {editor.isActive('heading', { level: 1 }) ? 'Heading 1' :
+                 editor.isActive('heading', { level: 2 }) ? 'Heading 2' :
+                 editor.isActive('heading', { level: 3 }) ? 'Heading 3' :
+                 editor.isActive('heading', { level: 4 }) ? 'Heading 4' :
+                 editor.isActive('heading', { level: 5 }) ? 'Heading 5' :
+                 editor.isActive('heading', { level: 6 }) ? 'Heading 6' :
+                 'Paragraph'}
+              </span>
+              <ChevronDown className={cn("w-3 h-3 text-slate-400 flex-shrink-0 transition-transform", activeDropdown === 'format' && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {activeDropdown === 'format' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col gap-1 z-30 min-w-[160px]"
                 >
-                  Heading {level}
-                </button>
-              ))}
-              <button
-                onClick={() => {
-                  editor.chain().focus().setParagraph().run();
-                  setActiveDropdown(null);
-                }}
-                className={cn(
-                  "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50",
-                  editor.isActive('paragraph') ? "bg-blue-50 text-blue-600" : "text-slate-600"
-                )}
-              >
-                Paragraph
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                  {[1, 2, 3, 4, 5, 6].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => {
+                        editor.chain().focus().toggleHeading({ level: level as any }).run();
+                        setActiveDropdown(null);
+                      }}
+                      className={cn(
+                        "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50",
+                        editor.isActive('heading', { level }) ? "bg-blue-50 text-[#0066FF]" : "text-slate-600"
+                      )}
+                    >
+                      Heading {level}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {
+                      editor.chain().focus().setParagraph().run();
+                      setActiveDropdown(null);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50",
+                      editor.isActive('paragraph') ? "bg-blue-50 text-[#0066FF]" : "text-slate-600"
+                    )}
+                  >
+                    Paragraph
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
-      <div className="w-px h-6 bg-slate-200 mx-1" />
-
-      {/* Alignment Dropdown */}
-      <div className="relative">
-        <button 
-          onClick={() => toggleDropdown('align')}
-          aria-label="Change text alignment"
-          aria-expanded={activeDropdown === 'align'}
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
-            activeDropdown === 'align' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
-          )}
-        >
-          {editor.isActive({ textAlign: 'center' }) ? <AlignCenter className="w-3.5 h-3.5" /> :
-           editor.isActive({ textAlign: 'right' }) ? <AlignRight className="w-3.5 h-3.5" /> :
-           <AlignLeft className="w-3.5 h-3.5" />}
-          Align
-          <ChevronDown className={cn("w-3 h-3 ml-1 transition-transform", activeDropdown === 'align' && "rotate-180")} />
-        </button>
-
-        <AnimatePresence>
-          {activeDropdown === 'align' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col gap-1 z-30 min-w-[140px]"
-            >
-              {[
-                { label: 'Left', value: 'left', icon: AlignLeft },
-                { label: 'Center', value: 'center', icon: AlignCenter },
-                { label: 'Right', value: 'right', icon: AlignRight },
-              ].map((item) => (
-                <button
-                  key={item.value}
-                  onClick={() => {
-                    editor.chain().focus().setTextAlign(item.value).run();
-                    setActiveDropdown(null);
-                  }}
-                  className={cn(
-                    "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 flex items-center gap-2",
-                    editor.isActive({ textAlign: item.value }) ? "bg-blue-50 text-blue-600" : "text-slate-600"
-                  )}
-                >
-                  <item.icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="w-px h-6 bg-slate-200 mx-1" />
-
-      {/* Text Format Group */}
-      <div className="flex items-center bg-slate-100/50 p-1 rounded-xl gap-1">
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          aria-label="Toggle bold"
-          className={cn("p-2 rounded-lg transition-all", editor.isActive('bold') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-          title="Bold"
-        >
-          <BoldIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          aria-label="Toggle italic"
-          className={cn("p-2 rounded-lg transition-all", editor.isActive('italic') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-          title="Italic"
-        >
-          <ItalicIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          aria-label="Toggle underline"
-          className={cn("p-2 rounded-lg transition-all", editor.isActive('underline') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-          title="Underline"
-        >
-          <UnderlineIcon className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="w-px h-6 bg-slate-200 mx-1" />
-
-      {/* Lists */}
-      <div className="flex items-center bg-slate-100/50 p-1 rounded-xl gap-1">
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={cn("p-2 rounded-lg transition-all", editor.isActive('bulletList') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-          title="Bullet List"
-        >
-          <ListIcon className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={cn("p-2 rounded-lg transition-all", editor.isActive('orderedList') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-          title="Ordered List"
-        >
-          <ListOrderedIcon className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="w-px h-6 bg-slate-200 mx-1" />
-
-      {/* Insertion */}
-      <div className="flex items-center bg-slate-100/50 p-1 rounded-xl gap-1">
-        <button
-          onClick={addImage}
-          aria-label="Upload image"
-          className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white transition-all"
-          title="Upload Image"
-        >
-          <ImageIcon className="w-4 h-4" />
-        </button>
-        <div className="relative">
-          <button
-            onClick={() => {
-              if (showLinkInput) {
-                setShowLinkInput(false);
-              } else {
-                const previousUrl = editor.getAttributes('link').href;
-                setLinkUrl(previousUrl || '');
-                setShowLinkInput(true);
-                setActiveDropdown(null);
-              }
-            }}
-            aria-label="Insert link"
-            className={cn("p-2 rounded-lg transition-all", editor.isActive('link') ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:text-slate-900")}
-            title="Link"
+        {/* Alignment Cluster */}
+        <div className="flex items-center bg-slate-50 border border-slate-200/80 p-1 rounded-full shadow-2xs relative">
+          <button 
+            onClick={() => toggleDropdown('align')}
+            aria-label="Change text alignment"
+            aria-expanded={activeDropdown === 'align'}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-xs font-bold cursor-pointer",
+              activeDropdown === 'align' ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
+            )}
           >
-            <LinkIcon className="w-4 h-4" />
+            {editor.isActive({ textAlign: 'center' }) ? <AlignCenter className="w-3.5 h-3.5 text-[#0066FF]" /> :
+             editor.isActive({ textAlign: 'right' }) ? <AlignRight className="w-3.5 h-3.5 text-[#0066FF]" /> :
+             <AlignLeft className="w-3.5 h-3.5 text-slate-400" />}
+            <span>Align</span>
+            <ChevronDown className={cn("w-3 h-3 text-slate-400 transition-transform", activeDropdown === 'align' && "rotate-180")} />
           </button>
-          
+
           <AnimatePresence>
-            {showLinkInput && (
-              <motion.div
+            {activeDropdown === 'align' && (
+              <motion.div 
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute top-full left-0 mt-2 p-3 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 flex gap-2 min-w-[280px]"
+                className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col gap-1 z-30 min-w-[140px]"
               >
-                <input
-                  type="text"
-                  placeholder="Paste or type URL"
-                  value={linkUrl}
-                  onChange={(e) => setLinkUrl(e.target.value)}
-                  className="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') applyLink();
-                    if (e.key === 'Escape') setShowLinkInput(false);
-                  }}
-                />
-                <button
-                  onClick={applyLink}
-                  className="px-3 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors"
-                >
-                  Apply
-                </button>
+                {[
+                  { label: 'Left', value: 'left', icon: AlignLeft },
+                  { label: 'Center', value: 'center', icon: AlignCenter },
+                  { label: 'Right', value: 'right', icon: AlignRight },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => {
+                      editor.chain().focus().setTextAlign(item.value).run();
+                      setActiveDropdown(null);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-2 rounded-xl text-xs font-bold transition-all hover:bg-slate-50 flex items-center gap-2",
+                      editor.isActive({ textAlign: item.value }) ? "bg-blue-50 text-[#0066FF]" : "text-slate-600"
+                    )}
+                  >
+                    <item.icon className="w-3.5 h-3.5" />
+                    {item.label}
+                  </button>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-      </div>
 
-      <div className="w-px h-6 bg-slate-200 mx-1" />
+        {/* Text Format Group (Bold, Italic, Underline) */}
+        <div className="flex items-center gap-0.5 bg-slate-50 border border-slate-200/80 p-1 rounded-full shadow-2xs">
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            aria-label="Toggle bold"
+            className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('bold') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+            title="Bold"
+          >
+            <BoldIcon className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            aria-label="Toggle italic"
+            className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('italic') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+            title="Italic"
+          >
+            <ItalicIcon className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            aria-label="Toggle underline"
+            className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('underline') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+            title="Underline"
+          >
+            <UnderlineIcon className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-      {/* Color Picker */}
-      <div className="relative">
-        <button 
-          onClick={() => toggleDropdown('colors')}
-          aria-label="Change text color"
-          className={cn(
-            "p-2 rounded-xl transition-all",
-            activeDropdown === 'colors' ? "bg-slate-200 text-slate-900" : "bg-slate-100/50 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
-          )}
-        >
-          <Palette className="w-4 h-4" />
-        </button>
+        {/* Lists Group */}
+        <div className="flex items-center gap-0.5 bg-slate-50 border border-slate-200/80 p-1 rounded-full shadow-2xs">
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('bulletList') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+            title="Bullet List"
+          >
+            <ListIcon className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('orderedList') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+            title="Ordered List"
+          >
+            <ListOrderedIcon className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-        <AnimatePresence>
-          {activeDropdown === 'colors' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex gap-2 z-30"
-            >
-              {colors.map(c => (
-                <button
-                  key={c.value}
-                  onClick={() => {
-                    editor.chain().focus().setColor(c.value).run();
-                    setActiveDropdown(null);
-                  }}
-                  className="w-6 h-6 rounded-lg shadow-inner ring-1 ring-black/5"
-                  style={{ backgroundColor: c.value }}
-                  title={c.name}
-                />
-              ))}
-              <button
-                onClick={() => {
-                  editor.chain().focus().unsetColor().run();
+        {/* Insertions & Palette Cluster */}
+        <div className="flex items-center gap-0.5 bg-slate-50 border border-slate-200/80 p-1 rounded-full shadow-2xs">
+          <button
+            onClick={addImage}
+            aria-label="Upload image"
+            className="p-1.5 rounded-full text-slate-500 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
+            title="Upload Image"
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => {
+                if (showLinkInput) {
+                  setShowLinkInput(false);
+                } else {
+                  const previousUrl = editor.getAttributes('link').href;
+                  setLinkUrl(previousUrl || '');
+                  setShowLinkInput(true);
                   setActiveDropdown(null);
-                }}
-                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[8px] font-black"
-              >
-                CLR
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                }
+              }}
+              aria-label="Insert link"
+              className={cn("p-1.5 rounded-full transition-all cursor-pointer", editor.isActive('link') ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80")}
+              title="Link"
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+            </button>
+            
+            <AnimatePresence>
+              {showLinkInput && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full left-0 mt-2 p-3 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 flex gap-2 min-w-[280px]"
+                >
+                  <input
+                    type="text"
+                    placeholder="Paste or type URL"
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    className="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') applyLink();
+                      if (e.key === 'Escape') setShowLinkInput(false);
+                    }}
+                  />
+                  <button
+                    onClick={applyLink}
+                    className="px-3 py-2 rounded-xl bg-[#0066FF] text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors"
+                  >
+                    Apply
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="relative">
+            <button 
+              onClick={() => toggleDropdown('colors')}
+              aria-label="Change text color"
+              className={cn(
+                "p-1.5 rounded-full transition-all cursor-pointer",
+                activeDropdown === 'colors' ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900 hover:bg-white/80"
+              )}
+            >
+              <Palette className="w-3.5 h-3.5" />
+            </button>
+
+            <AnimatePresence>
+              {activeDropdown === 'colors' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full left-0 mt-2 p-2 bg-white rounded-2xl shadow-2xl border border-slate-100 flex gap-2 z-30"
+                >
+                  {colors.map(c => (
+                    <button
+                      key={c.value}
+                      onClick={() => {
+                        editor.chain().focus().setColor(c.value).run();
+                        setActiveDropdown(null);
+                      }}
+                      className="w-6 h-6 rounded-lg shadow-inner ring-1 ring-black/5"
+                      style={{ backgroundColor: c.value }}
+                      title={c.name}
+                    />
+                  ))}
+                  <button
+                    onClick={() => {
+                      editor.chain().focus().unsetColor().run();
+                      setActiveDropdown(null);
+                    }}
+                    className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[8px] font-black"
+                  >
+                    CLR
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
 
       {/* LanguageTool Status & Control Widget */}
-      <div className="ml-auto pl-2 border-l border-slate-200/80">
+      <div className="ml-auto flex items-center">
         <LanguageToolWidget
           matches={ltMatches}
           loading={ltLoading}
@@ -772,67 +767,70 @@ export default function WordCounter() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-16">
-        <NavAction 
-          href="/tools" 
-          label="Tool Library" 
-          type="back" 
-          className="mb-0 sm:mb-0" 
-        />
-        
-        <div className="flex items-center gap-4 justify-center sm:justify-end">
-          <Badge variant="blue">
-            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1" />
-            Active Design Node
-          </Badge>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleDownload}
-            aria-label="Export document as HTML"
-            className="px-5 py-2 rounded-2xl bg-slate-900 shadow-xl shadow-slate-900/10 flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest hover:bg-slate-800 transition-colors"
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching screenshot) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
           >
-            <FileDown className="w-3.5 h-3.5" />
-            Export HTML
-          </motion.button>
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 border border-blue-200/60 text-[11px] font-bold text-[#0066FF]">
+              <span className="w-2 h-2 rounded-full bg-[#0066FF] animate-pulse" />
+              <span>AUTOSAVE: ON</span>
+            </div>
+
+            <button
+              onClick={handleDownload}
+              className="px-4 py-1.5 rounded-full bg-[#0a0e1a] hover:bg-slate-800 text-white text-[11px] font-extrabold tracking-wider uppercase shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <FileDown className="w-3.5 h-3.5 text-slate-300" />
+              <span>EXPORT HTML</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <Hero 
-        centered
-        title={<>Rich Text <span className="text-blue-600">Workspace.</span></>}
-        subtitle="Count words, characters, and sentences from any text with real-time analysis."
-      />
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Rich Text <span className="text-[#0066FF]">Workspace.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Count words, characters, and sentences from any text with real-time analysis.
+          </p>
+        </div>
 
-      <div className="max-w-6xl mx-auto space-y-6 relative">
-        {/* Sticky Horizontal Analytics Banner */}
+        {/* Analytics Stats Banner (Matching Homepage Cards) */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="sticky top-20 z-30 w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white/80 p-4 sm:p-5 transition-all hover:shadow-blue-900/10"
+          transition={{ delay: 0.1 }}
+          className="w-full mb-6"
         >
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {[
-              { label: 'Words', value: mounted ? stats.words : 0, icon: Type, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Characters', value: mounted ? stats.characters : 0, icon: Hash, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-              { label: 'Sentences', value: mounted ? stats.sentences : 0, icon: FileText, color: 'text-violet-600', bg: 'bg-violet-50' },
-              { label: 'Paragraphs', value: mounted ? stats.paragraphs : 0, icon: AlignLeft, color: 'text-sky-600', bg: 'bg-sky-50' },
-              { label: 'Read Time', value: mounted ? `${stats.readingTime} min` : '0 min', icon: BookOpen, color: 'text-emerald-600', bg: 'bg-emerald-50' }
+              { label: 'Words', value: mounted ? stats.words : 0, icon: Type, iconBg: 'bg-blue-100 text-blue-600' },
+              { label: 'Characters', value: mounted ? stats.characters : 0, icon: Hash, iconBg: 'bg-purple-100 text-purple-600' },
+              { label: 'Sentences', value: mounted ? stats.sentences : 0, icon: FileText, iconBg: 'bg-indigo-100 text-indigo-600' },
+              { label: 'Paragraphs', value: mounted ? stats.paragraphs : 0, icon: AlignLeft, iconBg: 'bg-cyan-100 text-cyan-600' },
+              { label: 'Read Time', value: mounted ? `${stats.readingTime} min` : '0 min', icon: BookOpen, iconBg: 'bg-emerald-100 text-emerald-600' }
             ].map((stat) => (
-              <motion.div 
+              <div 
                 key={stat.label}
-                whileHover={{ y: -2, scale: 1.01 }}
-                className="bg-slate-50/80 hover:bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-100 transition-all flex items-center gap-3 shadow-sm hover:shadow-md"
+                className="bg-white rounded-2xl p-4 border border-slate-200/80 transition-all flex items-center gap-3.5 shadow-sm hover:shadow-md"
               >
-                <div className={cn("p-2 rounded-xl shrink-0 shadow-sm", stat.bg)}>
-                  <stat.icon className={cn("w-4 h-4", stat.color)} />
+                <div className={`w-9 h-9 rounded-full ${stat.iconBg} flex items-center justify-center shrink-0 font-black`}>
+                  <stat.icon className="w-4 h-4 stroke-[2.5]" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.label}</div>
-                  <div className="text-base sm:text-lg font-black text-slate-900 tracking-tight tabular-nums truncate">{stat.value}</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{stat.label}</div>
+                  <div className="text-lg font-black text-slate-900 tracking-tight tabular-nums truncate">{stat.value}</div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -842,10 +840,9 @@ export default function WordCounter() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ perspective: "1500px" }}
-          className="w-full flex flex-col will-change-transform"
+          className="w-full flex flex-col"
         >
-          <div className="bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-white overflow-hidden flex flex-col group transition-shadow duration-500 hover:shadow-blue-900/10">
+          <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/80 overflow-hidden flex flex-col transition-all">
             <MenuBar
               editor={editor}
               ltMatches={ltMatches}
@@ -894,62 +891,49 @@ export default function WordCounter() {
             </div>
 
             {/* Bottom Actions */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-black text-blue-600">
-                      {String.fromCharCode(64 + i)}
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Collaborative Mode: Local</span>
+            <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-semibold text-slate-500">Live Auto-Save Enabled</span>
               </div>
 
               <div className="flex items-center gap-3">
-                <motion.button
-                  whileHover={!isExporting ? { scale: 1.05 } : {}}
-                  whileTap={!isExporting ? { scale: 0.95 } : {}}
+                <button
                   onClick={handlePdfExport}
                   disabled={isExporting}
-                  aria-label={isExporting ? "Exporting PDF..." : "Export document as PDF"}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all",
+                    "flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-xs transition-colors cursor-pointer",
                     isExporting 
-                      ? "bg-slate-50 text-slate-400 cursor-not-allowed" 
-                      : "bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-xs"
                   )}
                 >
                   {isExporting ? (
-                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <FileBadge className="w-4 h-4" />
+                    <FileBadge className="w-3.5 h-3.5 text-slate-500" />
                   )}
-                  {isExporting ? 'Generating...' : 'Export PDF'}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  <span>{isExporting ? 'Generating...' : 'EXPORT PDF'}</span>
+                </button>
+
+                <button
                   onClick={handleClear}
-                  aria-label="Clear document content"
-                  className="p-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors"
+                  className="p-2.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 border border-slate-200 transition-colors cursor-pointer"
                   title="Clear Document"
                 >
-                  <Trash2 className="w-5 h-5" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  <Trash2 className="w-4 h-4" />
+                </button>
+
+                <button
                   onClick={handleCopy}
-                  aria-label={copied ? "Text copied" : "Copy text to clipboard"}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all",
-                    copied ? "bg-emerald-500 text-white shadow-emerald-200" : "bg-slate-900 text-white shadow-slate-200"
+                    "flex items-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-xs shadow-sm transition-all cursor-pointer",
+                    copied ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-[#0a0e1a] hover:bg-slate-800 text-white"
                   )}
                 >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? 'Copied' : 'Copy Text'}
-                </motion.button>
+                  {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-white" />}
+                  <span>{copied ? 'COPIED!' : 'COPY TEXT'}</span>
+                </button>
               </div>
             </div>
           </div>

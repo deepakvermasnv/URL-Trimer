@@ -1,20 +1,42 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
-import { Link2, Copy, Check, Scissors, RotateCcw, Trash2, FileUp, Settings2, Loader2, ExternalLink, Star, Zap, Fingerprint, Type, Layers, Code2, Code } from 'lucide-react';
+import { Navbar } from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import PageLayout from '@/components/PageLayout';
-import Hero from '@/components/Hero';
-import NavAction from '@/components/NavAction';
-import { TOOLS } from '@/lib/tools';
 import FAQSection from '@/components/FAQSection';
+import { 
+  Link2, 
+  Copy, 
+  Check, 
+  Trash2, 
+  Upload, 
+  ArrowRight, 
+  Download, 
+  Sparkles, 
+  Zap, 
+  ShieldCheck, 
+  UserCheck, 
+  Wand2, 
+  FileText, 
+  Image as ImageIcon, 
+  Layers3, 
+  Maximize2,
+  CheckCircle2,
+  Settings,
+  Scissors,
+  Layers,
+  Fingerprint,
+  Code2,
+  Code,
+  ExternalLink,
+  ClipboardList
+} from 'lucide-react';
 
 const HOMEPAGE_FAQS = [
   {
     q: "What does URL Trim actually do?",
-    a: "It cleans up messy URLs. Paste in a bunch of links and it strips out tracking codes, extra paths, and junk parameters, leaving you with clean, simple links. Everything happens right in your browser."
+    a: "Remove tracking parameters, queries and fragments from multiple URLs instantly. Get clean, readable links in seconds."
   },
   {
     q: "Do I need to sign up to use it?",
@@ -25,989 +47,727 @@ const HOMEPAGE_FAQS = [
     a: "As many as you want. You can paste a short list or a few thousand links, and it'll clean them all in one go."
   },
   {
-    q: "Is my data safe when I use this tool?",
-    a: "Yes. Nothing gets uploaded anywhere. The whole cleaning process happens on your own device, so your links never touch a server."
+    q: "What kind of tracking parameters are removed?",
+    a: "Mostly tracking junk—things like UTM tags, session IDs, gclid, fbclid, and affiliate codes tacked onto links."
   },
   {
-    q: "What kind of stuff does it remove from URLs?",
-    a: "Mostly tracking junk—things like UTM tags, session IDs, and affiliate codes that get tacked onto links. It strips those out so you're left with a clean link."
+    q: "Is my data safe when I use this tool?",
+    a: "Yes. Nothing gets uploaded anywhere. The whole cleaning process happens on your own device."
   },
   {
     q: "Is URL Trim really free?",
     a: "Yes, completely. No paid plans, no limits, no catch."
   }
 ];
-import { cn } from '@/lib/utils';
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&(?!(amp|lt|gt|quot|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
+// Default sample URLs matching reference image
+const SAMPLE_URLS = [
+  "https://example.com/page?utm_source=google",
+  "https://shop.com/product?id=123&ref=facebook",
+  "https://site.com/about#team",
+  "https://blog.com/post?utm_campaign=news",
+  "https://example.com/contact?source=ad"
+];
 
-function convertParagraphToHtml(pText: string): string {
-  // Strip out outer <p>...</p> tags if present and existing font-weight: 400 spans
-  let cleanP = pText
-    .replace(/^<p[^>]*>/i, '')
-    .replace(/<\/p>$/i, '')
-    .replace(/<span\s+style=["']font-weight:\s*400;?["']>([\s\S]*?)<\/span>/gi, '$1')
-    .trim();
-
-  if (!cleanP) return '';
-
-  // Regex matching:
-  // 1. **[linkText](url)** - Entire link is bold
-  // 2. [linkText](url) - Markdown link (which may contain **bold** inside)
-  // 3. <a href="url">linkInner</a> - Pre-existing HTML link
-  // 4. **boldText** - Standalone Markdown bold
-  // 5. <strong>strongText</strong> - Pre-existing strong tag
-  // 6. <b>bText</b> - Pre-existing b tag
-  const tokenRegex = /(?:\*\*\[([^\]]+)\]\(([^)]+)\)\*\*)|(?:\[([^\]]+)\]\(([^)]+)\))|(<a\s+(?:[^>]*?\s+)?href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>)|(?:\*\*([^*]+)\*\*)|(?:<strong[^>]*>([\s\S]*?)<\/strong>)|(?:<b[^>]*>([\s\S]*?)<\/b>)/gi;
-
-  const pieces: string[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = tokenRegex.exec(cleanP)) !== null) {
-    const normalText = cleanP.substring(lastIndex, match.index);
-    if (normalText.length > 0) {
-      pieces.push(`<span style="font-weight: 400;">${escapeHtml(normalText)}</span>`);
-    }
-
-    if (match[1] !== undefined && match[2] !== undefined) {
-      // **[linkText](url)**
-      const rawText = match[1];
-      const url = match[2].trim();
-      const text = rawText.replace(/^\*\*|\*\*$/g, '').trim();
-      pieces.push(`<a href="${url}"><strong>${escapeHtml(text)}</strong></a>`);
-    } else if (match[3] !== undefined && match[4] !== undefined) {
-      // [linkText](url)
-      const rawText = match[3];
-      const url = match[4].trim();
-      const boldMatch = rawText.match(/^\*\*([\s\S]+)\*\*$/);
-      if (boldMatch) {
-        pieces.push(`<a href="${url}"><strong>${escapeHtml(boldMatch[1].trim())}</strong></a>`);
-      } else if (/^\s*<strong>[\s\S]+<\/strong>\s*$/i.test(rawText)) {
-        const innerText = rawText.replace(/<\/?strong[^>]*>/gi, '').trim();
-        pieces.push(`<a href="${url}"><strong>${escapeHtml(innerText)}</strong></a>`);
-      } else if (rawText.includes('**')) {
-        const converted = rawText.replace(/\*\*([^*]+)\*\*/g, (_, b) => `<strong>${escapeHtml(b)}</strong>`);
-        pieces.push(`<a href="${url}">${converted}</a>`);
-      } else {
-        pieces.push(`<a href="${url}">${escapeHtml(rawText)}</a>`);
-      }
-    } else if (match[5] !== undefined) {
-      // <a href="url">linkInner</a>
-      const url = match[6].trim();
-      const linkInner = match[7];
-      const hasBold = /<\/?(strong|b)[^>]*>/i.test(linkInner) || /\*\*([^*]+)\*\*/.test(linkInner);
-      if (hasBold) {
-        const cleanInner = linkInner
-          .replace(/<\/?(strong|b)[^>]*>/gi, '')
-          .replace(/\*\*([^*]+)\*\*/g, '$1')
-          .trim();
-        pieces.push(`<a href="${url}"><strong>${escapeHtml(cleanInner)}</strong></a>`);
-      } else {
-        pieces.push(`<a href="${url}">${linkInner}</a>`);
-      }
-    } else if (match[8] !== undefined) {
-      // **boldText**
-      pieces.push(`<strong>${escapeHtml(match[8])}</strong>`);
-    } else if (match[9] !== undefined) {
-      // <strong>strongText</strong>
-      pieces.push(`<strong>${escapeHtml(match[9].replace(/<[^>]*>/g, ''))}</strong>`);
-    } else if (match[10] !== undefined) {
-      // <b>bText</b>
-      pieces.push(`<strong>${escapeHtml(match[10].replace(/<[^>]*>/g, ''))}</strong>`);
-    }
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  const remaining = cleanP.substring(lastIndex);
-  if (remaining.length > 0) {
-    pieces.push(`<span style="font-weight: 400;">${escapeHtml(remaining)}</span>`);
-  }
-
-  return `<p>${pieces.join('')}</p>`;
-}
-
-function convertTextToHtml(raw: string): string {
+function trimSingleUrl(raw: string, mode: string): string {
   if (!raw.trim()) return '';
+  let url = raw.trim();
 
-  const normalized = raw.trim();
-  const rawParagraphs: string[] = [];
+  if (mode === 'dedup') return url;
 
-  if (/<p[^>]*>[\s\S]*?<\/p>/i.test(normalized)) {
-    const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
-    let match: RegExpExecArray | null;
-    let lastPIndex = 0;
-    while ((match = pRegex.exec(normalized)) !== null) {
-      const textBefore = normalized.substring(lastPIndex, match.index).trim();
-      if (textBefore) {
-        rawParagraphs.push(textBefore);
-      }
-      if (match[1].trim()) {
-        rawParagraphs.push(match[1].trim());
-      }
-      lastPIndex = match.index + match[0].length;
-    }
-    const textAfter = normalized.substring(lastPIndex).trim();
-    if (textAfter) {
-      rawParagraphs.push(textAfter);
-    }
-  } else {
-    rawParagraphs.push(
-      ...normalized
-        .split(/\r?\n\s*\r?\n/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0)
-    );
+  if (mode === 'add-https') {
+    if (/^https:\/\//i.test(url)) return url;
+    if (/^http:\/\//i.test(url)) return 'https://' + url.substring(7);
+    return 'https://' + url;
   }
 
-  if (rawParagraphs.length === 0) return '';
+  if (mode === 'slug') {
+    return url
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
 
-  const htmlParagraphs = rawParagraphs
-    .map(p => convertParagraphToHtml(p))
-    .filter(p => p.length > 0);
+  if (mode === 'remove-html') {
+    return url.replace(/<[^>]*>/g, '').trim();
+  }
 
-  return htmlParagraphs.join('\n');
+  if (mode === 'text-to-html') {
+    return `<p>${url}</p>`;
+  }
+
+  // Default: URL Trimmer mode
+  try {
+    const hasProtocol = /^https?:\/\//i.test(url);
+    const parsed = new URL(hasProtocol ? url : `https://${url}`);
+    let clean = `${parsed.protocol}//${parsed.hostname}${parsed.pathname}`;
+    if (clean.endsWith('/') && parsed.pathname === '/') {
+      clean = clean.slice(0, -1);
+    }
+    return clean;
+  } catch (e) {
+    return url.split('?')[0].split('#')[0];
+  }
 }
 
-export default function URLTrimmer() {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+export default function HomePage() {
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'dedup' | 'add-https' | 'slug' | 'remove-html' | 'text-to-html'>('trimmer');
+  const [input, setInput] = useState<string>('');
+  const [outputText, setOutputText] = useState<string>('');
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [customExtensions, setCustomExtensions] = useState('.com, .net, .org, .io, .co, .in');
-  const [activeMode, setActiveMode] = useState<'trimmer' | 'slug' | 'dedup' | 'add-https' | 'remove-html' | 'text-to-html'>('trimmer');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    let isCancelled = false;
+  // Sync outputText live whenever input or activeMode changes
+  React.useEffect(() => {
+    const rawLines = input.trim() 
+      ? input.split('\n').filter(l => l.trim() !== '')
+      : (activeMode === 'trimmer' ? SAMPLE_URLS : []);
 
-    const processInput = async () => {
-      if (!input.trim()) {
-        setOutput('');
-        setProgress(0);
-        setIsProcessing(false);
-        return;
-      }
+    const cleaned = rawLines.map((original) => trimSingleUrl(original, activeMode)).join('\n');
+    setOutputText(cleaned);
+  }, [input, activeMode]);
 
-      if (activeMode === 'text-to-html') {
-        setOutput(convertTextToHtml(input));
-        setIsProcessing(false);
-        setProgress(100);
-        return;
-      }
+  const outputLines = outputText.split('\n').filter(l => l.trim() !== '');
+  const totalCount = outputLines.length;
+  const cleanedCount = totalCount;
 
-      const lines = input.split('\n').filter(line => line.trim() !== '');
-      const totalLines = lines.length;
-
-      setIsProcessing(true);
-      setProgress(0);
-
-      let currentOutput: string[] = [];
-      const seenDomains = new Set<string>();
-      let currentIndex = 0;
-      const chunkSize = 100;
-      
-      const extensions = customExtensions
-        .split(',')
-        .map(e => e.trim().toLowerCase())
-        .filter(e => e !== '');
-
-      // Create a regex to match extensions followed by a separator or end of string
-      const escapedExtensions = extensions.map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-      const extensionRegex = escapedExtensions.length > 0 
-        ? new RegExp(`(${escapedExtensions.join('|')})(?=[/?#]|$)`, 'i')
-        : null;
-
-      const processNextChunk = () => {
-        if (isCancelled) return;
-
-        const end = Math.min(currentIndex + chunkSize, totalLines);
-        for (let i = currentIndex; i < end; i++) {
-          const rawLine = lines[i].trim();
-          if (!rawLine) continue;
-
-          // Skip Excel / Google Sheets HTML comments or style artifacts if pasted
-          if (
-            rawLine.startsWith('<!--') ||
-            rawLine.endsWith('-->') ||
-            rawLine.includes('mso-data-placement') ||
-            rawLine.startsWith('<style') ||
-            rawLine.startsWith('</style>')
-          ) {
-            continue;
-          }
-
-          let targetUrl = rawLine;
-          const hrefMatch = rawLine.match(/href=["']([^"']+)["']/i);
-          if (hrefMatch && activeMode !== 'remove-html') {
-            targetUrl = hrefMatch[1].trim();
-          }
-
-          const trimmedLine = (activeMode === 'slug' && hrefMatch) 
-            ? rawLine.replace(/<[^>]*>/g, '').trim() 
-            : targetUrl;
-
-          let result = trimmedLine;
-
-          if (activeMode === 'trimmer') {
-            let foundCustom = false;
-
-            // Try custom extensions first using regex for better accuracy
-            if (extensionRegex) {
-              const match = trimmedLine.match(extensionRegex);
-              if (match && match.index !== undefined) {
-                result = trimmedLine.substring(0, match.index + match[0].length);
-                foundCustom = true;
-                const nextChar = trimmedLine.charAt(match.index + match[0].length);
-                if (nextChar === '/') {
-                  result += '/';
-                }
-              }
-            }
-
-            if (!foundCustom) {
-              try {
-                const hasProtocol = /^https?:\/\//i.test(trimmedLine);
-                const urlToParse = hasProtocol ? trimmedLine : `http://${trimmedLine}`;
-                const parsed = new URL(urlToParse);
-                result = parsed.origin;
-                if (!hasProtocol) {
-                  result = result.replace(/^https?:\/\//i, '');
-                }
-                
-                // If there's a slash immediately after the host in the original string, preserve it
-                const hostIndex = trimmedLine.toLowerCase().indexOf(parsed.host.toLowerCase());
-                if (hostIndex !== -1 && trimmedLine.charAt(hostIndex + parsed.host.length) === '/') {
-                  result += '/';
-                }
-              } catch (e) {
-                const parts = trimmedLine.split(/[/?#]/);
-                result = parts[0];
-                if (trimmedLine.includes('/') && trimmedLine.indexOf('/') === result.length) {
-                  result += '/';
-                }
-              }
-            }
-          } else if (activeMode === 'slug') {
-            result = trimmedLine
-              .toLowerCase()
-              .trim()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/[\s_]+/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-+|-+$/g, '');
-          } else if (activeMode === 'dedup') {
-            result = trimmedLine;
-          } else if (activeMode === 'add-https') {
-            if (/^https:\/\//i.test(trimmedLine)) {
-              result = trimmedLine;
-            } else if (/^http:\/\//i.test(trimmedLine)) {
-              result = 'https://' + trimmedLine.substring(7);
-            } else {
-              result = 'https://' + trimmedLine;
-            }
-          } else if (activeMode === 'remove-html') {
-            result = trimmedLine.replace(/<[^>]*>/g, '').trim();
-          }
-          
-          if (activeMode === 'dedup') {
-            if (!seenDomains.has(result)) {
-              seenDomains.add(result);
-              currentOutput.push(result);
-            }
-          } else {
-            currentOutput.push(result);
-          }
-        }
-
-        currentIndex = end;
-        const currentProgress = Math.round((currentIndex / totalLines) * 100);
-        setProgress(currentProgress);
-
-        if (currentIndex < totalLines) {
-          requestAnimationFrame(processNextChunk);
-        } else {
-          setOutput(currentOutput.join('\n'));
-          setIsProcessing(false);
-        }
-      };
-
-      setTimeout(processNextChunk, 100);
-    };
-
-    processInput();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [input, customExtensions, activeMode]);
-
-  const handleCopy = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleTrimAction = () => {
+    if (!input.trim() && activeMode === 'trimmer') {
+      setInput(SAMPLE_URLS.join('\n'));
+    }
   };
 
   const handleClear = () => {
     setInput('');
-    setOutput('');
-    setProgress(0);
+    setOutputText('');
     if (textareaRef.current) {
       textareaRef.current.focus();
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const text = e.clipboardData.getData('text/plain');
-    if (text.includes('<!--') || text.includes('mso-data-placement') || text.includes('<style')) {
-      e.preventDefault();
-      const cleaned = text
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
-        .replace(/^\s*[\r\n]/gm, '')
-        .trim();
-
-      const textarea = e.currentTarget;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const currentVal = textarea.value;
-      const newVal = currentVal.substring(0, start) + cleaned + currentVal.substring(end);
-      setInput(newVal);
-      requestAnimationFrame(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + cleaned.length;
-      });
-    }
+  const handleCopyAll = async () => {
+    if (!outputText.trim()) return;
+    await navigator.clipboard.writeText(outputText);
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
   };
 
   const handleOpenAll = () => {
-    if (!output) return;
-    const urls = output.split('\n').filter(line => line.trim() !== '');
-    
-    if (urls.length === 0) return;
-
-    // Browsers typically block multiple popups from a single click.
-    // We use a staggered approach and check for blocks.
-    let blockedCount = 0;
-    
-    urls.forEach((url, index) => {
-      const formattedUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
-      
-      // Staggering the opens can sometimes help bypass simple blockers, 
-      // but the first one is usually the only one allowed without explicit permission.
+    const lines = outputText.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return;
+    lines.forEach((line, idx) => {
+      const url = /^https?:\/\//i.test(line) ? line : `https://${line}`;
       setTimeout(() => {
-        const newWindow = window.open(formattedUrl, '_blank');
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          blockedCount++;
-          if (index === urls.length - 1 && blockedCount > 0) {
-            alert(`Browser blocked ${blockedCount} of ${urls.length} tabs. Please click the "Pop-up blocked" icon in your address bar and select "Always allow" to open all URLs at once.`);
-          }
-        }
-      }, index * 200);
+        window.open(url, '_blank');
+      }, idx * 150);
     });
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
+  const handleCopyRow = async (cleanUrl: string, idx: number) => {
+    await navigator.clipboard.writeText(cleanUrl);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  const handleDownloadCSV = () => {
+    if (results.length === 0) return;
+    const csvHeader = "Original URL,Clean URL\n";
+    const csvRows = results.map(r => `"${r.original.replace(/"/g, '""')}","${r.clean.replace(/"/g, '""')}"`).join('\n');
+    const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'cleaned_urls.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setInput(content.replace(/\r\n/g, '\n'));
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
-    const file = e.dataTransfer.files[0];
-    if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.html'))) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result as string;
-        if (content) {
-          const cleanContent = content
-            .replace(/<!--[\s\S]*?-->/g, '')
-            .replace(/<style[\s\S]*?<\/style>/gi, '')
-            .trim();
-          setInput(cleanContent);
-        }
-      };
-      reader.readAsText(file);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
     }
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[#eaf2ff] text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900">
+      {/* Navigation Bar */}
+      <Navbar />
 
-
-      <PageLayout className="selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden relative" showBlobs={true}>
-        
-        <Hero 
-          centered 
-          badgeText="Fast & Local URL Processor"
-          badgeIcon={Zap}
-          title={
-            <>
-              URL <span className="text-blue-600">Trim.</span>
-            </>
-          }
-          subtitle="Clean your bulk URL lists by stripping paths, queries, and fragments instantly. All processing happens right in your browser."
-        />
-
-        <div className="max-w-6xl mx-auto w-full space-y-6">
-          {/* Operational Mode Option */}
-          <div 
-            className="p-5 px-6 rounded-[2rem] bg-white border border-slate-100 shadow-xl shadow-slate-900/[0.01] flex items-center justify-center"
-          >
-            {/* Mode selection buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row gap-3 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 w-full lg:w-auto">
-              <button
-                onClick={() => setActiveMode('trimmer')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'trimmer'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Scissors className="w-3.5 h-3.5 shrink-0" />
-                <span>URL Trimmer</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMode('dedup')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'dedup'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Layers className="w-3.5 h-3.5 shrink-0" />
-                <span>Remove Duplicate URL</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMode('add-https')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'add-https'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Link2 className="w-3.5 h-3.5 shrink-0" />
-                <span>Add https://</span>
-              </button>
-              
-              <button
-                onClick={() => setActiveMode('slug')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'slug'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Fingerprint className="w-3.5 h-3.5 shrink-0" />
-                <span>Slug Generator</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMode('remove-html')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'remove-html'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Code2 className="w-3.5 h-3.5 shrink-0" />
-                <span>Remove HTML Tags</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMode('text-to-html')}
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  activeMode === 'text-to-html'
-                    ? "bg-white text-blue-600 shadow-sm border border-slate-200/45"
-                    : "text-slate-600 hover:text-slate-850 hover:bg-white/40"
-                )}
-              >
-                <Code className="w-3.5 h-3.5 shrink-0" />
-                <span>Text to HTML</span>
-              </button>
-            </div>
+      {/* Hero Header Section */}
+      <section className="pt-28 pb-10 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-[#eaf2ff] via-[#f4f8ff] to-[#f7fafe]">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#e3edff] text-[#0066FF] border border-blue-200/50 text-[11px] font-bold tracking-wider uppercase mb-6 shadow-sm">
+            <span>FAST • PRIVATE • FREE</span>
           </div>
 
-          {/* Main Workspace */}
-          <div className="space-y-8">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 overflow-hidden transition-all duration-300">
-              <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
-                {/* Left Side: Input Area */}
-                <div 
-                  className={cn(
-                    "p-8 sm:p-10 transition-colors duration-500 relative flex flex-col justify-between h-full",
-                    isDragging ? "bg-blue-50/50" : "bg-white"
-                  )}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
-                        <div>
-                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
-                            {activeMode === 'trimmer' && `Input Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'slug' && `Title Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'dedup' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'add-https' && `URL Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'remove-html' && `HTML Buffer (${input.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'text-to-html' && `Text Buffer (${input.split(/\r?\n\s*\r?\n/).filter(line => line.trim() !== '').length} paragraphs)`}
-                          </h3>
-                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-                            {activeMode === 'trimmer' && 'Load URLs Below'}
-                            {activeMode === 'slug' && 'Load Phrases Below'}
-                            {activeMode === 'dedup' && 'Load URLs Below'}
-                            {activeMode === 'add-https' && 'Load URLs Below'}
-                            {activeMode === 'remove-html' && 'Load HTML Below'}
-                            {activeMode === 'text-to-html' && 'Load Text Below'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {isProcessing && (
-                          <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
-                            <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-                            <span className="text-xs font-bold text-blue-600">{progress}%</span>
-                          </div>
-                        )}
-                        {activeMode === 'text-to-html' && (
-                          <motion.button 
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                              setOutput(convertTextToHtml(input));
-                            }}
-                            type="button"
-                            aria-label="Convert text to HTML"
-                            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50/80 border border-blue-200/60 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm cursor-pointer"
-                          >
-                            <Code className="w-4 h-4 text-blue-600" />
-                            <span>Convert</span>
-                          </motion.button>
-                        )}
-                        <motion.button 
-                          whileHover={{ scale: 1.05, backgroundColor: "#fee2e2", borderColor: "#fca5a5" }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleClear}
-                          aria-label="Clear input buffer"
-                          className="group flex items-center gap-2 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50/70 border border-red-100 px-3.5 py-1.5 rounded-2xl transition-all uppercase tracking-widest shadow-sm shadow-red-100/50 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" />
-                          <span>Clear</span>
-                        </motion.button>
-                      </div>
-                    </div>
-                    
-                    <div className="relative group/input flex-1 flex flex-col bg-slate-50/50 hover:bg-white focus-within:bg-white border-2 border-transparent hover:border-blue-100 focus-within:border-blue-500 rounded-3xl p-6 transition-all duration-300 shadow-inner h-[380px] lg:h-[460px]">
-                      <textarea
-                        ref={textareaRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onPaste={handlePaste}
-                        placeholder={
-                          activeMode === 'trimmer'
-                            ? "Paste links to begin processing..."
-                            : activeMode === 'slug'
-                            ? "Paste titles or phrases to generate clean URL slugs (e.g. 'Ultimate SEO Guide 2026')..."
-                            : activeMode === 'add-https'
-                            ? "Paste links to automatically prepend https://..."
-                            : activeMode === 'remove-html'
-                            ? "Paste HTML text to strip tags (e.g. '<p>Hello <b>World</b></p>')..."
-                            : activeMode === 'text-to-html'
-                            ? "Enter formatted text or Markdown (e.g. 'Our [**eyebrow shaping stencil**](https://example.com) collection...')"
-                            : "Paste links to filter out duplicate URLs..."
-                        }
-                        className="w-full h-full bg-transparent resize-none outline-none custom-scrollbar z-10 relative text-sm font-mono text-slate-700 placeholder:text-slate-300 leading-relaxed whitespace-pre"
-                        spellCheck={false}
-                      />
-                      <div className="absolute inset-0 bg-blue-500/5 rounded-3xl pointer-events-none opacity-0 group-hover/input:opacity-100 transition-opacity duration-500" />
-                      {isDragging && (
-                        <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[4px] rounded-3xl flex flex-col items-center justify-center border-2 border-blue-500 border-dashed pointer-events-none z-20">
-                          <FileUp className="w-12 h-12 text-blue-600 mb-3" />
-                          <span className="text-sm font-bold text-blue-600 uppercase tracking-widest">Drop Stream Here</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-4">
+            Trim URLs. Clean Lists. <span className="text-[#0066FF]">Stay Focused.</span>
+          </h1>
 
-                {/* Right Side: Output Area */}
-                <div className="p-8 sm:p-10 bg-slate-50/30 flex flex-col justify-between h-full">
-                  <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
-                        <div>
-                          <h3 className="text-[11px] font-black text-blue-600 uppercase tracking-widest">
-                            {activeMode === 'trimmer' && `Output Stream (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'slug' && `Slug Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'dedup' && `Unique URLs (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'add-https' && `HTTPS Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'remove-html' && `Plain Text Output (${output.split('\n').filter(line => line.trim() !== '').length})`}
-                            {activeMode === 'text-to-html' && `HTML Output (${(output.match(/<p>/g) || []).length} tags)`}
-                          </h3>
-                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-                            {activeMode === 'trimmer' && 'Trimmed Results'}
-                            {activeMode === 'slug' && 'Slugified Phrases'}
-                            {activeMode === 'dedup' && 'Deduplicated URLs'}
-                            {activeMode === 'add-https' && 'Secured HTTPS URLs'}
-                            {activeMode === 'remove-html' && 'Clean Plain Text'}
-                            {activeMode === 'text-to-html' && 'Clean HTML Code'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {(activeMode === 'trimmer' || activeMode === 'dedup' || activeMode === 'add-https') && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleOpenAll}
-                            disabled={isProcessing || !output}
-                            aria-label="Open all links in new tabs"
-                            className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 shadow-sm flex items-center"
-                          >
-                            <ExternalLink className="w-3 h-3 mr-1" />
-                            Open All
-                          </motion.button>
-                        )}
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleCopy}
-                          disabled={isProcessing || !output}
-                          aria-label={copied ? "Copied" : "Copy results to clipboard"}
-                          className={cn(
-                            "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center gap-1.5 relative overflow-hidden cursor-pointer",
-                            copied 
-                              ? "bg-emerald-500 text-white shadow-emerald-200" 
-                              : "bg-blue-600 text-white shadow-blue-200 hover:bg-blue-700 transition-all duration-300"
-                          )}
-                        >
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={copied ? 'checked' : 'copy'}
-                              initial={{ y: 20, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              exit={{ y: -20, opacity: 0 }}
-                              className="flex items-center gap-1.5"
-                            >
-                              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                              <span className="relative z-10">{copied ? (activeMode === 'text-to-html' ? 'Copied HTML' : 'Copied') : (activeMode === 'text-to-html' ? 'Copy HTML' : 'Copy')}</span>
-                            </motion.div>
-                          </AnimatePresence>
-                          {copied && (
-                            <motion.div 
-                              initial={{ scale: 0, opacity: 1 }}
-                              animate={{ scale: 2, opacity: 0 }}
-                              className="absolute inset-0 bg-white/20 rounded-full"
-                            />
-                          )}
-                        </motion.button>
-                      </div>
-                    </div>
-                    
-                    <div 
-                      className={cn(
-                        "group/output relative bg-white border border-slate-100 rounded-3xl p-6 text-sm font-mono text-slate-600 transition-all duration-500 shadow-inner h-[380px] lg:h-[460px] flex flex-col justify-between",
-                        isProcessing && "opacity-30"
-                      )}>
-                      <textarea 
-                        value={output}
-                        onChange={(e) => setOutput(e.target.value)}
-                        className="w-full h-full bg-transparent resize-none outline-none custom-scrollbar z-10 relative leading-relaxed whitespace-pre"
-                        placeholder=""
-                      />
-                      
-                      {!output && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 pointer-events-none select-none z-0">
-                          {activeMode === 'trimmer' && (
-                            <>
-                              <Scissors className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to instantly strip extra paths offline.</p>
-                            </>
-                          )}
-                          {activeMode === 'dedup' && (
-                            <>
-                              <Layers className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste a list of URLs on the left side to automatically remove all duplicates.</p>
-                            </>
-                          )}
-                          {activeMode === 'slug' && (
-                            <>
-                              <Fingerprint className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Phrase Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste multi-word headers or book titles on the left to generate clean URL slugs offline.</p>
-                            </>
-                          )}
-                          {activeMode === 'add-https' && (
-                            <>
-                              <Link2 className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting URL Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste single or multiple URLs on the left side to automatically prepend https:// format.</p>
-                            </>
-                          )}
-                          {activeMode === 'remove-html' && (
-                            <>
-                              <Code2 className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting HTML Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste HTML-formatted text on the left to automatically strip all tags offline.</p>
-                            </>
-                          )}
-                          {activeMode === 'text-to-html' && (
-                            <>
-                              <Code className="w-10 h-10 text-slate-300 mb-3" />
-                              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Awaiting Text Stream</p>
-                              <p className="text-slate-400 text-[10px] max-w-[200px]">Paste plain text on the left to convert into clean, safe HTML paragraphs.</p>
-                            </>
-                          )}
-                        </div>
-                      )}
-                      <div className="absolute inset-0 ring-2 ring-blue-500/20 ring-inset opacity-0 group-hover/output:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Subtitle */}
+          <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-2">
+            Remove tracking parameters, queries and fragments from multiple URLs instantly.
+            <br className="hidden sm:inline" /> Get clean, readable links in seconds.
+          </p>
+
+
+        </div>
+      </section>
+
+      {/* Main Tool Container */}
+      <section id="trimmer-app" className="max-w-6xl mx-auto px-4 sm:px-6 mb-20">
+        {/* Mode Selector Bar */}
+        <div className="bg-white rounded-3xl p-2.5 border border-slate-100/90 shadow-lg shadow-blue-500/5 max-w-5xl mx-auto mb-6 flex items-center justify-center">
+          <div className="flex items-center gap-1.5 overflow-x-auto bg-slate-50/80 p-1.5 rounded-2xl border border-slate-100">
+            <button
+              onClick={() => setActiveMode('trimmer')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'trimmer'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Scissors className="w-3.5 h-3.5" />
+              <span>URL Trimmer</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('dedup')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'dedup'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Remove Duplicate URL</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('add-https')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'add-https'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              <span>Add https://</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('slug')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'slug'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Fingerprint className="w-3.5 h-3.5" />
+              <span>Slug Generator</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('remove-html')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'remove-html'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Remove HTML Tags</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('text-to-html')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeMode === 'text-to-html'
+                  ? 'bg-white text-[#0066FF] shadow-sm border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Code className="w-3.5 h-3.5" />
+              <span>Text to HTML</span>
+            </button>
           </div>
         </div>
 
-        {/* Informational Sections */}
-        <div className="mt-32 space-y-32">
-          {/* URL Trim Tools Section */}
-          <section id="tools" className="space-y-12" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 600px' }}>
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">URL Trim Tools</h2>
-              <p className="text-slate-500 font-medium uppercase tracking-widest text-xs">Professional Grade Utility Library</p>
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-900/5 overflow-hidden transition-all duration-500">
-              <div className="p-8 sm:p-12">
-                <div className="flex items-center gap-2 mb-10 justify-center sm:justify-start">
-                  <Star className="w-4 h-4 text-orange-400 fill-current" />
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
-                    URL Trim’s full suite of tools
-                  </h3>
+        {/* 2 Cards Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* LEFT CARD: Input Buffer */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              {/* Card Header */}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-[#0066FF] rounded-full" />
+                  <div>
+                    <h2 className="text-[11px] font-black text-[#0066FF] uppercase tracking-wider leading-tight">
+                      INPUT BUFFER ({input.trim() ? input.split('\n').filter(l => l.trim()).length : 0})
+                    </h2>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">LOAD URLS BELOW</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-x-12 sm:gap-y-10">
-                  {TOOLS.slice(0, 6).map((tool) => (
-                    <Link 
-                      key={tool.id} 
-                      href={tool.href}
-                      className={cn(
-                        "flex items-center gap-4 group transition-all",
-                        tool.href === '#' && "pointer-events-none opacity-60"
-                      )}
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
-                        <tool.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{tool.name}</h4>
-                        <p className="text-xs text-slate-400 line-clamp-1">{tool.description}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                
-                <div className="mt-12 pt-8 border-t border-slate-50 text-center">
-                  <Link href="/tools" className="inline-flex items-center gap-2 text-blue-600 font-bold text-sm hover:gap-3 transition-all">
-                    Explore Extended Library <ExternalLink className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Features Grid */}
-          <section id="features" className="grid grid-cols-1 md:grid-cols-3 gap-10" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 350px' }}>
-            {[
-              { icon: Scissors, color: "blue", title: "Smart Trimming", desc: "Strip excess paths and parameters with surgical accuracy." },
-              { icon: Check, color: "emerald", title: "Unique Logic", desc: "Instantly filter out duplicate domains for cleaner reporting." },
-              { icon: Settings2, color: "indigo", title: "Custom TLDs", desc: "Target exactly the extensions you need for specialized cleaning." }
-            ].map((f, i) => (
-              <div 
-                key={i}
-                className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden"
-              >
-                {/* 3D Inner Content shadow/glow */}
-                <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500" />
-                
-                <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:shadow-blue-100 relative z-10",
-                  f.color === "blue" ? "bg-blue-50 text-blue-600" :
-                  f.color === "emerald" ? "bg-emerald-50 text-emerald-600" :
-                  "bg-indigo-50 text-indigo-600"
-                )}>
-                  <f.icon className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-4 relative z-10">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium relative z-10">
-                  {f.desc}
-                </p>
-                
-                {/* 3D Decorative Accent */}
-                <div className="absolute bottom-4 right-4 text-slate-50 opacity-0 group-hover:opacity-10 group-hover:scale-150 transition-all duration-700 -rotate-12">
-                   <f.icon className="w-24 h-24" />
-                </div>
-              </div>
-            ))}
-          </section>
-
-          {/* How it Works */}
-          <section 
-            className="bg-slate-950 rounded-[3rem] p-12 sm:p-24 text-white relative overflow-hidden shadow-2xl shadow-blue-900/30"
-            style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 650px' }}
-          >
-            
-            <div className="relative z-10">
-              <div className="max-w-xl mb-16">
-                <h2 
-                  className="text-3xl sm:text-5xl font-bold mb-6 tracking-tight"
+                <button
+                  onClick={handleClear}
+                  className="bg-[#ffeff0] hover:bg-red-100 text-[#ff4d4f] border border-red-100 rounded-full px-3.5 py-1 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  Streamlined <br /> Processing.
-                </h2>
-                <p className="text-blue-400 leading-relaxed uppercase text-xs tracking-[0.3em] font-bold">The 4-Step Link Protocol</p>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>CLEAR</span>
+                </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
-                {[
-                  { step: "01", title: "Paste", desc: "Load your messy URL lists into the workspace." },
-                  { step: "02", title: "Set", desc: "Select extension modules for your criteria." },
-                  { step: "03", title: "Clean", desc: "Watch the engine strip paths in real-time." },
-                  { step: "04", title: "Copy", desc: "Retrieve your purified domains instantly." }
-                ].map((s, i) => (
-                  <div 
-                    key={i} 
-                    className="space-y-6 group"
-                  >
-                    <div className="text-5xl font-black text-blue-500 tabular-nums transition-all duration-500 group-hover:text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{s.step}</div>
-                    <h4 className="text-sm font-bold uppercase tracking-[0.2em]">{s.title}</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                      {s.desc}
-                    </p>
-                  </div>
-                ))}
+
+              {/* Textarea Area */}
+              <div className="mb-4">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Paste links to begin processing..."
+                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-700 bg-slate-50/50 rounded-2xl border border-slate-200/80 focus:border-[#0066FF] focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400/70"
+                />
+              </div>
+
+              {/* Drag & Drop Upload Zone */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.csv,.html,text/plain,text/csv"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex items-center justify-center gap-3 ${
+                  isDragging 
+                    ? 'border-[#0066FF] bg-blue-50/80 shadow-md' 
+                    : 'border-blue-200/80 bg-blue-50/30 hover:bg-blue-50/70 hover:border-[#0066FF]'
+                }`}
+              >
+                <div className="w-8 h-8 rounded-lg bg-white text-[#0066FF] flex items-center justify-center shadow-sm border border-blue-100 shrink-0">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-slate-700">Or drag & drop a .txt or .csv file here</p>
+                  <p className="text-[10px] text-slate-400">Supports up to 10,000 URLs</p>
+                </div>
               </div>
             </div>
-          </section>
 
-          {/* SEO Optimized Long-Form Content */}
-          <section className="space-y-20 pb-20 border-t border-slate-100 pt-32" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-              <div className="lg:col-span-8 space-y-12">
-                <div className="space-y-6">
-                  <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">What Is URL Trim? The Ultimate Bulk URL Cleaning Tool</h2>
-                  <p className="text-slate-600 leading-relaxed text-lg font-medium">
-                    URL Trim is a free, browser-based tool designed to help SEO professionals, developers, digital marketers, and privacy-conscious users <strong className="text-blue-600">clean bulk URL lists</strong> with precision and speed. Whether you&apos;re dealing with hundreds of messy affiliate links, thousands of backlink URLs, or complex tracking-parameter-laden addresses, URL Trim strips away the noise and delivers clean, usable domain names — all without sending a single byte to our servers.
-                  </p>
-                </div>
 
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-slate-900">Why Do You Need a Bulk URL Cleaner?</h3>
-                  <div className="space-y-4 text-slate-600 leading-relaxed font-medium">
-                    <p>
-                      Modern URLs are cluttered. Every time you share a link, visit a page, or export a URL list from an analytics tool, you end up with strings full of <strong className="text-slate-800">tracking parameters</strong> (like <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">utm_source</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">fbclid</code>, <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-600">gclid</code>), nested paths, redirects, and query fragments. These make your data analysis messy, your spreadsheets unreadable, and your reports inaccurate.
-                    </p>
-                    <p>
-                      URL Trim solves this problem instantly. Paste your raw URL list — no matter how large — and our intelligent engine strips everything down to the clean root domain or your preferred structure within seconds.
-                    </p>
+          </div>
+
+          {/* RIGHT CARD: Output Stream */}
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              {/* Card Header */}
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-[#10b981] rounded-full" />
+                  <div>
+                    <h2 className="text-[11px] font-black text-[#0066FF] uppercase tracking-wider leading-tight">
+                      OUTPUT STREAM ({totalCount})
+                    </h2>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TRIMMED RESULTS</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
-                    <h4 className="font-black text-slate-900 uppercase tracking-widest text-xs">Who Uses URL Trim?</h4>
-                    <ul className="space-y-3 text-sm text-slate-500 font-medium list-disc pl-5">
-                      <li><strong>SEO Professionals:</strong> Audit backlink profiles and extract clean unique referring domains.</li>
-                      <li><strong>Digital Marketers:</strong> Sanitize lists before importing into campaign tools.</li>
-                      <li><strong>Web Developers:</strong> Validate domain lists or preprocess datasets easily.</li>
-                      <li><strong>Privacy Users:</strong> Remove tracking identifiers before sharing links.</li>
-                      <li><strong>Data Analysts:</strong> Normalize datasets for accurate reporting and mapping.</li>
-                    </ul>
-                  </div>
-                  <div className="bg-blue-600 p-8 rounded-[2rem] shadow-xl shadow-blue-200 space-y-4 text-white">
-                    <h4 className="font-black uppercase tracking-widest text-xs opacity-80">Privacy First Policy</h4>
-                    <p className="text-sm font-medium leading-relaxed">
-                      Privacy isn&apos;t just a promise here — it&apos;s enforced by physics. Your data never leaves your device. All processing happens 100% locally in your browser. No servers, no logs, no risks.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-8">
-                  <h3 className="text-2xl font-bold text-slate-900">URL Trim vs. Manual Cleaning</h3>
-                  <p className="text-slate-600 leading-relaxed font-medium">
-                    Manually cleaning URLs in Excel using complex formulas is tedious and breaks with non-standard URL structures. Python scripts work but require technical knowledge and environment setup. URL Trim gives you the power of a programmatic solution with the simplicity of a no-code tool — no spreadsheet gymnastics, no scripting, no server uploads.
-                  </p>
-                </div>
-              </div>
-
-              <div className="lg:col-span-4 space-y-8">
-                <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-slate-100">
-                  <h3 className="text-xl font-bold text-slate-900 mb-8">Frequently Asked Questions</h3>
-                  <div className="space-y-8">
-                    {[
-                      { q: "Is URL Trim completely free?", a: "Yes, URL Trim is completely free to use with no limits on the number of URLs you can process." },
-                      { q: "What is the URL limit?", a: "Our optimized chunking engine handles 10,000+ URLs simultaneously without blocking your browser's main thread." },
-                      { q: "Can I use it on mobile?", a: "Yes, URL Trim works on all modern mobile browsers including iOS and Android." },
-                      { q: "What about IDNs?", a: "Our engine correctly handles international domain names and punycode-encoded URLs with high precision." }
-                    ].map((faq, i) => (
-                      <div key={i} className="space-y-2">
-                        <h4 className="text-sm font-black text-slate-800">{faq.q}</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed font-medium">{faq.a}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-900/40">
-                  <h3 className="text-lg font-bold mb-4">Ready to Protocol?</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium">
-                    Start trimming your links with surgical precision. 
-                    No registration. No tracking. Just speed.
-                  </p>
-                  <button 
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-xs uppercase tracking-widest transition-colors"
+                {/* Highlighted OPEN ALL and COPY Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleOpenAll}
+                    className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-full px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                   >
-                    Back to Terminal
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <span>OPEN ALL</span>
+                  </button>
+
+                  <button
+                    onClick={handleCopyAll}
+                    className="bg-[#0066FF] hover:bg-blue-700 text-white rounded-full px-4 py-1.5 text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-colors cursor-pointer"
+                  >
+                    {copiedAll ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-white" />}
+                    <span>{copiedAll ? 'COPIED!' : 'COPY'}</span>
                   </button>
                 </div>
               </div>
-            </div>
-          </section>
 
-          <FAQSection 
-            pageId="homepage"
-            faqs={HOMEPAGE_FAQS}
-          />
+              {/* Clean Output Results Box */}
+              <div className="bg-slate-50/50 rounded-2xl border border-slate-100 overflow-hidden mb-4 min-h-[340px] sm:min-h-[400px] relative flex flex-col justify-center">
+                <textarea
+                  value={outputText}
+                  onChange={(e) => setOutputText(e.target.value)}
+                  placeholder="Trimmed results will appear here..."
+                  className="w-full h-[340px] sm:h-[400px] p-5 text-xs sm:text-sm font-mono text-slate-800 bg-transparent outline-none resize-none leading-relaxed custom-scrollbar focus:bg-white/70 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Status Bar */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-medium text-[11px]">
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>{totalCount} URLs processed successfully.</span>
+              </div>
+
+              <div className="text-slate-400 font-medium text-[11px]">
+                Total: <span className="text-slate-700">{totalCount} URLs</span> | Cleaned: <span className="text-slate-700">{cleanedCount}</span>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </PageLayout>
-    </>
+      </section>
+
+      {/* SECTION: More Useful Tools */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 my-20">
+        {/* Section Title */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+              <span>More Useful Tools</span>
+              <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
+            </h2>
+          </div>
+
+          <Link 
+            href="/tools" 
+            className="bg-white hover:bg-[#0066FF] text-[#0066FF] hover:text-white border border-blue-200/90 hover:border-[#0066FF] px-4.5 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm hover:shadow-md hover:shadow-blue-500/20 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out group"
+          >
+            <span>View all tools</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300 ease-out" />
+          </Link>
+        </div>
+
+        {/* Separate Cards Grid (Matching Screenshot #2) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {/* Tool 1: URL Trimmer */}
+          <Link href="#trimmer-app" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Scissors className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">URL Trimmer</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Clean URL lists by stripping...</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 2: Word Counter */}
+          <Link href="/tools/word-counter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 font-bold text-lg group-hover:scale-105 transition-transform">
+                T
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Word Counter</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Analyze text structure and counts.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 3: AI Text-to-Image */}
+          <Link href="/tools/ai-image" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Wand2 className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">AI Text-to-Image</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Create high-quality stunning graphics...</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 4: Image Compressor */}
+          <Link href="/tools/image-compressor" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Maximize2 className="w-5.5 h-5.5 stroke-[2] rotate-45" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Image Compressor</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Reduce image size while keeping quality.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 5: Image Converter */}
+          <Link href="/tools/image-converter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Layers3 className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Image Converter</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Convert between imaging formats.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 6: PDF Converter */}
+          <Link href="/tools/pdf-converter" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <FileText className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">PDF Converter</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Convert images to PDF high-quality.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 7: Text to HTML */}
+          <Link href="#trimmer-app" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Code className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Text to HTML</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Convert plain text to clean HTML code.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 8: Chrome Extension */}
+          <Link href="/tools/chrome-extension" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Settings className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Chrome Extension</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Load Word Counter as browser extension.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+
+          {/* Tool 9: Sitemap Generator */}
+          <Link href="/tools/sitemap-generator" className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <FileText className="w-5.5 h-5.5 stroke-[2]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors mb-0.5">Sitemap Generator</h3>
+                <p className="text-xs text-slate-400 font-normal leading-snug">Crawl website pages and generate sitemap.</p>
+              </div>
+            </div>
+            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-all ml-2">
+              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* SECTION: How It Works */}
+      <section id="how-it-works" className="max-w-6xl mx-auto px-4 sm:px-6 my-20">
+        <div className="mb-12">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+            <span>How It Works</span>
+            <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch relative">
+          {/* Step 1 Card */}
+          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+            <div className="relative mb-6">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+                1
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+                <FileText className="w-7 h-7 stroke-[2]" />
+              </div>
+            </div>
+            <h3 className="text-base font-bold text-slate-900 mb-2">Paste or Upload</h3>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+              Add your URLs, one per line or drag & drop a .txt or .csv file.
+            </p>
+          </div>
+
+          {/* Arrow Divider 1 */}
+          <div className="hidden md:flex justify-center text-slate-300 absolute left-1/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
+              <ArrowRight className="w-4 h-4 stroke-[2]" />
+            </div>
+          </div>
+
+          {/* Step 2 Card */}
+          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+            <div className="relative mb-6">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+                2
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+                <Settings className="w-7 h-7 stroke-[2]" />
+              </div>
+            </div>
+            <h3 className="text-base font-bold text-slate-900 mb-2">Get Clean URLs</h3>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+              Click Trim URLs and process your list instantly.
+            </p>
+          </div>
+
+          {/* Arrow Divider 2 */}
+          <div className="hidden md:flex justify-center text-slate-300 absolute left-2/3 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none">
+            <div className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
+              <ArrowRight className="w-4 h-4 stroke-[2]" />
+            </div>
+          </div>
+
+          {/* Step 3 Card */}
+          <div className="bg-white rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center relative justify-center">
+            <div className="relative mb-6">
+              <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white text-xs font-bold flex items-center justify-center absolute -top-2 -left-2 shadow-md z-10 border-2 border-white">
+                3
+              </div>
+              <div className="w-16 h-16 rounded-2xl bg-blue-50/80 text-[#0066FF] border border-blue-100 flex items-center justify-center shadow-inner">
+                <CheckCircle2 className="w-7 h-7 stroke-[2]" />
+              </div>
+            </div>
+            <h3 className="text-base font-bold text-slate-900 mb-2">Copy or Download</h3>
+            <p className="text-xs text-slate-500 max-w-xs leading-relaxed font-normal">
+              Copy the clean URLs or download as a CSV file.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: Why Use URL Trim? */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 my-20">
+        <div className="mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex flex-col gap-1 items-start">
+            <span>Why Use URL Trim?</span>
+            <span className="w-8 h-1 bg-[#0066FF] rounded-full"></span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1 */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+              <Zap className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Save Time</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Clean hundreds of URLs in seconds.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 mb-0.5">100% Private</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Runs in your browser — URLs are not uploaded.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+              <UserCheck className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Accurate Results</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Remove tracking, queries and fragments reliably.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-[#eef5ff] text-[#0066FF] border border-blue-100/60 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 mb-0.5">Free to Use</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                All tools are completely free, with no sign up required.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: Frequently Asked Questions */}
+      <FAQSection pageId="homepage" faqs={HOMEPAGE_FAQS} />
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }

@@ -418,41 +418,62 @@ export default function ChromeExtensionPage() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="space-y-16">
-        {/* Navigation Indicator */}
-        <NavAction href="/tools" label="Back to Tools" type="back" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching homepage design) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
 
-        {/* Hero Banner Section */}
-        <header className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white border border-slate-100 rounded-[3rem] p-8 sm:p-12 shadow-xl shadow-slate-900/[0.02]">
-            <div className="space-y-4 max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full border border-blue-100">
-                <Chrome className="w-4 h-4" />
-                <span className="text-[11px] font-black uppercase tracking-widest">Chrome Extension Protocol</span>
-              </div>
-              <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter leading-tight">
-                Selection Counter PRO
-              </h1>
-              <p className="text-slate-500 text-base sm:text-lg font-medium leading-relaxed">
-                Empower your browser with instant floating word & character counts. Highlight any webpage selection or right-click to view precision stats immediately inside a zero-latency overlay.
-              </p>
-            </div>
-
-            <div className="flex-shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleDownloadZip}
-                disabled={isZipping}
-                id="btn-download-extension"
-                className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-5 rounded-[2rem] text-sm uppercase tracking-widest shadow-xl shadow-blue-600/20 active:shadow-none transition-shadow disabled:opacity-50 select-none cursor-pointer"
-              >
-                <Download className="w-5 h-5" />
-                {isZipping ? "Compiling ZIP..." : "Download Extension (.zip)"}
-              </motion.button>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
+              <Chrome className="w-3.5 h-3.5 text-emerald-600" />
+              <span>OFFICIAL EXTENSION</span>
             </div>
           </div>
-        </header>
+        </div>
+
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Chrome <span className="text-[#0066FF]">Extension.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Empower your browser with instant floating word & character counts. Highlight any webpage selection for instant statistics.
+          </p>
+        </div>
+
+        {/* Hero Download Card */}
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-200/40 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-[#0066FF] px-3.5 py-1 rounded-full border border-blue-100 text-xs font-bold">
+              <Chrome className="w-3.5 h-3.5" />
+              <span>Selection Counter PRO</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Instant Webpage Word & Character Counter
+            </h2>
+            <p className="text-slate-500 text-sm font-normal leading-relaxed">
+              Highlight any webpage selection or right-click to view precision stats immediately inside a zero-latency overlay.
+            </p>
+          </div>
+
+          <div className="flex-shrink-0">
+            <button
+              onClick={handleDownloadZip}
+              disabled={isZipping}
+              id="btn-download-extension"
+              className="inline-flex items-center gap-2 bg-[#0066FF] hover:bg-blue-700 text-white font-extrabold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all disabled:opacity-50 select-none cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>{isZipping ? "Compiling ZIP..." : "Download Extension (.zip)"}</span>
+            </button>
+          </div>
+        </div>
 
         {/* Extensions Release Warning Banner */}
         <div className="p-6 bg-slate-900 rounded-[2rem] text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-xl shadow-blue-900/10">

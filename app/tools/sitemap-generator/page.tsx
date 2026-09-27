@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
+import Link from 'next/link';
 import { 
   FileCode, 
   Globe, 
@@ -11,16 +12,14 @@ import {
   Check, 
   AlertCircle, 
   RotateCcw, 
-  Settings2, 
   FileText, 
   ExternalLink, 
   ShieldCheck,
   Clock,
   Zap,
   List,
-  ChevronDown,
-  ChevronUp,
-  Square
+  Square,
+  ArrowLeft
 } from 'lucide-react';
 import Script from 'next/script';
 import PageLayout from '@/components/PageLayout';
@@ -53,10 +52,6 @@ const SITEMAP_FAQS = [
 
 export default function SitemapGenerator() {
   const [url, setUrl] = useState('');
-  const [maxPages, setMaxPages] = useState<number>(50);
-  const [maxDepth, setMaxDepth] = useState<number>(3);
-  const [respectRobots, setRespectRobots] = useState<boolean>(true);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
 
   // Crawler State
   const [isCrawling, setIsCrawling] = useState<boolean>(false);
@@ -144,9 +139,9 @@ export default function SitemapGenerator() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url: targetUrl,
-          maxPages,
-          maxDepth,
-          respectRobots,
+          maxPages: 0,
+          maxDepth: 10,
+          respectRobots: true,
         }),
         signal: abortController.signal,
       });
@@ -273,26 +268,37 @@ export default function SitemapGenerator() {
 
   return (
     <PageLayout showBlobs={true}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <NavAction 
-          href="/tools" 
-          label="Back to Tools" 
-          type="back" 
-          centeredOnMobile={true}
-          className="md:justify-start mb-8"
-        />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
+        {/* Top Header Controls (Matching homepage design) */}
+        <div className="flex items-center justify-between mb-2">
+          <Link 
+            href="/tools" 
+            className="px-4 py-1.5 rounded-full bg-white border border-slate-200/80 text-[11px] font-bold tracking-wider text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+            <span>TOOL LIBRARY</span>
+          </Link>
 
-        {/* Hero Section */}
-        <Hero 
-          title="Sitemap Generator"
-          subtitle="Generate an XML sitemap for your website by crawling accessible internal pages. Clean, valid XML formatted for search engines."
-          badgeText="XML CRAWLER"
-          badgeIcon={FileCode}
-          centered={true}
-        />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
+              <FileCode className="w-3.5 h-3.5 text-emerald-600" />
+              <span>XML CRAWLER • FREE</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Section Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Sitemap <span className="text-[#0066FF]">Generator.</span>
+          </h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
+            Generate an XML sitemap for your website by crawling accessible internal pages. Clean, valid XML formatted for search engines.
+          </p>
+        </div>
 
         {/* Main Tool Container */}
-        <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200/80 shadow-xl shadow-slate-900/5 p-6 sm:p-10 mb-12">
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/40 p-6 sm:p-10 mb-12">
           {/* Input Form */}
           <form onSubmit={handleStartCrawl} className="space-y-6">
             <div>
@@ -327,79 +333,7 @@ export default function SitemapGenerator() {
               </p>
             </div>
 
-            {/* Crawler Settings Toggle */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setShowOptions(!showOptions)}
-                className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors"
-              >
-                <Settings2 className="w-3.5 h-3.5" />
-                <span>Crawler Settings</span>
-                {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              </button>
 
-              <AnimatePresence>
-                {showOptions && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 mt-2 border-t border-slate-100">
-                      <div>
-                        <label htmlFor="max-pages-select" className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                          Max Pages
-                        </label>
-                        <select
-                          id="max-pages-select"
-                          value={maxPages}
-                          onChange={(e) => setMaxPages(Number(e.target.value))}
-                          disabled={isCrawling}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        >
-                          <option value={25}>25 pages (Fast)</option>
-                          <option value={50}>50 pages (Standard)</option>
-                          <option value={100}>100 pages (In-depth)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label htmlFor="max-depth-select" className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                          Crawl Depth
-                        </label>
-                        <select
-                          id="max-depth-select"
-                          value={maxDepth}
-                          onChange={(e) => setMaxDepth(Number(e.target.value))}
-                          disabled={isCrawling}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        >
-                          <option value={1}>1 level (Home only)</option>
-                          <option value={2}>2 levels (Direct links)</option>
-                          <option value={3}>3 levels (Deep crawl)</option>
-                          <option value={4}>4 levels (Max)</option>
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col justify-end">
-                        <label className="flex items-center gap-2.5 cursor-pointer select-none py-2 text-xs font-medium text-slate-700">
-                          <input
-                            type="checkbox"
-                            checked={respectRobots}
-                            onChange={(e) => setRespectRobots(e.target.checked)}
-                            disabled={isCrawling}
-                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
-                          />
-                          <span>Honor robots.txt disallow</span>
-                        </label>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-3 pt-2">

@@ -68,6 +68,7 @@ export function Sidebar() {
         </AnimatePresence>
 
         <motion.aside 
+          suppressHydrationWarning
           initial={false}
           animate={{ 
             x: isCollapsed ? '-101%' : '0%',
@@ -83,7 +84,7 @@ export function Sidebar() {
             WebkitOverflowScrolling: 'touch'
           }}
         >
-          <nav className="w-full flex-shrink-0 flex flex-col items-center gap-7 px-1 pb-24" style={{ transformStyle: "preserve-3d" }}>
+          <nav suppressHydrationWarning className="w-full flex-shrink-0 flex flex-col items-center gap-7 px-1 pb-24" style={{ transformStyle: "preserve-3d" }}>
           {NAV_ITEMS.map((item: any) => {
             const active = item.isActive ? item.isActive(pathname) : false;
             const Icon = item.icon;

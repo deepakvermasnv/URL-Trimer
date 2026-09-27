@@ -8,15 +8,16 @@ const BLOG_POSTS = {
     title: "The Physics of Zero-Server Link Cleaning: Why Client-Side Processing Is the Future",
     date: "April 15, 2026",
     readTime: "6 min read",
-    category: "Engineering",
+    category: "ENGINEERING • PRIVACY",
     author: "Trimmer Engineering Team",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
     content: (
-      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600">
-        <p className="lead">
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
           In an era where data privacy is no longer elective but a fundamental requirement, the architectural decisions behind web tools have never been more critical.
         </p>
         
-        <h2>The Problem With Server-Side URL Processing</h2>
+        <h2 className="font-serif">The Problem With Server-Side URL Processing</h2>
         <p>
           When you upload a list of URLs to a traditional web application, something happens that most users never think about: your data travels across the internet, lands on a remote server, gets processed by code you don&apos;t control, and then the results are sent back to you.
         </p>
@@ -27,7 +28,7 @@ const BLOG_POSTS = {
           <li><strong>Processing:</strong> Exposure to third-party analytics or internal tracking.</li>
         </ul>
         
-        <h2>Enter Client-Side Processing: The Zero-Server Architecture</h2>
+        <h2 className="font-serif">Enter Client-Side Processing: The Zero-Server Architecture</h2>
         <p>
           Client-side processing flips this model entirely. Instead of sending your data to a server, the computation itself is shipped to your browser. URL Trimmer is built on this <strong>Zero-Server Architecture</strong>.
         </p>
@@ -35,22 +36,22 @@ const BLOG_POSTS = {
           Modern browsers are essentially powerful JavaScript runtime environments. They can execute complex algorithms, process large datasets, and perform sophisticated operations entirely within your device&apos;s memory.
         </p>
         
-        <h2>The Technical Implementation: How It Actually Works</h2>
+        <h2 className="font-serif">The Technical Implementation: How It Actually Works</h2>
         <p>
           Processing large URL lists synchronously in JavaScript would freeze your browser—a classic problem known as &quot;blocking the main thread.&quot; URL Trimmer solves this using two core techniques:
         </p>
         
-        <h3>1. Optimized Chunking</h3>
+        <h3 className="font-serif">1. Optimized Chunking</h3>
         <p>
           The URL list is divided into manageable chunks. Each chunk is processed in a separate micro-task, allowing the browser&apos;s rendering engine to continue operating normally between processing cycles.
         </p>
         
-        <h3>2. Background Execution</h3>
+        <h3 className="font-serif">2. Background Execution</h3>
         <p>
           By leveraging efficient data structures and non-blocking patterns, we ensure that even with 10k+ links, the UI remains responsive, maintaining a smooth 60FPS performance throughout the cleaning cycle.
         </p>
         
-        <h2>Privacy Protected by Physics, Not Just Policy</h2>
+        <h2 className="font-serif">Privacy Protected by Physics, Not Just Policy</h2>
         <p>
           With URL Trimmer&apos;s architecture, the physics of the system make server-side data collection impossible. 
         </p>
@@ -69,22 +70,23 @@ const BLOG_POSTS = {
     title: "Mastering Bulk URL Trimming: SEO Best Practices for Domain-Level Analysis",
     date: "April 08, 2026",
     readTime: "4 min read",
-    category: "Workflow",
+    category: "SEO • WORKFLOW",
     author: "SEO Strategy Dept",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
     content: (
-      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600">
-        <p className="lead">
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
           Every serious SEO audit involves working with large volumes of URLs. Mastering the art of domain-level analysis is the secret to identifying patterns and opportunities.
         </p>
         
-        <h2>Why Domain Stripping Is Essential for SEO Audits</h2>
+        <h2 className="font-serif">Why Domain Stripping Is Essential for SEO Audits</h2>
         <p>
-          Domain stripping—or &quot;URL trimming&quot;—is the process of reducing full URLs to their root form. It transforms messy, trackable data into clean, analyzable structures. This is the foundation of high-velocity SEO strategy.
+          Domain stripping—or &quot;URL trimming&quot;—is the process of reducing full URLs to their root form. It transforms messy, trackable data into clean, property structures. This is the foundation of high-velocity SEO strategy.
         </p>
         
-        <h2>Critical SEO Use Cases</h2>
+        <h2 className="font-serif">Critical SEO Use Cases</h2>
         
-        <h3>Use Case 1: Backlink Profile Auditing</h3>
+        <h3 className="font-serif">Use Case 1: Backlink Profile Auditing</h3>
         <p>
           To understand the true diversity of your link profile, you need to know how many <strong>unique domains</strong> are linking to you, not just individual pages.
         </p>
@@ -94,22 +96,29 @@ const BLOG_POSTS = {
           <li>Instantly identify the volume of unique referring domains.</li>
         </ul>
         
-        <h3>Use Case 2: Competitor Link Gap Analysis</h3>
+        <h3 className="font-serif">Use Case 2: Competitor Link Gap Analysis</h3>
         <p>
           Identify domains that link to your competitors but not to you. URL Trimmer allows you to normalize competitor backlink lists rapidly, making it easy to cross-reference and find gap opportunities.
         </p>
-        
-        <h3>Use Case 3: Redirect Chain Normalization</h3>
-        <p>
-          When migrating a website, you typically work with massive redirect mapping spreadsheets. URL Trimmer handles the cleaning of these lists in bulk, removing tracking params and ensuring consistency before you build your mapping.
+      </div>
+    )
+  },
+  'why-client-side-tools-are-better-for-security': {
+    title: "Why Client-Side Tools Are Better Than Servers for Your Data Security",
+    date: "March 30, 2026",
+    readTime: "5 min read",
+    category: "SECURITY • INFRASTRUCTURE",
+    author: "Security Architecture Team",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=800&auto=format&fit=crop",
+    content: (
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
+          Comparing server-side data logs against zero-telemetry local browser processing for maximum enterprise confidentiality.
         </p>
-        
-        <h2>Best Practices for Data Hygiene</h2>
-        <ol>
-          <li><strong>Deduplicate Early:</strong> Always remove duplicates after stripping to get an accurate unique count.</li>
-          <li><strong>Preserve Subdomains:</strong> Decide when subdomains like &quot;blog&quot; or &quot;shop&quot; represent distinct entities in your analysis.</li>
-          <li><strong>Clean UTMs:</strong> Stripping tracking parameters is essential for accurate traffic attribution modeling.</li>
-        </ol>
+        <h2 className="font-serif">Zero Cloud Telemetry</h2>
+        <p>
+          When tools run locally inside your WebAssembly/JavaScript environment, credentials, private domain lists, and internal tracking parameters never reach third-party servers.
+        </p>
       </div>
     )
   },
@@ -117,52 +126,67 @@ const BLOG_POSTS = {
     title: "Inside the Link Protocol: URL Trimmer v1.4.0 — What's New & Why It Matters",
     date: "March 22, 2026",
     readTime: "3 min read",
-    category: "Product",
+    category: "PRODUCT • RELEASE NOTES",
     author: "Product Management",
+    image: "https://images.unsplash.com/photo-1542744094-3a31b272c490?q=80&w=800&auto=format&fit=crop",
     content: (
-      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600">
-        <p className="lead">
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
           Version 1.4.0 marks a significant milestone in our quest to build the most precise, performant link cleaner on the web.
         </p>
-        
-        <h2>Overview: Key Upgrades</h2>
+        <h2 className="font-serif">New: Custom Extension Modules</h2>
         <p>
-          This release introduces major improvements to TLD targeting and a fundamental rewrite of our parsing engine for higher accuracy across edge cases.
+          Version 1.4.0 introduces the Custom Extension Module, allowing users to specify any combination of extensions for filtering.
         </p>
-        
-        <h2>New: Custom Extension Modules</h2>
+      </div>
+    )
+  },
+  'how-sitemap-generation-increases-crawl-efficiency': {
+    title: "How Sitemap Generation Increases the Crawl Efficiency of Your Website",
+    date: "March 15, 2026",
+    readTime: "7 min read",
+    category: "SEO • CRAWLING",
+    author: "SEO Research Group",
+    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop",
+    content: (
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
+          One happy search crawler can discover all your high-value pages. Learn how XML sitemaps optimize indexing budgets.
+        </p>
+        <h2 className="font-serif">Crawl Budget Optimization</h2>
         <p>
-          Previously, URL Trimmer supported a predefined set of common TLDs. Version 1.4.0 introduces the <strong>Custom Extension Module</strong>, allowing users to specify any combination of extensions for filtering.
+          Search engines assign a specific crawl budget to every site. A clean, valid XML sitemap helps bots skip non-indexable scripts and focus entirely on original content.
         </p>
-        <ul>
-          <li>Target academic research with <code>.edu</code> and <code>.ac.uk</code>.</li>
-          <li>Isolate government resources with <code>.gov</code>.</li>
-          <li>Focus on tech sectors with <code>.ai</code>, <code>.app</code>, or <code>.tech</code>.</li>
-        </ul>
-        
-        <h2>The High-Precision Regex Engine</h2>
-        <p>
-          We&apos;ve replaced our legacy string-splitting logic with a purpose-built Regex engine. This new core handles complex URL formats with ease:
+      </div>
+    )
+  },
+  '5-mistakes-to-avoid-when-processing-large-domain-lists': {
+    title: "5 Mistakes to Avoid When Processing Large Domain Lists in Bulk",
+    date: "March 05, 2026",
+    readTime: "4 min read",
+    category: "TIPS • DATA HYGIENE",
+    author: "Data Operations",
+    image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=800&auto=format&fit=crop",
+    content: (
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
+          Did you know that uncleaned tracking parameters and fragment anchors skew web analytics and backlink reporting?
         </p>
-        <ul>
-          <li>Authentication credentials (<code>user:pass@domain.com</code>).</li>
-          <li>Non-standard ports (<code>domain.com:8080/path</code>).</li>
-          <li>Punycode encoding for international domain names.</li>
-          <li>Malformed or incomplete protocol structures.</li>
-        </ul>
-        
-        <h2>Performance Benchmarks</h2>
-        <p>
-          The v1.4.0 engine is approximately <strong>35% faster</strong> than previous versions. This improvement comes from our new dynamic chunk sizing, which adjusts batch volumes based on the complexity of the URL list.
+      </div>
+    )
+  },
+  '9-perks-of-using-browser-based-free-tools': {
+    title: "9 Perks of Using Browser-Based Free Tools for Daily Dev Workflows",
+    date: "February 24, 2026",
+    readTime: "5 min read",
+    category: "WORKFLOW • PRODUCTIVITY",
+    author: "Developer Relations",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
+    content: (
+      <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
+          Using lightweight browser tools for image conversion, PDF exports, and sitemap generation saves time and protects data privacy.
         </p>
-        
-        <h3>Release Summary</h3>
-        <ul>
-          <li><strong>Feature:</strong> Custom TLD Filtering.</li>
-          <li><strong>Core:</strong> High-Precision Regex Engine.</li>
-          <li><strong>UX:</strong> Improved terminal responsiveness.</li>
-          <li><strong>Fixes:</strong> Better trailing slash and fragment identifier handling.</li>
-        </ul>
       </div>
     )
   }
@@ -170,13 +194,20 @@ const BLOG_POSTS = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = BLOG_POSTS[slug as keyof typeof BLOG_POSTS];
+  const post = BLOG_POSTS[slug as keyof typeof BLOG_POSTS] || {
+    title: slug.replace(/-/g, ' ').toUpperCase(),
+    content: (
+      <div className="prose prose-slate prose-lg max-w-none font-serif leading-relaxed">
+        <p className="lead font-sans text-lg text-slate-600">
+          Detailed guide and technical breakdown on modern web optimization, URL processing, and SEO best practices.
+        </p>
+      </div>
+    )
+  };
   
-  if (!post) return { title: 'Post Not Found' };
-
   return {
     title: `${post.title} | URL Trimmer Blog`,
-    description: post.content.props.children[0].props.children.substring(0, 160) + '...',
+    description: post.title,
     alternates: {
       canonical: getCanonical(`/blog/${slug}`),
     }
@@ -185,11 +216,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = BLOG_POSTS[slug as keyof typeof BLOG_POSTS];
+  let post = BLOG_POSTS[slug as keyof typeof BLOG_POSTS];
 
-  if (!post) return null;
+  // Dynamic fallback for generated or custom article links
+  if (!post) {
+    const formattedTitle = slug
+      .split('-')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
 
-  // Safe mapping of publication dates for schema compliance
+    post = {
+      title: formattedTitle,
+      date: "March 2026",
+      readTime: "5 min read",
+      category: "TECHNICAL • INSIGHTS",
+      author: "URL Trimmer Editorial Team",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      content: (
+        <div className="prose prose-slate prose-lg max-w-none prose-h2:text-slate-900 prose-h3:text-slate-800 prose-strong:text-slate-900 prose-a:text-blue-600 font-serif leading-relaxed">
+          <p className="lead font-sans text-lg text-slate-600">
+            Welcome to this in-depth guide on {formattedTitle.toLowerCase()}. In this article, we cover modern web engineering standards, privacy protocols, and performance optimization techniques.
+          </p>
+
+          <h2 className="font-serif">Understanding the Core Architecture</h2>
+          <p>
+            When building high-speed web applications, maintaining data hygiene and preventing main-thread blocking is essential for smooth user experience.
+          </p>
+
+          <h2 className="font-serif">Key Performance Takeaways</h2>
+          <ul>
+            <li><strong>Zero Server Storage:</strong> Computations execute locally inside browser memory.</li>
+            <li><strong>Optimized Thread Pacing:</strong> Non-blocking micro-tasks keep 60 FPS performance.</li>
+            <li><strong>SEO Hygiene:</strong> Clean tracking parameters for accurate analytics modeling.</li>
+          </ul>
+        </div>
+      )
+    };
+  }
+
   const publishDates: Record<string, string> = {
     'physics-of-zero-server-link-cleaning': '2026-04-15T00:00:00.000Z',
     'mastering-bulk-url-trimming-seo-best-practices': '2026-04-08T00:00:00.000Z',
@@ -213,7 +277,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         "url": `${SITE_CONFIG.baseUrl}/favicon-32x32.png`
       }
     },
-    "description": post.content.props.children[0].props.children.substring(0, 160) + '...',
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": `${SITE_CONFIG.baseUrl}/blog/${slug}`

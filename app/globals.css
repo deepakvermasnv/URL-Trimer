@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+html, body {
+  background-color: #eaf2ff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
   .animate-pulse-glow,

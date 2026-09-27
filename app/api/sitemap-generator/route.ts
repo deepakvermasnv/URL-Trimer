@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SitemapGenerator from 'sitemap-generator';
 import * as cheerio from 'cheerio';
 import dns from 'node:dns/promises';
 
@@ -21,7 +20,7 @@ const TRACKING_PARAMS = new Set([
   'igshid', 'twclid'
 ]);
 
-const CRAWLER_USER_AGENT = 'Mozilla/5.0 (compatible; URLTrim-SitemapGenerator/1.0; +https://www.urltrim.online)';
+const STANDARD_BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
 
 /**
  * SSRF Protection: verify if an IP is private, link-local, loopback, or cloud-internal
@@ -32,33 +31,21 @@ function isPrivateOrRestrictedIp(ip: string): boolean {
     if (parts.length !== 4 || parts.some(isNaN)) return true;
     const [a, b] = parts;
 
-    // 0.0.0.0/8 (Current network)
-    if (a === 0) return true;
-    // 127.0.0.0/8 (Loopback)
-    if (a === 127) return true;
-    // 10.0.0.0/8 (Private)
-    if (a === 10) return true;
-    // 172.16.0.0/12 (Private)
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    // 192.168.0.0/16 (Private)
-    if (a === 192 && b === 168) return true;
-    // 169.254.0.0/16 (Link-local / Cloud metadata: 169.254.169.254)
-    if (a === 169 && b === 254) return true;
-    // 100.64.0.0/10 (Carrier-grade NAT)
-    if (a === 100 && b >= 64 && b <= 127) return true;
-    // 192.0.0.0/24, 192.0.2.0/24 (Test networks)
+    if (a === 0) return true; // 0.0.0.0/8
+    if (a === 127) return true; // 127.0.0.0/8
+    if (a === 10) return true; // 10.0.0.0/8
+    if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
+    if (a === 192 && b === 168) return true; // 192.168.0.0/16
+    if (a === 169 && b === 254) return true; // 169.254.0.0/16
+    if (a === 100 && b >= 64 && b <= 127) return true; // 100.64.0.0/10
     if (a === 192 && b === 0) return true;
-    // 198.51.100.0/24 (Test-Net-2)
     if (a === 198 && b === 51 && parts[2] === 100) return true;
-    // 203.0.113.0/24 (Test-Net-3)
     if (a === 203 && b === 0 && parts[2] === 113) return true;
-    // 224.0.0.0/4 (Multicast) & 240.0.0.0/4 (Reserved)
     if (a >= 224) return true;
 
     return false;
   }
 
-  // IPv6
   const clean = ip.toLowerCase();
   if (
     clean === '::1' ||
@@ -93,7 +80,6 @@ async function validateUrlForSsrf(targetUrl: string): Promise<{ valid: boolean; 
 
   const hostname = parsed.hostname.toLowerCase();
 
-  // Block forbidden hostnames
   const forbiddenHosts = [
     'localhost',
     '127.0.0.1',
@@ -119,7 +105,6 @@ async function validateUrlForSsrf(targetUrl: string): Promise<{ valid: boolean; 
     return { valid: false, error: 'Access to localhost, local services, or internal network addresses is not allowed.' };
   }
 
-  // DNS lookup verification to prevent private IP bypass
   try {
     const addresses = await dns.lookup(hostname, { all: true });
     if (!addresses || addresses.length === 0) {
@@ -204,11 +189,10 @@ function generateXmlSitemap(urls: string[]): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { 
-      url, 
-      maxPages = 50, 
-      maxDepth = 3, 
-      respectRobots = true 
+    const {
+      url,
+      maxPages = 0,
+      maxDepth = 10,
     } = body;
 
     if (!url || typeof url !== 'string') {
@@ -220,7 +204,6 @@ export async function POST(req: NextRequest) {
       targetUrl = `https://${targetUrl}`;
     }
 
-    // SSRF Check on initial URL
     const ssrfCheck = await validateUrlForSsrf(targetUrl);
     if (!ssrfCheck.valid || !ssrfCheck.parsed) {
       return NextResponse.json({ error: ssrfCheck.error || 'Invalid or prohibited URL.' }, { status: 400 });
@@ -229,11 +212,14 @@ export async function POST(req: NextRequest) {
     const startUrl = ssrfCheck.parsed.toString();
     const origin = ssrfCheck.parsed.origin;
 
-    // Constrain limits for performance and server safety
-    const safeMaxPages = Math.min(Math.max(1, Number(maxPages) || 50), 100);
-    const safeMaxDepth = Math.min(Math.max(1, Number(maxDepth) || 3), 5);
+    // Normalize domain host (allowing both www and non-www domain aliases)
+    const baseHost = ssrfCheck.parsed.hostname.replace(/^www\./i, '');
 
-    // Prepare Streaming SSE response
+    const requestedMaxPages = Number(maxPages);
+    const safeMaxPages = (isNaN(requestedMaxPages) || requestedMaxPages <= 0) ? 5000 : Math.min(requestedMaxPages, 5000);
+    const requestedMaxDepth = Number(maxDepth);
+    const safeMaxDepth = (isNaN(requestedMaxDepth) || requestedMaxDepth <= 0) ? 10 : Math.min(requestedMaxDepth, 10);
+
     const encoder = new TextEncoder();
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
@@ -242,202 +228,89 @@ export async function POST(req: NextRequest) {
       try {
         await writer.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       } catch {
-        // Stream closed by client
+        // Client closed stream
       }
     };
 
-    // Run sitemap-generator crawler in background of the stream
     (async () => {
-      let isCompleted = false;
-      let crawlTimer: NodeJS.Timeout | null = null;
+      let isFinished = false;
       const discoveredUrls = new Set<string>();
-      const visitedPagesCount = { count: 0 };
+      const visitedUrls = new Set<string>();
+      const queue: Array<{ url: string; depth: number }> = [{ url: startUrl, depth: 0 }];
+      const scannedScripts = new Set<string>();
 
-      const finishCrawl = async (customMessage?: string) => {
-        if (isCompleted) return;
-        isCompleted = true;
-        if (crawlTimer) clearTimeout(crawlTimer);
-
+      const isInternalUrl = (u: string): boolean => {
         try {
-          // Normalize and sort discovered URLs
-          const finalUrls = Array.from(discoveredUrls)
-            .map(cleanAndNormalizeUrl)
-            .filter((u, idx, self) => self.indexOf(u) === idx && !isNonPageResource(u))
-            .sort();
-
-          if (finalUrls.length === 0) {
-            await sendEvent({
-              type: 'error',
-              error: 'Could not access or crawl any pages from this website. Please verify that the website is online and allows crawling.'
-            });
-          } else {
-            const xml = generateXmlSitemap(finalUrls);
-            await sendEvent({
-              type: 'complete',
-              totalPages: finalUrls.length,
-              urls: finalUrls,
-              xml,
-              message: customMessage || `Successfully discovered ${finalUrls.length} internal pages and generated XML sitemap.`
-            });
-          }
-        } catch (err) {
-          await sendEvent({
-            type: 'error',
-            error: err instanceof Error ? err.message : 'An error occurred while compiling the sitemap.'
-          });
-        } finally {
-          try {
-            await writer.close();
-          } catch {}
+          const p = new URL(u);
+          const h = p.hostname.replace(/^www\./i, '');
+          return h === baseHost;
+        } catch {
+          return false;
         }
       };
 
+      const addDiscoveredUrl = async (u: string, depth: number) => {
+        if (isNonPageResource(u)) return;
+        const cleaned = cleanAndNormalizeUrl(u);
+        if (!isInternalUrl(cleaned)) return;
+
+        if (!discoveredUrls.has(cleaned)) {
+          discoveredUrls.add(cleaned);
+          await sendEvent({
+            type: 'url_discovered',
+            url: cleaned,
+            depth,
+            discoveredCount: discoveredUrls.size,
+          });
+        }
+      };
+
+      const finishCrawl = async (message?: string) => {
+        if (isFinished) return;
+        isFinished = true;
+
+        const finalUrls = Array.from(discoveredUrls)
+          .filter((u) => !isNonPageResource(u))
+          .sort();
+
+        if (finalUrls.length === 0) {
+          await sendEvent({
+            type: 'error',
+            error: 'Could not access or crawl any pages from this website. Please verify that the website is online.'
+          });
+        } else {
+          const xml = generateXmlSitemap(finalUrls);
+          await sendEvent({
+            type: 'complete',
+            totalPages: finalUrls.length,
+            urls: finalUrls,
+            xml,
+            message: message || `Successfully discovered ${finalUrls.length} internal pages.`
+          });
+        }
+
+        try {
+          await writer.close();
+        } catch {}
+      };
+
       try {
-        await sendEvent({ 
-          type: 'start', 
-          message: `Initializing sitemap-generator crawler for ${origin}...`,
+        await sendEvent({
+          type: 'start',
+          message: `Initializing fast crawler for ${origin}...`,
           targetUrl: startUrl
         });
 
-        // Initialize sitemap-generator instance
-        const generator = SitemapGenerator(startUrl, {
-          stripQuerystring: true,
-          maxDepth: safeMaxDepth,
-          filepath: null,
-          respectRobotsTxt: Boolean(respectRobots),
-          userAgent: CRAWLER_USER_AGENT,
-          timeout: 10000,
-          ignore: (urlStr: string) => {
-            return isNonPageResource(urlStr);
-          }
-        });
+        // Add start URL to discovered
+        await addDiscoveredUrl(startUrl, 0);
 
-        const crawler = generator.getCrawler();
-        crawler.interval = 35; // Fast pacing between fetches
-        crawler.maxConcurrency = 5; // Concurrent fetching
-
-        // Fetch condition to prevent downloading non-page resources
-        crawler.addFetchCondition((queueItem) => {
-          return !isNonPageResource(queueItem.url);
-        });
-
-        // Track script chunks already scanned for SPA route discovery
-        const scannedScriptChunks = new Set<string>();
-
-        // Event: crawler started
-        crawler.on('crawlstart', () => {
-          sendEvent({
-            type: 'info',
-            message: `Crawler started. Crawling homepage and following internal links...`
-          });
-        });
-
-        // Event: individual page fetch start
-        crawler.on('fetchstart', (queueItem) => {
-          visitedPagesCount.count++;
-          sendEvent({
-            type: 'progress',
-            currentUrl: queueItem.url,
-            depth: queueItem.depth,
-            crawledCount: visitedPagesCount.count,
-            discoveredCount: discoveredUrls.size,
-            message: `Crawling: ${queueItem.url}`
-          });
-        });
-
-        // Event: URL discovered and added to sitemap by sitemap-generator
-        generator.on('add', (addedUrl: string) => {
-          if (isNonPageResource(addedUrl)) return;
-          const clean = cleanAndNormalizeUrl(addedUrl);
-
-          if (!discoveredUrls.has(clean)) {
-            discoveredUrls.add(clean);
-
-            sendEvent({
-              type: 'url_discovered',
-              url: clean,
-              depth: 1,
-              discoveredCount: discoveredUrls.size,
-            });
-
-            // Stop crawler early if requested maxPages limit reached
-            if (discoveredUrls.size >= safeMaxPages) {
-              generator.stop();
-              finishCrawl(`Reached requested limit of ${safeMaxPages} pages. Finalizing XML sitemap...`);
-            }
-          }
-        });
-
-        // Event: fetch complete -> enhance resource discovery for SPA / Next.js scripts & canonicals
-        crawler.on('fetchcomplete', async (queueItem, responseBuffer) => {
-          const crawlerAny = crawler as unknown as { wait?: () => () => void };
-          const resume = typeof crawlerAny.wait === 'function' ? crawlerAny.wait() : () => {};
-          try {
-            const html = responseBuffer.toString('utf8');
-            const $ = cheerio.load(html);
-
-            // 1. Canonical and alternate link tags
-            $('link[rel="canonical"], link[rel="alternate"]').each((_, el) => {
-              const href = $(el).attr('href');
-              if (href) {
-                try {
-                  const resolved = new URL(href, queueItem.url).href;
-                  generator.queueURL(resolved);
-                } catch {}
-              }
-            });
-
-            // 2. Discover client-side SPA routes from script chunks (e.g. Next.js chunks, Vite, Webpack)
-            const scriptSrcs: string[] = [];
-            $('script[src]').each((_, el) => {
-              const src = $(el).attr('src');
-              if (src && (src.includes('/_next/static/chunks/') || src.includes('/static/js/') || src.includes('/assets/'))) {
-                try {
-                  const fullSrc = new URL(src, queueItem.url).href;
-                  if (!scannedScriptChunks.has(fullSrc)) {
-                    scannedScriptChunks.add(fullSrc);
-                    scriptSrcs.push(fullSrc);
-                  }
-                } catch {}
-              }
-            });
-
-            for (const scriptUrl of scriptSrcs) {
-              try {
-                const sres = await fetch(scriptUrl, { signal: AbortSignal.timeout(4000) });
-                if (sres.ok) {
-                  const code = await sres.text();
-                  // Extract standard route patterns like "/about", "/blog/...", "/tools/..."
-                  const routeRegex = /["'](\/(?:about|blog|contact|privacy|terms|disclaimer|tools(?:\/[a-zA-Z0-9_-]+)?|blog\/[a-zA-Z0-9_-]+))["']/g;
-                  let m;
-                  while ((m = routeRegex.exec(code)) !== null) {
-                    try {
-                      const resolved = new URL(m[1], origin).href;
-                      generator.queueURL(resolved);
-                    } catch {}
-                  }
-
-                  // Extract blog slugs
-                  const slugRegex = /slug:\s*["']([a-zA-Z0-9_-]+)["']/g;
-                  let sm;
-                  while ((sm = slugRegex.exec(code)) !== null) {
-                    try {
-                      const resolved = new URL(`/blog/${sm[1]}`, origin).href;
-                      generator.queueURL(resolved);
-                    } catch {}
-                  }
-                }
-              } catch {}
-            }
-          } catch {} finally {
-            resume();
-          }
-        });
-
-        // Parse robots.txt Sitemap: directives to seed crawl queue with all declared internal pages before starting
+        // Pre-seed from robots.txt & sitemap.xml if available
         try {
           const robotsUrl = new URL('/robots.txt', origin).href;
-          const rres = await fetch(robotsUrl, { signal: AbortSignal.timeout(3000) });
+          const rres = await fetch(robotsUrl, {
+            headers: { 'User-Agent': STANDARD_BROWSER_USER_AGENT },
+            signal: AbortSignal.timeout(3000)
+          });
           if (rres.ok) {
             const rtext = await rres.text();
             const smatches = rtext.match(/Sitemap:\s*(https?:\/\/[^\s]+)/gi);
@@ -445,15 +318,19 @@ export async function POST(req: NextRequest) {
               for (const sm of smatches) {
                 const sUrl = sm.replace(/Sitemap:\s*/i, '').trim();
                 try {
-                  const smRes = await fetch(sUrl, { signal: AbortSignal.timeout(5000) });
+                  const smRes = await fetch(sUrl, {
+                    headers: { 'User-Agent': STANDARD_BROWSER_USER_AGENT },
+                    signal: AbortSignal.timeout(4000)
+                  });
                   if (smRes.ok) {
                     const smText = await smRes.text();
                     const locMatches = smText.match(/<loc>(https?:\/\/[^<]+)<\/loc>/gi);
                     if (locMatches) {
                       for (const loc of locMatches) {
                         const cleanLoc = loc.replace(/<\/?loc>/gi, '').trim();
-                        if (!isNonPageResource(cleanLoc)) {
-                          generator.queueURL(cleanLoc);
+                        if (isInternalUrl(cleanLoc) && !isNonPageResource(cleanLoc)) {
+                          await addDiscoveredUrl(cleanLoc, 1);
+                          queue.push({ url: cleanLoc, depth: 1 });
                         }
                       }
                     }
@@ -464,32 +341,146 @@ export async function POST(req: NextRequest) {
           }
         } catch {}
 
-        // Event: done
-        generator.on('done', () => {
-          finishCrawl();
-        });
+        // Timeout safety limit (45s max)
+        const timeoutTimer = setTimeout(() => {
+          finishCrawl('Crawl safety time limit reached. Compiling discovered URLs...');
+        }, 45000);
 
-        // Event: error
-        generator.on('error', (err: unknown) => {
-          // Log or handle non-fatal crawler error
-          console.warn('Crawler warning:', err);
-        });
+        let crawledPagesCount = 0;
+        const CONCURRENCY = 6;
 
-        // 25s timeout safety guard
-        crawlTimer = setTimeout(() => {
-          try {
-            generator.stop();
-          } catch {}
-          finishCrawl('Crawl safety time limit reached (25s). Finalizing all discovered URLs...');
-        }, 25000);
+        while (queue.length > 0 && discoveredUrls.size < safeMaxPages && !isFinished) {
+          const batch = queue.splice(0, CONCURRENCY);
 
-        // Start crawling!
-        generator.start();
+          await Promise.all(
+            batch.map(async ({ url: currentUrl, depth }) => {
+              if (isFinished) return;
+              const cleanedCurrent = cleanAndNormalizeUrl(currentUrl);
+
+              if (visitedUrls.has(cleanedCurrent)) return;
+              visitedUrls.add(cleanedCurrent);
+
+              crawledPagesCount++;
+              await sendEvent({
+                type: 'progress',
+                currentUrl: cleanedCurrent,
+                depth,
+                crawledCount: crawledPagesCount,
+                discoveredCount: discoveredUrls.size,
+                message: `Crawling: ${cleanedCurrent}`
+              });
+
+              try {
+                const res = await fetch(cleanedCurrent, {
+                  headers: {
+                    'User-Agent': STANDARD_BROWSER_USER_AGENT,
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                  },
+                  redirect: 'follow',
+                  signal: AbortSignal.timeout(8000),
+                });
+
+                if (!res.ok) return;
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('text/html') && !contentType.includes('application/xhtml')) return;
+
+                const html = await res.text();
+                const $ = cheerio.load(html);
+
+                // 1. Extract <a> links
+                $('a[href]').each((_, el) => {
+                  const href = $(el).attr('href');
+                  if (!href || href.startsWith('javascript:') || href.startsWith('data:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+                  try {
+                    const resolved = new URL(href, cleanedCurrent).href;
+                    const cleanedResolved = cleanAndNormalizeUrl(resolved);
+
+                    if (isInternalUrl(cleanedResolved) && !isNonPageResource(cleanedResolved)) {
+                      if (!discoveredUrls.has(cleanedResolved)) {
+                        addDiscoveredUrl(cleanedResolved, depth + 1);
+                        if (depth + 1 <= safeMaxDepth) {
+                          queue.push({ url: cleanedResolved, depth: depth + 1 });
+                        }
+                      }
+                    }
+                  } catch {}
+                });
+
+                // 2. Canonical and alternate link tags
+                $('link[rel="canonical"], link[rel="alternate"]').each((_, el) => {
+                  const href = $(el).attr('href');
+                  if (!href) return;
+                  try {
+                    const resolved = new URL(href, cleanedCurrent).href;
+                    const cleanedResolved = cleanAndNormalizeUrl(resolved);
+                    if (isInternalUrl(cleanedResolved) && !isNonPageResource(cleanedResolved)) {
+                      if (!discoveredUrls.has(cleanedResolved)) {
+                        addDiscoveredUrl(cleanedResolved, depth + 1);
+                        if (depth + 1 <= safeMaxDepth) {
+                          queue.push({ url: cleanedResolved, depth: depth + 1 });
+                        }
+                      }
+                    }
+                  } catch {}
+                });
+
+                // 3. Scan Next.js / React script chunks for client-side routes
+                const scriptSrcs: string[] = [];
+                $('script[src]').each((_, el) => {
+                  const src = $(el).attr('src');
+                  if (src && (src.includes('/_next/static/chunks/') || src.includes('/static/js/') || src.includes('/assets/'))) {
+                    try {
+                      const fullSrc = new URL(src, cleanedCurrent).href;
+                      if (!scannedScripts.has(fullSrc)) {
+                        scannedScripts.add(fullSrc);
+                        scriptSrcs.push(fullSrc);
+                      }
+                    } catch {}
+                  }
+                });
+
+                for (const scriptUrl of scriptSrcs) {
+                  try {
+                    const sres = await fetch(scriptUrl, {
+                      headers: { 'User-Agent': STANDARD_BROWSER_USER_AGENT },
+                      signal: AbortSignal.timeout(4000)
+                    });
+                    if (sres.ok) {
+                      const code = await sres.text();
+                      const routeRegex = /["'](\/(?:about|blog|contact|privacy|terms|disclaimer|tools(?:\/[a-zA-Z0-9_-]+)?|blog\/[a-zA-Z0-9_-]+))["']/g;
+                      let m;
+                      while ((m = routeRegex.exec(code)) !== null) {
+                        try {
+                          const resolved = new URL(m[1], origin).href;
+                          const cleanedResolved = cleanAndNormalizeUrl(resolved);
+                          if (isInternalUrl(cleanedResolved) && !isNonPageResource(cleanedResolved)) {
+                            if (!discoveredUrls.has(cleanedResolved)) {
+                              addDiscoveredUrl(cleanedResolved, depth + 1);
+                              if (depth + 1 <= safeMaxDepth) {
+                                queue.push({ url: cleanedResolved, depth: depth + 1 });
+                              }
+                            }
+                          }
+                        } catch {}
+                      }
+                    }
+                  } catch {}
+                }
+              } catch (err) {
+                // Ignore individual page fetch errors during crawl
+              }
+            })
+          );
+        }
+
+        clearTimeout(timeoutTimer);
+        await finishCrawl();
       } catch (err) {
-        if (crawlTimer) clearTimeout(crawlTimer);
         await sendEvent({
           type: 'error',
-          error: err instanceof Error ? err.message : 'Failed to initialize sitemap generator crawler.'
+          error: err instanceof Error ? err.message : 'An error occurred during website crawling.'
         });
         try {
           await writer.close();
@@ -506,7 +497,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Invalid request payload' }, 
+      { error: error instanceof Error ? error.message : 'Invalid request payload' },
       { status: 500 }
     );
   }
