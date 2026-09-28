@@ -68,16 +68,23 @@ export function Navbar() {
         {/* Center Nav Links (Desktop) */}
         <nav className="hidden md:flex items-center gap-8 sm:gap-9 text-sm sm:text-[15px] font-bold text-slate-700 dark:text-slate-200">
           <div 
-            className="relative py-2" 
+            className="relative py-2 flex items-center gap-1.5" 
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
-            <button
-              onClick={() => setToolsOpen(!toolsOpen)}
-              className="flex items-center gap-1.5 py-1 hover:text-[#0066FF] dark:hover:text-blue-400 transition-colors cursor-pointer text-sm sm:text-[15px] font-bold text-slate-700 dark:text-slate-200"
+            <Link
+              href="/tools"
+              className="hover:text-[#0066FF] dark:hover:text-blue-400 transition-colors cursor-pointer text-sm sm:text-[15px] font-bold text-slate-700 dark:text-slate-200 py-1"
             >
-              <span>Tools</span>
-              <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200 ${toolsOpen ? 'rotate-180 text-[#0066FF] dark:text-blue-400' : ''}`} />
+              Tools
+            </Link>
+            <button
+              type="button"
+              onClick={() => setToolsOpen(!toolsOpen)}
+              aria-label="Toggle tools menu"
+              className="flex items-center justify-center p-0.5 hover:text-[#0066FF] dark:hover:text-blue-400 transition-colors cursor-pointer text-slate-400 dark:text-slate-500"
+            >
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${toolsOpen ? 'rotate-180 text-[#0066FF] dark:text-blue-400' : ''}`} />
             </button>
 
             {/* Dropdown Menu */}
