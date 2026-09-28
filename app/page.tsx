@@ -60,15 +60,6 @@ const HOMEPAGE_FAQS = [
   }
 ];
 
-// Default sample URLs matching reference image
-const SAMPLE_URLS = [
-  "https://example.com/page?utm_source=google",
-  "https://shop.com/product?id=123&ref=facebook",
-  "https://site.com/about#team",
-  "https://blog.com/post?utm_campaign=news",
-  "https://example.com/contact?source=ad"
-];
-
 function trimSingleUrl(raw: string, mode: string): string {
   if (!raw.trim()) return '';
   let url = raw.trim();
@@ -126,7 +117,7 @@ export default function HomePage() {
   React.useEffect(() => {
     const rawLines = input.trim() 
       ? input.split('\n').filter(l => l.trim() !== '')
-      : (activeMode === 'trimmer' ? SAMPLE_URLS : []);
+      : [];
 
     const cleaned = rawLines.map((original) => trimSingleUrl(original, activeMode)).join('\n');
     setOutputText(cleaned);
@@ -135,12 +126,6 @@ export default function HomePage() {
   const outputLines = outputText.split('\n').filter(l => l.trim() !== '');
   const totalCount = outputLines.length;
   const cleanedCount = totalCount;
-
-  const handleTrimAction = () => {
-    if (!input.trim() && activeMode === 'trimmer') {
-      setInput(SAMPLE_URLS.join('\n'));
-    }
-  };
 
   const handleClear = () => {
     setInput('');
