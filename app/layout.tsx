@@ -95,7 +95,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         "Duplicate removal",
         "Custom TLD support",
         "URL Slug Generator",
-        "Text to HTML Converter",
         "Add HTTPS Prepend",
         "Remove HTML Tags and formatting"
       ]

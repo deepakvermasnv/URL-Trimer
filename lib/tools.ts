@@ -73,16 +73,6 @@ export const TOOLS = [
     isPopular: true,
   },
   {
-    id: 'text-to-html',
-    name: 'Text to HTML',
-    description: 'Convert plain text to clean HTML code instantly.',
-    icon: Code,
-    category: 'Writing',
-    href: '/#workspace',
-    status: 'Ready',
-    isPopular: true,
-  },
-  {
     id: 'chrome-extension',
     name: 'Chrome Extension',
     description: 'Load Word Counter as a browser extension.',

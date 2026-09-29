@@ -52,7 +52,6 @@ export function Navbar() {
     { title: 'PDF Converter', href: '/tools/pdf-converter', icon: <FileText className="w-4 h-4" /> },
     { title: 'Image Compressor', href: '/tools/image-compressor', icon: <Maximize2 className="w-4 h-4 rotate-45" /> },
     { title: 'Image Converter', href: '/tools/image-converter', icon: <Layers3 className="w-4 h-4" /> },
-    { title: 'Text to HTML', href: '/#trimmer-app', icon: <Code className="w-4 h-4" /> },
     { title: 'Chrome Extension', href: '/tools/chrome-extension', icon: <Settings className="w-4 h-4" /> },
     { title: 'Sitemap Generator', href: '/tools/sitemap-generator', icon: <FileText className="w-4 h-4" /> },
   ];

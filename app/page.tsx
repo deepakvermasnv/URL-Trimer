@@ -86,9 +86,6 @@ function trimSingleUrl(raw: string, mode: string, trimOption: 'root' | 'params' 
     return url.replace(/<[^>]*>/g, '').trim();
   }
 
-  if (mode === 'text-to-html') {
-    return `<p>${url}</p>`;
-  }
 
   // Default: URL Trimmer mode
   try {
@@ -119,7 +116,7 @@ function trimSingleUrl(raw: string, mode: string, trimOption: 'root' | 'params' 
 }
 
 export default function HomePage() {
-  const [activeMode, setActiveMode] = useState<'trimmer' | 'dedup' | 'add-https' | 'slug' | 'remove-html' | 'text-to-html'>('trimmer');
+  const [activeMode, setActiveMode] = useState<'trimmer' | 'dedup' | 'add-https' | 'slug' | 'remove-html'>('trimmer');
   const [input, setInput] = useState<string>('');
   const [outputText, setOutputText] = useState<string>('');
   const [copiedAll, setCopiedAll] = useState(false);
@@ -258,8 +255,8 @@ export default function HomePage() {
       {/* Main Tool Container */}
       <section id="trimmer-app" className="max-w-6xl mx-auto px-4 sm:px-6 mb-20">
         {/* Mode Selector Bar */}
-        <div className="bg-white dark:bg-[#121723] rounded-3xl p-2.5 border border-slate-100/90 dark:border-slate-800/80 shadow-lg shadow-blue-500/5 dark:shadow-black/60 max-w-5xl mx-auto mb-6 flex items-center justify-center">
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full max-w-full bg-slate-50/80 dark:bg-[#182030] p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 custom-scrollbar whitespace-nowrap">
+        <div className="bg-white dark:bg-[#121723] rounded-3xl p-2.5 border border-slate-100/90 dark:border-slate-800/80 shadow-lg shadow-blue-500/5 dark:shadow-black/60 w-full sm:w-fit mx-auto mb-6 flex items-center justify-center">
+          <div className="flex items-center justify-start sm:justify-center gap-1.5 overflow-x-auto w-full max-w-full bg-slate-50/80 dark:bg-[#182030] p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700/60 custom-scrollbar whitespace-nowrap">
             <button
               onClick={() => setActiveMode('trimmer')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
@@ -320,17 +317,7 @@ export default function HomePage() {
               <span>Remove HTML Tags</span>
             </button>
 
-            <button
-              onClick={() => setActiveMode('text-to-html')}
-              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
-                activeMode === 'text-to-html'
-                  ? 'bg-white dark:bg-[#1a2130] text-[#0066FF] dark:text-white shadow-sm border border-slate-200/60 dark:border-slate-700'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <Code className="w-3.5 h-3.5" />
-              <span>Text to HTML</span>
-            </button>
+
           </div>
         </div>
 
@@ -586,21 +573,6 @@ export default function HomePage() {
             </div>
           </Link>
 
-          {/* Tool 7: Text to HTML */}
-          <Link href="#trimmer-app" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 dark:bg-[#1c2436] text-[#0066FF] dark:text-blue-400 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-[#0066FF] group-hover:text-white dark:group-hover:bg-[#0066FF] dark:group-hover:text-white dark:group-hover:border-transparent transition-all">
-                <Code className="w-5.5 h-5.5 stroke-[2]" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#0066FF] dark:group-hover:text-blue-400 transition-colors mb-0.5">Text to HTML</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-snug">Convert plain text to clean HTML code.</p>
-              </div>
-            </div>
-            <div className="w-7.5 h-7.5 rounded-full bg-blue-50/60 dark:bg-[#1c2436] text-[#0066FF] dark:text-slate-200 border border-blue-100/60 dark:border-slate-700/80 flex items-center justify-center shrink-0 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent dark:group-hover:bg-[#0066FF] dark:group-hover:text-white transition-all ml-2">
-              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
-            </div>
-          </Link>
 
           {/* Tool 8: Chrome Extension */}
           <Link href="/tools/chrome-extension" className="bg-white dark:bg-[#141b27] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md dark:shadow-black/40 hover:border-blue-400 dark:hover:border-blue-500/60 dark:hover:bg-[#182030] transition-all flex items-center justify-between group">
