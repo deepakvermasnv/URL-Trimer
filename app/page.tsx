@@ -120,7 +120,6 @@ function trimSingleUrl(raw: string, mode: string, trimOption: 'root' | 'params' 
 
 export default function HomePage() {
   const [activeMode, setActiveMode] = useState<'trimmer' | 'dedup' | 'add-https' | 'slug' | 'remove-html' | 'text-to-html'>('trimmer');
-  const [trimOption, setTrimOption] = useState<'root' | 'params'>('root');
   const [input, setInput] = useState<string>('');
   const [outputText, setOutputText] = useState<string>('');
   const [copiedAll, setCopiedAll] = useState(false);
@@ -128,18 +127,18 @@ export default function HomePage() {
   const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Sync outputText live whenever input, activeMode or trimOption changes
+  // Sync outputText live whenever input or activeMode changes
   React.useEffect(() => {
     const rawLines = input.trim() 
       ? input.split('\n').filter(l => l.trim() !== '')
       : [];
 
-    let processed = rawLines.map((original) => trimSingleUrl(original, activeMode, trimOption));
+    let processed = rawLines.map((original) => trimSingleUrl(original, activeMode));
     if (activeMode === 'dedup') {
       processed = Array.from(new Set(processed));
     }
     setOutputText(processed.join('\n'));
-  }, [input, activeMode, trimOption]);
+  }, [input, activeMode]);
 
   const outputLines = outputText.split('\n').filter(l => l.trim() !== '');
   const totalCount = outputLines.length;
@@ -335,34 +334,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Trim Options Toggle for URL Trimmer Mode */}
-        {activeMode === 'trimmer' && (
-          <div className="flex items-center justify-center gap-2 mb-6 animate-fadeIn">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Trim Target:</span>
-            <div className="inline-flex bg-white dark:bg-[#121723] p-1 rounded-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm text-xs">
-              <button
-                onClick={() => setTrimOption('root')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
-                  trimOption === 'root'
-                    ? 'bg-[#0066FF] text-white shadow-sm shadow-blue-500/20'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Root Domain (e.g. https://hackernoon.com/)
-              </button>
-              <button
-                onClick={() => setTrimOption('params')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer font-bold ${
-                  trimOption === 'params'
-                    ? 'bg-[#0066FF] text-white shadow-sm shadow-blue-500/20'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Remove Parameters Only
-              </button>
-            </div>
-          </div>
-        )}
+
 
         {/* 2 Cards Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
