@@ -116,6 +116,13 @@ export default function ImageConverter() {
     setFile(null);
     setPreview(null);
     setResult(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConvertNewImage = () => {
+    reset();
   };
 
   return (
@@ -136,16 +143,6 @@ export default function ImageConverter() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>LOCAL TRANSFORMER</span>
             </div>
-
-            {file && (
-              <button
-                onClick={reset}
-                className="px-4 py-1.5 rounded-full bg-white hover:bg-red-50 text-red-500 border border-slate-200/80 text-[11px] font-extrabold tracking-wider uppercase shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>DISCARD</span>
-              </button>
-            )}
           </div>
         </div>
 
@@ -160,6 +157,7 @@ export default function ImageConverter() {
         </div>
 
         <div>
+          <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={onFileSelect} />
           {!file ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -172,11 +170,10 @@ export default function ImageConverter() {
               onClick={() => fileInputRef.current?.click()}
               className="group cursor-pointer bg-white rounded-3xl border-2 border-dashed border-blue-200 hover:border-[#0066FF] p-12 sm:p-16 text-center transition-all duration-300 shadow-xl shadow-slate-200/40"
             >
-              <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={onFileSelect} />
               <div className="w-20 h-20 bg-blue-50/80 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-[#0066FF] group-hover:text-white transition-all duration-300 text-[#0066FF]">
                 <FileUp className="w-9 h-9" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2 group-hover:text-[#0066FF] transition-colors">Drop Image Protocol</h2>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2 group-hover:text-[#0066FF] transition-colors">Drop Your Image</h2>
               <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-xs mx-auto">Drag and drop your image file here or click to browse local storage.</p>
             </motion.div>
           ) : (
@@ -226,9 +223,18 @@ export default function ImageConverter() {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                 <div className="bg-white/90 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white shadow-xl shadow-blue-900/5 space-y-10">
                   <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                      <Settings2 className="w-5 h-5 text-blue-600" />
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Target Format</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Settings2 className="w-5 h-5 text-blue-600" />
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Target Format</h3>
+                      </div>
+                      <button
+                        onClick={reset}
+                        className="px-3.5 py-1.5 rounded-full bg-white hover:bg-red-50 text-red-500 border border-slate-200/80 text-[10px] font-extrabold tracking-wider uppercase shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>DISCARD</span>
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       {SUPPORTED_FORMATS.map((f) => (
@@ -255,7 +261,7 @@ export default function ImageConverter() {
                         className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-black py-6 rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
                       >
                         {converting ? <RotateCcw className="w-5 h-5 animate-spin" /> : <RotateCcw className="w-5 h-5" />}
-                        {converting ? 'Processing...' : 'Execute Conversion'}
+                        {converting ? 'Processing...' : 'Convert Image'}
                       </button>
                     ) : (
                       <div className="space-y-4">
@@ -264,13 +270,13 @@ export default function ImageConverter() {
                           className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-6 rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-100"
                         >
                           <Download className="w-5 h-5" />
-                          Download Result
+                          Download Image
                         </button>
                         <button
-                          onClick={() => setResult(null)}
-                          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-4 rounded-2xl text-xs uppercase tracking-widest transition-all"
+                          onClick={handleConvertNewImage}
+                          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-4 rounded-2xl text-xs uppercase tracking-widest transition-all cursor-pointer"
                         >
-                          New Operation
+                          Convert New Image
                         </button>
                       </div>
                     )}

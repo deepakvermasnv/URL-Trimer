@@ -132,6 +132,13 @@ export default function ImageCompressor() {
     setFile(null);
     setPreview(null);
     setResult(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCompressNewImage = () => {
+    reset();
   };
 
   return (
@@ -176,6 +183,7 @@ export default function ImageCompressor() {
         </div>
 
         <div>
+          <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={onFileSelect} />
           {!file ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -188,12 +196,12 @@ export default function ImageCompressor() {
               onClick={() => fileInputRef.current?.click()}
               className="group cursor-pointer bg-white rounded-3xl border-2 border-dashed border-blue-200 hover:border-[#0066FF] p-12 sm:p-16 text-center transition-all duration-300 shadow-xl shadow-slate-200/40"
             >
-              <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={onFileSelect} />
               <div className="w-20 h-20 bg-blue-50/80 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-[#0066FF] group-hover:text-white transition-all duration-300 text-[#0066FF]">
                 <Minimize2 className="w-9 h-9" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2 group-hover:text-[#0066FF] transition-colors">Load Payload Bundle</h2>
-              <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-xs mx-auto">Drop the image you want to compress. No data is sent to external nodes.</p>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2 group-hover:text-[#0066FF] transition-colors">Upload an Image to Compress
+</h2>
+              <p className="text-slate-400 font-medium text-xs sm:text-sm max-w-xs mx-auto">Drag and drop your image here, or click to choose a file. Compression happens directly in your browser.</p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -269,7 +277,7 @@ export default function ImageCompressor() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Gauge className="w-5 h-5 text-blue-600" />
-                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Spectral Quality</h3>
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">COMPRESSION QUALITY</h3>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <input 
@@ -319,7 +327,7 @@ export default function ImageCompressor() {
                         className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-black py-6 rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
                       >
                         {compressing ? <RotateCcw className="w-5 h-5 animate-spin" /> : <Minimize2 className="w-5 h-5" />}
-                        {compressing ? 'Recalculating...' : 'Compress Protocol'}
+                        {compressing ? 'Recalculating...' : 'Compress Image'}
                       </button>
                     ) : (
                       <div className="space-y-4">
@@ -328,13 +336,13 @@ export default function ImageCompressor() {
                           className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-6 rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-100"
                         >
                           <Download className="w-5 h-5" />
-                          Download Bundle
+                          Download Image
                         </button>
                         <button
-                          onClick={() => setResult(null)}
-                          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-4 rounded-2xl text-xs uppercase tracking-widest transition-all"
+                          onClick={handleCompressNewImage}
+                          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-4 rounded-2xl text-xs uppercase tracking-widest transition-all cursor-pointer"
                         >
-                          Modify Parameters
+                          Compress New Image
                         </button>
                       </div>
                     )}
