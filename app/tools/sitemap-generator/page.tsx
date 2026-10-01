@@ -28,25 +28,26 @@ import NavAction from '@/components/NavAction';
 import FAQSection from '@/components/FAQSection';
 
 const SITEMAP_FAQS = [
+
   {
-    q: "What is an XML Sitemap and why do search engines need it?",
-    a: "An XML sitemap is a structured file that tells search engines like Google and Bing which pages and URLs on your website are available for indexing. It helps search engine crawlers find all your important internal pages efficiently without missing nested links."
+    q: "Why Does Your Website Need an XML Sitemap?",
+    a: "An XML sitemap helps search engines like Google and Bing find important pages on your website. It provides a clear list of URLs that search engine crawlers can use to discover your content. This is especially helpful for websites with many pages or complex structures, as it makes important URLs easier to find."
   },
   {
-    q: "How does this Sitemap Generator work?",
-    a: "When you enter your website address, our server crawler visits the homepage and follows accessible internal links on the same domain. It skips duplicate URLs, tracking parameters, and non-page assets (images, stylesheets, scripts) to generate a clean, valid XML sitemap."
+    q: "How Can You Create a Sitemap Using This Tool?",
+    a: "Creating a sitemap is simple. Enter your website URL, and our XML sitemap crawler will scan accessible internal pages on your domain. It identifies valid page URLs, skips duplicate links and unnecessary files, and creates a clean XML sitemap that you can download and use for your website."
   },
   {
-    q: "What URLs are excluded from the sitemap?",
-    a: "The tool automatically excludes external domains, broken links (404/500 errors), duplicate URLs, fragment anchors (#), and media assets such as images (.png, .jpg, .svg), videos, fonts, and stylesheets."
+    q: "Which Website URLs Are Included in the Generated Sitemap?",
+    a: "The sitemap generator focuses on accessible internal pages from your website. It excludes external links, broken URLs, duplicate pages, fragment links, and non-page files such as images, videos, fonts, and stylesheets. This helps keep your sitemap focused on useful website pages."
   },
   {
-    q: "How do I submit my generated sitemap to Google and Bing?",
-    a: "1. Click 'Download Sitemap' to save sitemap.xml.\n2. Upload it to your website's public root directory (e.g., https://yourdomain.com/sitemap.xml).\n3. In Google Search Console, go to Sitemaps, enter 'sitemap.xml', and click Submit.\n4. Add a reference in your robots.txt: 'Sitemap: https://yourdomain.com/sitemap.xml'."
+    q: "How Can You Add Your XML Sitemap to Google Search Console?",
+    a: "After using our free XML sitemap generator, follow these steps to submit your sitemap:\n\n1. Generate and download your sitemap.xml file.\n2. Upload the file to your website's root directory.\n3. Open Google Search Console and select your website property.\n4. Go to the Sitemaps section and enter your sitemap URL.\n5. Click Submit to send it to Google.\n\nYou can also add your sitemap URL to the robots.txt file to help search engines locate it."
   },
   {
-    q: "Does this tool respect robots.txt rules?",
-    a: "Yes. By default, the crawler fetches your website's robots.txt file and respects Disallow rules to avoid indexing private or disallowed paths."
+    q: "Does the XML Sitemap Crawler Follow robots.txt Rules?",
+    a: "Yes, the crawler checks your website's robots.txt file and follows its Disallow rules when crawling pages. This helps prevent the tool from accessing paths that your website has restricted for crawlers. Make sure your robots.txt settings allow access to the pages you want to include in your sitemap."
   }
 ];
 
@@ -282,7 +283,7 @@ export default function SitemapGenerator() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-[11px] font-bold text-emerald-700">
               <FileCode className="w-3.5 h-3.5 text-emerald-600" />
-              <span>XML CRAWLER • FREE</span>
+              <span>XML sitemap generator</span>
             </div>
           </div>
         </div>
@@ -293,7 +294,7 @@ export default function SitemapGenerator() {
             Sitemap <span className="text-[#0066FF]">Generator.</span>
           </h1>
           <p className="text-slate-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed font-normal">
-            Generate an XML sitemap for your website by crawling accessible internal pages. Clean, valid XML formatted for search engines.
+            Create a sitemap for your website in just a few clicks. URLTrim crawls your accessible pages and generates a clean XML file ready for search engines.
           </p>
         </div>
 
@@ -538,9 +539,9 @@ export default function SitemapGenerator() {
             <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
               <Zap className="w-5 h-5" />
             </div>
-            <h3 className="font-black text-slate-900 text-sm">Server Crawler</h3>
+            <h3 className="font-black text-slate-900 text-sm">Find Website Pages Easily</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Crawls website pages on the server side to resolve dynamic links, bypass CORS restrictions, and capture canonical routes.
+              Our XML sitemap crawler scans your website to find accessible pages, including dynamic URLs and canonical routes. It helps identify important pages so you can create an accurate sitemap for search engines.
             </p>
           </div>
 
@@ -548,9 +549,9 @@ export default function SitemapGenerator() {
             <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-black text-slate-900 text-sm">Safe & Clean Output</h3>
+            <h3 className="font-black text-slate-900 text-sm">Create a Clean XML Sitemap</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Excludes duplicate paths, tracking queries (UTM, gclid), media files, and broken links to generate a clean search sitemap.
+              Create a clean XML sitemap without duplicate URLs, tracking parameters, broken links, or unnecessary files. Our free XML sitemap generator helps keep your sitemap organized and ready for search engines.
             </p>
           </div>
 
@@ -558,10 +559,48 @@ export default function SitemapGenerator() {
             <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
               <FileText className="w-5 h-5" />
             </div>
-            <h3 className="font-black text-slate-900 text-sm">Valid XML Protocol</h3>
+            <h3 className="font-black text-slate-900 text-sm">Generate Search Engine Friendly XML</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
               100% compliant with the sitemaps.org standard, recognized by Google Search Console, Bing Webmaster Tools, and Yandex.
             </p>
+          </div>
+        </div>
+
+        {/* Two-Column Explanation Card */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/40 p-8 sm:p-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            <div className="space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+               What Can You Do with Our XML Sitemap Generator?
+              </h2>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Create a sitemap for your website with our free XML sitemap generator. Simply enter your website URL, and our XML sitemap crawler will scan accessible pages to create a structured sitemap that helps search engines discover your content.
+              </p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                There is no need to register or create an account. Enter your website URL, generate your sitemap, and download the XML file when it is ready.
+              </p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Our sitemap generator also helps identify duplicate URLs, tracking parameters, and broken links to keep your sitemap clean and organized.
+              </p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Once generated, you can download your sitemap and upload it to your website to help search engines find your important pages.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                What Is an XML Sitemap?
+              </h2>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                An XML sitemap is a file that lists important URLs on your website and provides useful information about those pages. It helps search engines like Google and Bing discover your website content and understand which pages are available for crawling.
+              </p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                For websites with many pages, a sitemap can make it easier for search engines to find URLs that may not be easily accessible through internal links.
+              </p>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Using an online XML sitemap generator, you can create a sitemap without manually listing every page. A properly formatted XML sitemap follows the sitemaps.org protocol and can be submitted through Google Search Console and Bing Webmaster Tools.
+              </p>
+            </div>
           </div>
         </div>
 

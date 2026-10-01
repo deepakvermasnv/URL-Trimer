@@ -47,13 +47,13 @@ export const SEO_METADATA = {
   },
   sitemapGenerator: {
     canonical: '/tools/sitemap-generator',
-    title: 'Sitemap Generator - Free XML Sitemap Tool | URL Trim',
-    description: "Generate an XML sitemap for your website with URL Trim's free Sitemap Generator. Crawl your site and create a sitemap with your internal URLs.",
+    title: 'Free Online XML Sitemap Generator for Your Website',
+    description: "Generate an XML sitemap for your website with URLTrim. Help search engines find your important pages and improve crawling. Create your sitemap for free today!",
   },
   xmlSitemapGenerator: {
     canonical: '/tools/sitemap-generator',
-    title: 'Sitemap Generator - Free XML Sitemap Tool | URL Trim',
-    description: "Generate an XML sitemap for your website with URL Trim's free Sitemap Generator. Crawl your site and create a sitemap with your internal URLs.",
+    title: 'Free Online XML Sitemap Generator for Your Website',
+    description: "Generate an XML sitemap for your website with URLTrim. Help search engines find your important pages and improve crawling. Create your sitemap for free today!",
   },
   about: {
     canonical: '/about',
