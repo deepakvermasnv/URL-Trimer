@@ -8,7 +8,8 @@ import {
   Code,
   Wand2,
   Chrome,
-  FileCode
+  FileCode,
+  FileText
 } from 'lucide-react';
 
 export const TOOLS = [
@@ -88,6 +89,16 @@ export const TOOLS = [
     icon: FileCode,
     category: 'SEO',
     href: '/tools/sitemap-generator',
+    status: 'Ready',
+    isPopular: true,
+  },
+  {
+    id: 'llms-txt-generator',
+    name: 'LLMs.txt Generator',
+    description: 'Generate standardized llms.txt markdown files for AI crawlers.',
+    icon: FileText,
+    category: 'SEO',
+    href: '/llms-txt-generator',
     status: 'Ready',
     isPopular: true,
   }
