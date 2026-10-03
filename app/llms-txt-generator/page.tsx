@@ -3,17 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { 
-  FileText, 
-  Globe, 
-  Plus, 
-  Trash2, 
-  Play, 
-  Download, 
-  Copy, 
-  Check, 
-  AlertCircle, 
-  RotateCcw, 
+import {
+  FileText,
+  Globe,
+  Plus,
+  Trash2,
+  Play,
+  Download,
+  Copy,
+  Check,
+  AlertCircle,
+  RotateCcw,
   ArrowLeft,
   CheckCircle2,
   Sparkles,
@@ -27,6 +27,10 @@ import PageLayout from '@/components/PageLayout';
 import FAQSection from '@/components/FAQSection';
 import { cn } from '@/lib/utils';
 
+// Backend API Base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+
+
 interface ExtractedPage {
   id: string;
   url: string;
@@ -37,6 +41,10 @@ interface ExtractedPage {
 }
 
 const SECTION_PRIORITY = [
+  'Important Pages',
+  'Main Tools / Services',
+  'Blog and Resources',
+  'Other Pages',
   'Core Pages',
   'Main Tools',
   'Blog & Articles',
@@ -52,11 +60,11 @@ const LLMS_TXT_FAQS = [
   },
   {
     q: "How does this tool generate llms.txt?",
-    a: "Our tool extracts pages from your sitemap.xml, homepage URL, or manually pasted URLs. It deduplicates links, validates formatting, categorizes URLs into logical markdown sections, and lets you select or edit pages before downloading your final llms.txt file."
+    a: "Our tool extracts pages from your sitemap.xml, homepage URL, or manually pasted URLs via our fast shared backend engine. It deduplicates links, validates formatting, categorizes URLs into logical markdown sections, and lets you select or edit pages before downloading your final llms.txt file."
   },
   {
-    q: "What should I do if my sitemap URL fails due to CORS?",
-    a: "Because this is a 100% browser-based tool, some websites block cross-origin requests (CORS). If fetching your sitemap directly fails, simply open your sitemap XML in your browser, copy its content, and paste it into our manual Sitemap XML paste box below!"
+    q: "What should I do if my sitemap URL fails?",
+    a: "If fetching your sitemap directly fails, simply open your sitemap XML in your browser, copy its content, and paste it into our manual Sitemap XML paste box below!"
   },
   {
     q: "Where should I host the generated llms.txt file?",
@@ -64,7 +72,7 @@ const LLMS_TXT_FAQS = [
   },
   {
     q: "Is this tool completely free and private?",
-    a: "Yes! The Free LLMs.txt Generator operates entirely inside your web browser. No URLs, sitemaps, or page contents are sent to external servers or stored in any database."
+    a: "Yes! The Free LLMs.txt Generator operates fast and securely. No URLs or page contents are permanently stored in any database."
   }
 ];
 
@@ -74,7 +82,7 @@ export default function LlmsTxtGeneratorPage() {
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
   const [pastedUrls, setPastedUrls] = useState<string>('');
   const [pastedXml, setPastedXml] = useState<string>('');
-  
+
   // Custom Metadata Optional Fields
   const [siteTitle, setSiteTitle] = useState<string>('');
   const [siteSummary, setSiteSummary] = useState<string>('');
@@ -83,13 +91,16 @@ export default function LlmsTxtGeneratorPage() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [corsNotice, setCorsNotice] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [showXmlFallback, setShowXmlFallback] = useState<boolean>(false);
+  const [showWarnings, setShowWarnings] = useState<boolean>(false); // <-- YE LINE ADD KAREIN
+
 
   // Extracted Pages State
   const [extractedPages, setExtractedPages] = useState<ExtractedPage[]>([]);
   const [generatedResult, setGeneratedResult] = useState<{
     content: string;
+    filename: string;
     pageCount: number;
     byteSize: number;
   } | null>(null);
@@ -113,321 +124,117 @@ export default function LlmsTxtGeneratorPage() {
     setSitemapUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Helper: Normalize & Validate URL
-  const sanitizeUrl = (rawUrl: string): string | null => {
-    let trimmed = rawUrl.trim();
-    if (!trimmed) return null;
-
-    if (!/^https?:\/\//i.test(trimmed)) {
-      trimmed = `https://${trimmed}`;
-    }
-
-    try {
-      const parsed = new URL(trimmed);
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
-      if (['localhost', '127.0.0.1', '0.0.0.0'].includes(parsed.hostname.toLowerCase())) return null;
-      return parsed.href;
-    } catch {
-      return null;
-    }
-  };
-
-  // Helper: Format path slug into clean human Title fallback if page title unaccessible
-  const formatSlugToTitle = (urlStr: string): string => {
-    try {
-      const parsed = new URL(urlStr);
-      const pathname = parsed.pathname.replace(/\/$/, '');
-      if (!pathname || pathname === '') {
-        return parsed.hostname.replace(/^www\./, '');
-      }
-      const lastSegment = pathname.split('/').filter(Boolean).pop() || '';
-      if (!lastSegment) return parsed.hostname;
-
-      const cleanStr = decodeURIComponent(lastSegment)
-        .replace(/[-_]+/g, ' ')
-        .replace(/\.(html?|php|aspx?)$/i, '');
-
-      return cleanStr
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-    } catch {
-      return urlStr;
-    }
-  };
-
-  // Helper: Categorize URL into section based on URL structure
+  // Helper: Categorize URL into section
   const categorizeUrl = (urlStr: string): string => {
     try {
       const parsed = new URL(urlStr);
       const pathname = parsed.pathname.toLowerCase().replace(/\/$/, '');
-      
+
       if (!pathname || pathname === '' || ['/about', '/contact', '/privacy', '/terms', '/disclaimer'].includes(pathname)) {
-        return 'Core Pages';
+        return 'Important Pages';
       }
-      if (pathname.startsWith('/tools') || pathname.includes('tool')) {
-        return 'Main Tools';
+      if (pathname.startsWith('/tools') || pathname.includes('tool') || pathname.includes('product') || pathname.includes('service')) {
+        return 'Main Tools / Services';
       }
       if (pathname.startsWith('/blog') || pathname.includes('/post') || pathname.includes('/article') || pathname.includes('/news')) {
-        return 'Blog & Articles';
+        return 'Blog and Resources';
       }
-      if (pathname.includes('/product')) {
-        return 'Product Pages';
-      }
-      if (pathname.includes('/service')) {
-        return 'Service Pages';
-      }
-      return 'Additional Resources';
+      return 'Other Pages';
     } catch {
-      return 'Additional Resources';
+      return 'Other Pages';
     }
   };
 
-  // Helper: Fetch actual page HTML and extract real Title, Meta Description, or H1/Paragraph
-  const fetchActualPageContent = async (urlStr: string): Promise<{ title: string | null; description: string | null }> => {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout per request
-
-      const res = await fetch(urlStr, { mode: 'cors', signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (!res.ok) return { title: null, description: null };
-
-      const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('text/html') && !contentType.includes('application/xhtml+xml') && !contentType.includes('xml')) {
-        return { title: null, description: null };
-      }
-
-      const htmlText = await res.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, 'text/html');
-
-      // 1. Extract Page Title (Title tag or H1 tag)
-      let extractedTitle: string | null = null;
-      const titleEl = doc.querySelector('title');
-      if (titleEl && titleEl.textContent?.trim()) {
-        const rawTitle = titleEl.textContent.trim();
-        // Clean trailing brand names if present (e.g. "Word Counter - URL Trim" -> "Word Counter")
-        extractedTitle = rawTitle.split(/[-|—]/)[0].trim() || rawTitle;
-      } else {
-        const h1El = doc.querySelector('h1');
-        if (h1El && h1El.textContent?.trim()) {
-          extractedTitle = h1El.textContent.trim();
-        }
-      }
-
-      // 2. Extract Meta Description (meta name="description" or meta property="og:description")
-      let extractedDesc: string | null = null;
-      const metaDesc = doc.querySelector('meta[name="description"], meta[property="og:description"]');
-      if (metaDesc && metaDesc.getAttribute('content')?.trim()) {
-        extractedDesc = metaDesc.getAttribute('content')!.trim();
-      } else {
-        // Fallback: extract first meaningful <p> in main content
-        const pEl = doc.querySelector('main p, article p, .content p, p');
-        if (pEl && pEl.textContent?.trim()) {
-          const cleanP = pEl.textContent.trim().replace(/\s+/g, ' ');
-          if (cleanP.length > 20) {
-            extractedDesc = cleanP.length > 120 ? `${cleanP.slice(0, 117)}...` : cleanP;
-          }
-        }
-      }
-
-      return { title: extractedTitle, description: extractedDesc };
-    } catch {
-      // CORS or network error — return nulls honestly (do not fabricate fake content)
-      return { title: null, description: null };
-    }
-  };
-
-  // Helper: Parse raw XML text for <loc> tags
-  const parseXmlString = (xmlString: string, targetDomain?: string): string[] => {
-    const urlsFound: string[] = [];
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(xmlString, 'text/xml');
-      const locElements = doc.getElementsByTagName('loc');
-
-      for (let i = 0; i < locElements.length; i++) {
-        const locText = locElements[i].textContent?.trim();
-        if (locText) {
-          const sanitized = sanitizeUrl(locText);
-          if (sanitized) {
-            if (targetDomain) {
-              try {
-                const urlDomain = new URL(sanitized).hostname;
-                if (urlDomain.toLowerCase() === targetDomain.toLowerCase()) {
-                  urlsFound.push(sanitized);
-                }
-              } catch {
-                urlsFound.push(sanitized);
-              }
-            } else {
-              urlsFound.push(sanitized);
-            }
-          }
-        }
-      }
-    } catch {
-      // Regex fallback
-      const locMatches = xmlString.match(/<loc>(.*?)<\/loc>/gi);
-      if (locMatches) {
-        for (const match of locMatches) {
-          const content = match.replace(/<\/?loc>/gi, '').trim();
-          const sanitized = sanitizeUrl(content);
-          if (sanitized) urlsFound.push(sanitized);
-        }
-      }
-    }
-    return urlsFound;
-  };
-
-  // Main Handler to Collect & Process URLs
+  // Main Handler: Sends input to Shared Backend API
   const handleProcessInputs = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setError(null);
-    setCorsNotice(null);
-    setStatusMessage('Validating entered inputs...');
+    setWarnings([]);
+    setStatusMessage('Connecting to crawler engine...');
     setIsProcessing(true);
     setExtractedPages([]);
     setGeneratedResult(null);
 
-    const collectedRawUrls: string[] = [];
-    let domainFilter: string | undefined = undefined;
+    // Prepare Payload
+    const firstSitemap = sitemapUrls.map(s => s.trim()).filter(Boolean)[0] || undefined;
+    const cleanWebsiteUrl = websiteUrl.trim() || undefined;
+    const cleanPageUrls = pastedUrls
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
 
-    // 1. Process Website URL
-    if (websiteUrl.trim()) {
-      const sanitized = sanitizeUrl(websiteUrl);
-      if (!sanitized) {
-        setError('Please enter a valid website URL (e.g. https://example.com).');
-        setIsProcessing(false);
-        return;
-      }
-      collectedRawUrls.push(sanitized);
-      try {
-        domainFilter = new URL(sanitized).hostname;
-      } catch {}
-    }
-
-    // 2. Process Specific Pasted URLs
-    if (pastedUrls.trim()) {
-      const lines = pastedUrls.split('\n');
-      for (const line of lines) {
-        const sanitized = sanitizeUrl(line);
-        if (sanitized) {
-          collectedRawUrls.push(sanitized);
-        }
-      }
-    }
-
-    // 3. Process Pasted XML fallback
-    if (pastedXml.trim()) {
-      const xmlUrls = parseXmlString(pastedXml, domainFilter);
-      collectedRawUrls.push(...xmlUrls);
-    }
-
-    // 4. Fetch Sitemap URLs if provided
-    const validSitemapUrls = sitemapUrls.map(s => s.trim()).filter(Boolean);
-    let corsErrorOccurred = false;
-
-    if (validSitemapUrls.length > 0) {
-      for (const smUrlRaw of validSitemapUrls) {
-        const smUrl = sanitizeUrl(smUrlRaw);
-        if (!smUrl) continue;
-
-        setStatusMessage(`Fetching sitemap: ${smUrl}...`);
-        try {
-          const res = await fetch(smUrl, { mode: 'cors' });
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-          }
-          const text = await res.text();
-          const parsedFromXml = parseXmlString(text, domainFilter);
-          if (parsedFromXml.length > 0) {
-            collectedRawUrls.push(...parsedFromXml);
-          }
-        } catch (fetchErr) {
-          corsErrorOccurred = true;
-          console.warn('CORS or network error fetching sitemap:', fetchErr);
-        }
-      }
-    }
-
-    // Deduplicate collected URLs
-    const uniqueMap = new Map<string, string>();
-    for (const u of collectedRawUrls) {
-      try {
-        const cleanObj = new URL(u);
-        cleanObj.hash = ''; // remove anchor
-        const key = cleanObj.href.replace(/\/$/, '');
-        if (!uniqueMap.has(key)) {
-          uniqueMap.set(key, cleanObj.href);
-        }
-      } catch {
-        if (!uniqueMap.has(u)) uniqueMap.set(u, u);
-      }
-    }
-
-    const finalUrls = Array.from(uniqueMap.values());
-
-    if (finalUrls.length === 0) {
-      if (corsErrorOccurred) {
-        setCorsNotice('Direct fetching of the sitemap was blocked by browser CORS restrictions. Please paste your raw sitemap XML in the manual XML paste section below.');
-        setShowXmlFallback(true);
-      } else {
-        setError('No valid page URLs found. Please check your entered sitemap URL, website URL, or paste specific URLs.');
-      }
+    if (!firstSitemap && !cleanWebsiteUrl && cleanPageUrls.length === 0) {
+      setError('Please provide at least one of: Sitemap URL, Website URL, or Paste Specific URLs.');
       setIsProcessing(false);
       return;
     }
 
-    if (corsErrorOccurred) {
-      setCorsNotice('Some cross-origin URLs could not be fetched directly due to browser CORS policies. Accessible pages are parsed with actual content; CORS-restricted pages use clean URL titles without fabricated descriptions.');
-    }
+    try {
+      setStatusMessage('Crawling website pages & extracting metadata...');
 
-    // Process actual page content extraction batching
-    const pageObjects: ExtractedPage[] = [];
-    const totalCount = finalUrls.length;
+      // Line 172 ko badal kar ye likhein:
+      const response = await fetch('/api/llms-txt-generator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sitemapUrl: firstSitemap,
+          websiteUrl: cleanWebsiteUrl,
+          pageUrls: cleanPageUrls,
+          options: {
+            maxPages: 50,
+            includeBlogs: true,
+          },
+        }),
+      });
 
-    // Detect homepage URL if present to derive website description
-    let extractedHomepageDesc: string | null = null;
 
-    for (let i = 0; i < finalUrls.length; i++) {
-      const urlStr = finalUrls[i];
-      setStatusMessage(`Parsing actual page content (${i + 1} of ${totalCount}): ${urlStr}...`);
+      const json = await response.json();
 
-      const actualContent = await fetchActualPageContent(urlStr);
-      const isHomepage = urlStr.replace(/\/$/, '').split('/').length <= 3;
-      if (isHomepage && actualContent.description) {
-        extractedHomepageDesc = actualContent.description;
+      if (!response.ok || !json.success) {
+        throw new Error(json.error?.message || 'Failed to generate llms.txt.');
       }
 
-      const finalTitle = actualContent.title || formatSlugToTitle(urlStr);
-      const finalDesc = actualContent.description || '';
-      const section = categorizeUrl(urlStr);
+      const { data } = json;
 
-      pageObjects.push({
-        id: `page-${i}-${Date.now()}`,
-        url: urlStr,
-        title: finalTitle,
-        description: finalDesc,
-        section,
-        selected: true,
+      if (data.warnings && data.warnings.length > 0) {
+        setWarnings(data.warnings);
+      }
+
+      // Map Backend Pages to UI State
+      const mappedPages: ExtractedPage[] = (data.pages || []).map((p: any, idx: number) => ({
+        id: `page-${idx}-${Date.now()}`,
+        url: p.url,
+        title: p.title || p.h1 || p.url,
+        description: p.pageDescription || p.metaDescription || '',
+        section: categorizeUrl(p.url),
+        selected: p.success !== false,
+      }));
+
+      setExtractedPages(mappedPages);
+
+      // Save Initial Result
+      const content = data.content || '';
+      const filename = data.filename || 'llms.txt';
+      const byteSize = new Blob([content]).size;
+
+      setGeneratedResult({
+        content,
+        filename,
+        pageCount: mappedPages.filter(p => p.selected).length,
+        byteSize,
       });
+
+    } catch (err: any) {
+      console.error('Generation Error:', err);
+      setError(err.message || 'An error occurred while communicating with the server.');
+    } finally {
+      setIsProcessing(false);
     }
-
-    if (extractedHomepageDesc && !siteSummary.trim()) {
-      setSiteSummary(extractedHomepageDesc);
-    }
-
-    setExtractedPages(pageObjects);
-    setIsProcessing(false);
-
-    // Auto-generate initial Markdown
-    generateLlmsTxtOutput(pageObjects);
   };
 
-  // Generate Final Markdown Text
+  // Regenerate Final Markdown Text from UI Selection Changes
   const generateLlmsTxtOutput = (pages: ExtractedPage[]) => {
     const selectedPages = pages.filter((p) => p.selected);
     if (selectedPages.length === 0) {
@@ -435,24 +242,19 @@ export default function LlmsTxtGeneratorPage() {
       return;
     }
 
-    // Determine website title & domain
     let headerTitle = siteTitle.trim();
-    let currentDomain = '';
-
     if (!headerTitle) {
       if (websiteUrl.trim()) {
         try {
-          const parsed = new URL(sanitizeUrl(websiteUrl) || websiteUrl);
-          currentDomain = parsed.hostname.toLowerCase();
-          headerTitle = currentDomain.replace(/^www\./, '');
+          const parsed = new URL(websiteUrl.trim());
+          headerTitle = parsed.hostname.replace(/^www\./, '');
         } catch {
           headerTitle = 'Website Index';
         }
       } else if (selectedPages.length > 0) {
         try {
           const parsed = new URL(selectedPages[0].url);
-          currentDomain = parsed.hostname.toLowerCase();
-          headerTitle = currentDomain.replace(/^www\./, '');
+          headerTitle = parsed.hostname.replace(/^www\./, '');
         } catch {
           headerTitle = 'Website Index';
         }
@@ -461,16 +263,14 @@ export default function LlmsTxtGeneratorPage() {
       }
     }
 
-    // Determine Website Summary Blockquote
     let summaryBlock = siteSummary.trim();
     if (!summaryBlock) {
       summaryBlock = `${headerTitle} index of available pages and tools.`;
     }
 
-    // Group pages by section
     const sectionMap = new Map<string, ExtractedPage[]>();
     for (const page of selectedPages) {
-      const sec = page.section || 'Additional Resources';
+      const sec = page.section || 'Other Pages';
       if (!sectionMap.has(sec)) sectionMap.set(sec, []);
       sectionMap.get(sec)!.push(page);
     }
@@ -478,26 +278,13 @@ export default function LlmsTxtGeneratorPage() {
     let md = `# ${headerTitle}\n\n`;
     md += `> ${summaryBlock}\n\n`;
 
-    // Iterate sections in defined priority order
-    for (const secName of SECTION_PRIORITY) {
+    for (const secName of ['Important Pages', 'Main Tools / Services', 'Blog and Resources', 'Other Pages']) {
       const secPages = sectionMap.get(secName);
       if (secPages && secPages.length > 0) {
-        md += `## ${secName}\n`;
+        md += `## ${secName}\n\n`;
         for (const p of secPages) {
           const descText = p.description.trim() ? `: ${p.description.trim()}` : '';
-          md += `- [${p.title}](${p.url})${descText}\n`;
-        }
-        md += `\n`;
-      }
-    }
-
-    // Handle any custom sections added by user that are not in SECTION_PRIORITY
-    for (const [secName, secPages] of Array.from(sectionMap.entries())) {
-      if (!SECTION_PRIORITY.includes(secName) && secPages.length > 0) {
-        md += `## ${secName}\n`;
-        for (const p of secPages) {
-          const descText = p.description.trim() ? `: ${p.description.trim()}` : '';
-          md += `- [${p.title}](${p.url})${descText}\n`;
+          md += `* [${p.title}](${p.url})${descText}\n`;
         }
         md += `\n`;
       }
@@ -506,11 +293,12 @@ export default function LlmsTxtGeneratorPage() {
     const trimmedContent = md.trim() + '\n';
     const byteSize = new Blob([trimmedContent]).size;
 
-    setGeneratedResult({
+    setGeneratedResult((prev) => ({
       content: trimmedContent,
+      filename: prev?.filename || 'llms.txt',
       pageCount: selectedPages.length,
       byteSize,
-    });
+    }));
   };
 
   // Toggle Page Selection
@@ -539,14 +327,14 @@ export default function LlmsTxtGeneratorPage() {
     }
   };
 
-  // Download File Handler
-  const handleDownloadFile = () => {
+  // Download File Handler via Backend API / Blob
+  const handleDownloadFile = async () => {
     if (!generatedResult) return;
     const blob = new Blob([generatedResult.content], { type: 'text/plain;charset=utf-8' });
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = blobUrl;
-    link.download = 'llms.txt';
+    link.download = generatedResult.filename || 'llms.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -564,7 +352,7 @@ export default function LlmsTxtGeneratorPage() {
     setIsProcessing(false);
     setStatusMessage('');
     setError(null);
-    setCorsNotice(null);
+    setWarnings([]);
     setShowXmlFallback(false);
     setExtractedPages([]);
     setGeneratedResult(null);
@@ -575,8 +363,8 @@ export default function LlmsTxtGeneratorPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-16 space-y-8 relative">
         {/* Top Navigation Bar */}
         <div className="flex items-center justify-between mb-2">
-          <Link 
-            href="/tools" 
+          <Link
+            href="/tools"
             className="px-4 py-1.5 rounded-full bg-white dark:bg-[#141b27] border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-bold tracking-wider text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all uppercase inline-flex items-center gap-1.5 shadow-xs hover:shadow-sm"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
@@ -603,9 +391,9 @@ export default function LlmsTxtGeneratorPage() {
 
         {/* Main Card Container */}
         <div className="bg-white dark:bg-[#141b27] rounded-3xl border border-slate-200/80 dark:border-slate-700/80 shadow-xl shadow-slate-200/40 dark:shadow-black/40 p-6 sm:p-10 mb-12">
-          
+
           <form onSubmit={handleProcessInputs} className="space-y-8">
-            
+
             {/* INPUT METHOD 1: Sitemap URL */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -784,19 +572,33 @@ export default function LlmsTxtGeneratorPage() {
             </div>
           </form>
 
-          {/* CORS WARNING NOTICE */}
-          {corsNotice && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 text-amber-800 dark:text-amber-300 text-xs sm:text-sm"
-            >
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-              <div>
-                <p className="font-bold">CORS / Fetch Notice</p>
-                <p className="mt-0.5 leading-relaxed">{corsNotice}</p>
-              </div>
-            </motion.div>
+          {/* WARNING NOTICES */}
+          {/* WARNING NOTICES (Collapsible Toggle) */}
+          {warnings.length > 0 && (
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setShowWarnings(!showWarnings)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-semibold hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all cursor-pointer"
+              >
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{showWarnings ? 'Hide Crawling Notes' : `View Crawling Notes & Warnings (${warnings.length})`}</span>
+              </button>
+
+              {showWarnings && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-xs space-y-1"
+                >
+                  <ul className="list-disc list-inside space-y-1 pl-1 text-xs opacity-90 font-mono">
+                    {warnings.map((w, idx) => (
+                      <li key={idx}>{w}</li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </div>
           )}
 
           {/* ERROR ALERT */}
@@ -831,7 +633,7 @@ export default function LlmsTxtGeneratorPage() {
                   </span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Choose which pages to include in your llms.txt index. You can also edit titles or descriptions.
+                  Choose which pages to include in your llms.txt index.
                 </p>
               </div>
 
@@ -1017,9 +819,9 @@ export default function LlmsTxtGeneratorPage() {
             <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-black text-slate-900 dark:text-white text-sm">100% Browser Processing</h3>
+            <h3 className="font-black text-slate-900 dark:text-white text-sm">Fast Server Processing</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              All URL validation, sitemap parsing, and markdown generation happens entirely inside your browser. No data is stored.
+              All URL validation, sitemap parsing, and markdown generation happens fast and securely on our shared microservice backend.
             </p>
           </div>
 

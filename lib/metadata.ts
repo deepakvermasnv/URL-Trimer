@@ -50,6 +50,11 @@ export const SEO_METADATA = {
     title: 'Free Online XML Sitemap Generator for Your Website',
     description: "Generate an XML sitemap for your website with URLTrim. Help search engines find your important pages and improve crawling. Create your sitemap for free today!",
   },
+  llmsTxtGenerator: {
+    canonical: '/llms-txt-generator',
+    title: 'Free LLMs.txt Generator — Markdown Index for AI | URL Trim',
+    description: 'Generate a clean llms.txt markdown file for your website. Help AI crawlers and LLMs discover your key pages with automated sitemap parsing.',
+  },
   xmlSitemapGenerator: {
     canonical: '/tools/sitemap-generator',
     title: 'Free Online XML Sitemap Generator for Your Website',

@@ -21,6 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/tools/text-to-image',
     '/tools/chrome-extension',
     '/tools/sitemap-generator',
+    '/llms-txt-generator',
+    '/tools/llms-txt-generator',
     '/blog/physics-of-zero-server-link-cleaning',
     '/blog/mastering-bulk-url-trimming-seo-best-practices',
     '/blog/link-protocol-v1-4-0-release-notes',
